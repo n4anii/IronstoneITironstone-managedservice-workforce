@@ -47,7 +47,11 @@ Try {
       else {
         Write-Output -InputObject ('Timespan is outside the allowed range of one day. Timespan is [{0}].' -f $HumanTimespan)
       }
-    } 
+    }
+    else
+    {
+       Write-Output -InputObject ('Culture is [{0}], exiting.' -f $CurrentCulture)
+    }
   }
   else 
   {
@@ -56,7 +60,7 @@ Try {
 }
 Catch {
   # Construct Message
-  $ErrorMessage = 'Unable to uninstall all apps'
+  $ErrorMessage = 'Unable to set users culture to 1044'
   $ErrorMessage += " `n"
   $ErrorMessage += 'Exception: '
   $ErrorMessage += $_.Exception

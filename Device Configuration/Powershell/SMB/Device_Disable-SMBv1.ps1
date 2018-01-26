@@ -1,16 +1,17 @@
 <#
 
 .SYNOPSIS
-Removes all specified pre-installed appxprovisionedpackages from the device.
+Disables SMBv1
 
 .DESCRIPTION
-Removes all specified pre-installed appxprovisionedpackages from the device. This script MUST be deployed together with User_Uninstall-Bloatware.ps1, else the apps won't be removed from the user profile.
+Disables SMBv1 on the device. Requires a restart.
 
 .NOTES
 You need to run this script in the DEVICE context in Intune.
 
 #>
-$AppName = 'Device_Uninstall_Bloatware'
+
+$AppName = 'Device_Disable-SMBv1'
 $Timestamp = Get-Date -Format 'HHmmssffff'
 $LogDirectory = ('{0}\IronstoneIT\Intune\DeviceConfiguration' -f $env:ProgramFiles)
 $Transcriptname = ('{2}\{0}_{1}.txt' -f $AppName, $Timestamp, $LogDirectory)
@@ -66,40 +67,13 @@ Try {
  
  
     #Remove bloatware
-    $Installdate = [timezone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970').AddSeconds($(get-itemproperty -Path 'HKLM:\Software\Microsoft\Windows NT\CurrentVersion').InstallDate))
-    $CurrentDate = Get-date 
-    $Timespan = New-Timespan -Start $Installdate -End $CurrentDate
-    [string]$HumanTimespan = ('Days: {0}. Hours: {1}' -f $Timespan.days, $Timespan.hours)
-    
-    if ($timespan.days -lt 1) {
-        #Remove bloatware	
-        $AppsToRemove = @(
-          'Microsoft.Messaging',
-          'Microsoft.Office.OneNote',
-          'Microsoft.People',
-          'Microsoft.SkypeApp',
-          'Microsoft.windowscommunicationsapps'
-        )
-
-        #There is no better way to do this
-        Foreach ($app in $appsToRemove) {
-          $PackageName = Get-AppxProvisionedPackage -Online | Where-Object {$_.displayname -eq $app} | Select-Object -expandproperty PackageName
-          if ($PackageName) {
-            Write-Output -InputObject ('Removing AppxProvisionedPackage [{1}] with the appname [{0}].' -f $app, $PackageName)
-            Remove-AppxProvisionedPackage -PackageName	$PackageName -Online -allusers
-          }
-          else {
-            Write-Output -InputObject ('AppxProvisionedPackage [{0}] is not installed.' -f $app)
-          }
-        }
-    }
-    else {
-        Write-Output -InputObject ('Timespan is outside the allowed range of one day. Timespan is [{0}].' -f $HumanTimespan)
-    }
+    Write-Output -InputObject 'Disabling [smb1protocol].'
+    Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol
+    Write-Output -InputObject '[smb1protocol] is disabled.'
 }
 Catch {
   # Construct Message
-  $ErrorMessage = 'Unable to uninstall all AppxProvisionedPackages.'
+  $ErrorMessage = 'Unable to disable smb1protocol.'
   $ErrorMessage += " `n"
   $ErrorMessage += 'Exception: '
   $ErrorMessage += $_.Exception

@@ -30,7 +30,7 @@ Try {
 }
 Catch {
 	# Construct Message
-	$ErrorMessage = 'Unable to uninstall all apps'
+	$ErrorMessage = 'Unable to change powercfg configuration'
 	$ErrorMessage += " `n"
 	$ErrorMessage += 'Exception: '
 	$ErrorMessage += $_.Exception

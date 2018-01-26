@@ -53,7 +53,7 @@ Try {
 }
 Catch {
     # Construct Message
-    $ErrorMessage = 'Unable to uninstall all apps'
+    $ErrorMessage = 'Unable to uninstall all AppxPackages.'
     $ErrorMessage += " `n"
     $ErrorMessage += 'Exception: '
     $ErrorMessage += $_.Exception
