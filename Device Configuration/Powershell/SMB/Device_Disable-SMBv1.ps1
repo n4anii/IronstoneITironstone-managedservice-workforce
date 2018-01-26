@@ -13,7 +13,7 @@ You need to run this script in the DEVICE context in Intune.
 
 $AppName = 'Device_Disable-SMBv1'
 $Timestamp = Get-Date -Format 'HHmmssffff'
-$LogDirectory = ('{0}\IronstoneIT\Intune\DeviceConfiguration' -f $env:ProgramFiles)
+$LogDirectory = ('{0}\Program Files\IronstoneIT\Intune\DeviceConfiguration' -f $env:SystemDrive)
 $Transcriptname = ('{2}\{0}_{1}.txt' -f $AppName, $Timestamp, $LogDirectory)
 $ErrorActionPreference = 'continue'
 
