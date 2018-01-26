@@ -1,15 +1,18 @@
 <#
 
 .SYNOPSIS
-Removes all specified pre-installed appxprovisionedpackages from the device.
+
 
 .DESCRIPTION
-Removes all specified pre-installed appxprovisionedpackages from the device. This script MUST be deployed together with User_Uninstall-Bloatware.ps1, else the apps won't be removed from the user profile.
+
 
 .NOTES
 You need to run this script in the DEVICE context in Intune.
 
 #>
+
+
+#Change the app name
 $AppName = 'Device_Uninstall_Bloatware'
 $Timestamp = Get-Date -Format 'HHmmssffff'
 $LogDirectory = ('{0}\Program Files\IronstoneIT\Intune\DeviceConfiguration' -f $env:SystemDrive)
@@ -65,37 +68,13 @@ Try {
   }
  
  
-    #Remove bloatware
-    $Installdate = [timezone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970').AddSeconds($(get-itemproperty -Path 'HKLM:\Software\Microsoft\Windows NT\CurrentVersion').InstallDate))
-    $CurrentDate = Get-date 
-    $Timespan = New-Timespan -Start $Installdate -End $CurrentDate
-    [string]$HumanTimespan = ('Days: {0}. Hours: {1}' -f $Timespan.days, $Timespan.hours)
+ 
+ #
+ #Your code goes here!
+ #
+ 
+ 
     
-    if ($timespan.days -lt 1) {
-        #Remove bloatware	
-        $AppsToRemove = @(
-          'Microsoft.Messaging',
-          'Microsoft.Office.OneNote',
-          'Microsoft.People',
-          'Microsoft.SkypeApp',
-          'Microsoft.windowscommunicationsapps'
-        )
-
-        #There is no better way to do this
-        Foreach ($app in $appsToRemove) {
-          $PackageName = Get-AppxProvisionedPackage -Online | Where-Object {$_.displayname -eq $app} | Select-Object -expandproperty PackageName
-          if ($PackageName) {
-            Write-Output -InputObject ('Removing AppxProvisionedPackage [{1}] with the appname [{0}].' -f $app, $PackageName)
-            Remove-AppxProvisionedPackage -PackageName	$PackageName -Online -allusers
-          }
-          else {
-            Write-Output -InputObject ('AppxProvisionedPackage [{0}] is not installed.' -f $app)
-          }
-        }
-    }
-    else {
-        Write-Output -InputObject ('Timespan is outside the allowed range of one day. Timespan is [{0}].' -f $HumanTimespan)
-    }
 }
 Catch {
   # Construct Message
