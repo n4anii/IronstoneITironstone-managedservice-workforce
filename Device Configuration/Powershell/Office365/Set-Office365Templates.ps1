@@ -151,7 +151,7 @@ $timeStart = Get-Date
 $exitFlag = $false 
 
 do {
-    sleep -milliseconds 500
+    Start-Sleep -milliseconds 500
     $ie2 = (New-Object -ComObject 'Shell.Application').Windows() | Where-Object { $_.Name -eq 'Internet Explorer' -and $_.LocationURL -eq "https://www.google.no/" }
     if ( $ie2.ReadyState -eq 4 ) {
       
@@ -164,7 +164,7 @@ do {
     $exitFlag = $elementMatch -or $timeout
 } until ( $exitFlag )
 
-sleep -Seconds 2
+    Start-Sleep -Seconds 2
 $elementText | out-file c:\temp\body_google.txt
 Write-Customlog -message "Match element found: $($elementMatch)"  -logname $LogLocationFullName
 Write-Customlog -message "Timeout: $($timeout)"  -logname $LogLocationFullName
@@ -188,7 +188,7 @@ $timeout = $null
 $exitFlag = $false
 $elementMatch = $false
 do {
-    sleep -milliseconds 500
+        Start-Sleep -milliseconds 500
     $ie3 = (New-Object -ComObject 'Shell.Application').Windows() | Where-Object { $_.Name -eq 'Internet Explorer' -and $_.LocationURL -match $siteurl}
 	 Write-Customlog -message "IE3 object: $($ie3.LocationURL)" -logname $LogLocationFullName
     if ( $ie3.ReadyState -eq 4 ) {
