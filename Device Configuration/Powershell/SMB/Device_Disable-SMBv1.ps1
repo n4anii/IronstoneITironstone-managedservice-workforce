@@ -68,8 +68,14 @@ Try {
  
     #Remove bloatware
     Write-Output -InputObject 'Disabling [smb1protocol].'
-    Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol
-    Write-Output -InputObject '[smb1protocol] is disabled.'
+    $FeatureState = Get-WindowsOptionalFeature -Online -FeatureName smb1protocol
+    if ($FeatureState.State -ne 'Disabled') {
+        $Null = Disable-WindowsOptionalFeature -Online -FeatureName smb1protocol -NoRestart
+        Write-Output -InputObject '[smb1protocol] is disabled.'
+    }
+    else {
+        Write-Output -InputObject '[smb1protocol] is already disabled.'
+    }
 }
 Catch {
     # Construct Message
