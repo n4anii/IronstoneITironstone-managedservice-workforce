@@ -68,81 +68,9 @@ Try {
     $RegistryPathIntranet = 'HKCU:\SOFTWARE\IronstoneIT\Intune\DeviceConfiguration'
     #Office 365 registry paths. Used to set personaltemplates 
     [array]$RegistryPathsOffice = 'HKCU:\Software\Microsoft\Office\16.0\Excel\Options', 'HKCU:\Software\Microsoft\Office\16.0\Word\Options,', 'HKCU:\Software\Microsoft\Office\16.0\PowerPoint\Options'
+    #Comnputer registry path
+    $ComputerRegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains"
 
-	
-
-    #region Functions
-    function Add-SiteToIEZone {
-        Param(
-            [String]$siteUrl
-        )
-    
-        try {
-            Write-Output -InputObject "Siteurl: $siteurl"
-            $components = $siteUrl.Split('.')  
-            write-output "Components [$components]"
-            $count = $components.Count
-            if ($count -gt 3) {
-                $old = $components
-                $components = @()
-                $subDomainString = ''
-                for ($i = 0; $i -le $count - 3; $i++) {
-                    if ($i -lt $count - 3) {$subDomainString += ('{0}.' -f ($old[$i]))}else {$subDomainString += ('{0}' -f ($old[$i]))}
-                }
-                $components += $subDomainString
-                $components += $old[$count - 2]
-                $components += $old[$count - 1]    
-            }
-            if ($count -gt 2) {
-                Write-Output    "Count is greater than 2"
-                if (!(Test-path -Path ('hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}' -f ($components[1]), ($components[2])))) {
-                    New-Item -Path ('hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}' -f ($components[1]), ($components[2])) -ErrorAction Stop 
-                    Write-Output -InputObject ('Created item [hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}].' -f ($components[1]), ($components[2]))
-                }
-                else {
-                    Write-Output -InputObject ('DID NOT Created item [hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}].' -f ($components[1]), ($components[2]))
-                }
-                if (!(test-path -Path ('hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}\{2}' -f ($components[1]), ($components[2]), ($components[0])))) {
-                    New-Item -Path ('hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}\{2}' -f ($components[1]), ($components[2]), ($components[0])) -ErrorAction SilentlyContinue
-                    Write-Output -InputObject ('Created item [hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}\{2}].' -f ($components[1]), ($components[2]), ($components[0]))
-                }
-                else {
-                    Write-Output -InputObject ('DID NOT Created item [hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}\{2}].' -f ($components[1]), ($components[2]), ($components[0]))
-                }
-                if (!(test-path -Path ('hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}\{2}' -f ($components[1]), ($components[2]), ($components[0])))) {
-                    New-ItemProperty -Path ('hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}\{2}' -f ($components[1]), ($components[2]), ($components[0])) -Name 'https' -Value 2 -ErrorAction Stop
-                    Write-Output -InputObject ('Created itemproperty named https at [hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}\{2}]' -f ($components[1]), ($components[2]), ($components[0]))
-                }
-                else {
-                    Write-Output -InputObject ('DID NOT Created itemproperty named https at [hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}\{2}]' -f ($components[1]), ($components[2]), ($components[0]))
-                }
-          
-            }
-            else {
-                Write-Output -InputObject "Inside else"                
-                if (!(test-path -Path ('hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}' -f ($components[0]), ($components[1])))) {
-                    New-Item -Path ('hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}' -f ($components[0]), ($components[1])) -ErrorAction SilentlyContinue
-                    Write-Output -InputObject ('Created item [hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}].' -f ($components[0]), ($components[1]))
-                }
-                else {
-                    Write-Output -InputObject ('DID NOT Created item [hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}].' -f ($components[0]), ($components[1]))
-                }
-                if (!(test-path -Path ('hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}' -f ($components[0]), ($components[1])))) {
-                    New-ItemProperty -Path ('hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}' -f ($components[0]), ($components[1])) -Name 'https' -Value 2 -ErrorAction Stop
-                    Write-Output -InputObject ('Created itemproperty named https at [hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}]' -f ($components[0]), ($components[1]))
-                }
-                else {
-                    Write-Output -InputObject ('DID NOT Created itemproperty named https at [hkcu:\software\microsoft\windows\currentversion\internet settings\zonemap\domains\{0}.{1}]' -f ($components[0]), ($components[1]))
-                }
-            }
-     
-        }
-        catch {
-            Return $_
-        }
-        return $True
-    }
-    #endregion functions
    
     #Foreach of the sharepoint intranet zones we have to set
     $BrowseSitesWithIE = $false
@@ -153,8 +81,15 @@ Try {
         $IntraNetZoneRegistryName = ('IntranetBrowsedWithIE_{0}' -f $IntraNetZoneName)        
         if (!(Test-Path -Path ('{0}\{1}' -f $RegistryPathIntranet, $IntraNetZoneRegistryName))) {
             Write-Output -InputObject ('Configuring IE Zone [{0}].' -f $IntraNetZoneName)
-            Add-SiteToIEZone -siteUrl $IntraNetZoneName
-            $BrowseSitesWithIE = $true
+            
+            [string]$PrimaryDomain = $IntranetZone.Split('.')[1..10] -join '.'
+            [string]$SubDomain = $IntranetZone.Split('.')[0]
+            $null = New-Item -Path "$ComputerRegPath" -ItemType File -Name "$PrimaryDomain" -ErrorAction SilentlyContinue
+            $null = New-Item -Path "$ComputerRegPath\$PrimaryDomain" -ItemType File -Name "$TrustedSite$SubDomain" -ErrorAction SilentlyContinue
+            $null = New-ItemProperty -Path "$ComputerRegPath\$PrimaryDomain\$TrustedSite$SubDomain" -Name "http" -Value 2 -ErrorAction SilentlyContinue
+            $null = New-ItemProperty -Path "$ComputerRegPath\$PrimaryDomain\$TrustedSite$SubDomain" -Name "https" -Value 2 -ErrorAction SilentlyContinue 
+            $BrowseSitesWithIE = $true 
+
         }
         else {
             Write-Output -InputObject ('IE Zone [{0}] already set.' -f $IntraNetZoneName)
@@ -183,18 +118,23 @@ Try {
                 if ( $elementMatch ) { 
                     $loadTime = (Get-Date).subtract($timeStart) 
                     Start-sleep -milliseconds 100
+                    Write-Output -InputObject ('Site [{1}] Readystate [{0}] and element matched.' -f $ie2.ReadyState, $FirstSiteURL)
                 }
+                else {
+                    Write-Output -InputObject ('Site [{1}] Readystate [{0}] but no element match.' -f $ie2.ReadyState, $FirstSiteURL)
+                }
+            } 
+            else {
+                Write-Output -InputObject ('Site [{1}] Readystate [{0}].' -f $ie2.ReadyState, $FirstSiteURL)
             }
-    
-            Write-Output -InputObject ('Site [{1}] Readystate [{0}].' -f $ie2.ReadyState, $FirstSiteURL)
-    
+     
             $timeout = ((Get-Date).subtract($timeStart)).TotalMilliseconds -gt $timeoutMilliseconds
             $exitFlag = $elementMatch -or $timeout
         } until ( $exitFlag )
-
+        $elementText | out-file -FilePath $LogDirectory\google.txt
         Write-Output -InputObject ('Match element [{0}]' -f ($FirstSiteelementMatchText)) 
         Write-Output -InputObject ('Timeout [{0}]' -f ($timeout)) 
-        Write-Output -InputObject ('Load Time [{0}]' -f ($loadTime)) 
+        Write-Output -InputObject ('Load Time [{0}]' -f ($loadTime))  
 
 
 
@@ -222,13 +162,24 @@ Try {
       
                 $elementText = $ie3.document.body.outerHTML
                 $elementMatch = $elementText -match $SecondSiteelementMatchText
-                if ( $elementMatch ) { $loadTime = (Get-Date).subtract($timeStart) }
+
+                if ( $elementMatch ) { 
+                    $loadTime = (Get-Date).subtract($timeStart) 
+                    Start-sleep -milliseconds 100
+                    Write-Output -InputObject ('Site [{1}] Readystate [{0}] and element matched.' -f $ie3.ReadyState, $SecondSiteURL)
+                }
+                else {
+                    Write-Output -InputObject ('Site [{1}] Readystate [{0}] but no element match.' -f $ie3.ReadyState, $SecondSiteURL)
+                }
+            } 
+            else {
+                Write-Output -InputObject ('Site [{1}] Readystate [{0}].' -f $ie3.ReadyState, $SecondSiteURL)
             }
-            Write-Output -InputObject ('Site [{1}] Readystate [{0}].' -f $ie2.ReadyState, $SecondSiteURL)
+
             $timeout = ((Get-Date).subtract($timeStart)).TotalMilliseconds -gt $timeoutMilliseconds
             $exitFlag = $elementMatch -or $timeout
         } until ( $exitFlag )
-  
+        $elementText | out-file -FilePath $LogDirectory\metier.txt
         Write-Output -InputObject ('Match element [{0}]' -f ($SecondSiteelementMatchText)) 
         Write-Output -InputObject ('Timeout [{0}]' -f ($timeout)) 
         Write-Output -InputObject ('Load Time [{0}]' -f ($loadTime)) 
@@ -248,8 +199,7 @@ Try {
         #Add registry paths for the sites, so we don't have to reopen Ie in the future
         if (!(test-path -Path $RegistryPathIntranet)) {
             Write-Output -InputObject ('Creating registry key [{0}].' -f $RegistryPathIntranet)
-            $Null = New-Item -Path $RegistryPathIntranet -force
-            
+            $Null = New-Item -Path $RegistryPathIntranet -force 
         }
         else {
             Write-Output -InputObject ('Registry key [{0}] already set.' -f $RegistryPathIntranet)
@@ -268,8 +218,6 @@ Try {
                 Write-Output -InputObject (' Registry key [{0}] already set.' -f $IntraNetZoneName)
             }
         }
-
-
     }
     else {
         Write-Output -InputObject ('Intranet sites already opened in IE.')
@@ -277,19 +225,25 @@ Try {
 
 
     #Map drive and get drive letter  
-    $WebdavURl = $SecondSiteURL -replace 'https://', '\\' -replace '/', '\' -replace '.com', '.com@SSL\DavWWWRoot'
+    $WebdavURl = $SecondSiteURL -replace 'www.', '' -replace 'https://', '\\' -replace '/', '\' -replace '.com', '.com@SSL\DavWWWRoot'
     $Psdrive = Get-PSDrive -name ($DriveLetter -replace ':', '') -ErrorAction SilentlyContinue
-    if ($Psdrive | where-object {$_.DisplayRoot -eq $WebdavURl} ) {
+    $MapDrive = $true
+    if ($Psdrive.DisplayRoot -eq $WebdavURl) {
         Write-Output -InputObject ('[{0}] is already mapped against driveletter [{1}]' -f $SecondSiteURL, $DriveLetter)
+        $MapDrive = $false
     }
-    elseif ($Psdrive) {
+    elseif ($Psdrive.DisplayRoot -ne $WebdavURl) {
         Write-Output -InputObject ('Driveletter [{1}] is already mapped against [{1}] deleting driveletter befor mapping against correct site .' -f $SecondSiteURL, $Psdrive.DisplayRoot)
         try {$del = & "$env:windir\system32\net.exe" USE $DriveLetter /DELETE /Y 2>&1}catch {$Null}
-        if (Get-PSDrive -name ($DriveLetter -replace ':', '')) {
+        $Drive = Get-PSDrive -name ($DriveLetter -replace ':', '') -ErrorAction SilentlyContinue
+        if ($Drive) {
             Write-error -Exception ('failed to delete drive [{0}]. Error [{1}] Exiting' -f $DriveLetter, $del) -ErrorAction Stop
         }
+        else {
+            Write-Output -InputObject "Successfully deleted drive"
+        }
     }
-    Else {
+    if ($MapDrive) {
         Write-Output -InputObject ('Mapping siteurl [{0}] against driveletter [{1}]' -f $SecondSiteURL, $DriveLetter)   
         try {$out = & "$env:windir\system32\net.exe" USE $DriveLetter $SecondSiteURL /PERSISTENT:YES 2>&1}catch {$Null}
         Write-Output -InputObject ('Last exitcode {0}' -f ($LASTEXITCODE)) 
@@ -326,7 +280,7 @@ Try {
         }
     }
 	
-    Write-Output -InputObject 'Completed, exiting.'
+    Write-Output -InputObject 'Completed successfully.'
 }
 Catch {
     # Construct Message
