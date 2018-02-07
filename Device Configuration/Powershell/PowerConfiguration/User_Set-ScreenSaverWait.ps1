@@ -64,6 +64,7 @@ public static extern bool SystemParametersInfo(int uAction, int uParam, ref int 
             [Int32]$nullVar = 0
             $systemParamInfo::SystemParametersInfo(15, $seconds, [REF]$nullVar, 2)
         }
+         Write-Output -InputObject 'Setting screensaver to 15 min'
         $Out = Set-ScreenSaverTimeout 15
         if ($out) {
             Write-Output -InputObject ('Creating registry path {0} key {1}' -f $RegistryPath, $RegistryKey)
