@@ -14,6 +14,8 @@ $AppName = 'Device_Uninstall_Bloatware'
 $Timestamp = Get-Date -Format 'HHmmssffff'
 $LogDirectory = ('{0}\Program Files\IronstoneIT\Intune\DeviceConfiguration' -f $env:SystemDrive)
 $Transcriptname = ('{2}\{0}_{1}.txt' -f $AppName, $Timestamp, $LogDirectory)
+$RegistryPath = 'HKLM:\SOFTWARE\IronstoneIT\Intune\DeviceConfiguration'
+$RegistryKey = 'DeviceUninstallBloatware'
 $ErrorActionPreference = 'continue'
 
 if (!(Test-Path -Path $LogDirectory)) {
@@ -64,15 +66,7 @@ Try {
         exit $lastexitcode
     }
  
- 
-    #Remove bloatware
-    $Installdate = [timezone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970').AddSeconds($(get-itemproperty -Path 'HKLM:\Software\Microsoft\Windows NT\CurrentVersion').InstallDate))
-    $CurrentDate = Get-date 
-    $Timespan = New-Timespan -Start $Installdate -End $CurrentDate
-    [string]$HumanTimespan = ('Days: {0}. Hours: {1}' -f $Timespan.days, $Timespan.hours)
-    
-    if ($timespan.days -lt 1) {
-        #Remove bloatware	
+    if (!(Test-Path -Path ('{0}\{1}' -f $RegistryPath, $RegistryKey))) {
         $AppsToRemove = @(
             'Microsoft.Messaging',
             'Microsoft.Office.OneNote',
@@ -92,9 +86,11 @@ Try {
                 Write-Output -InputObject ('AppxProvisionedPackage [{0}] is not installed.' -f $app)
             }
         }
+        Write-Output -InputObject ('Creating registry path {0} key {1}' -f $RegistryPath, $RegistryKey)
+        $null = New-Item -Path ('{0}\{1}' -f $RegistryPath, $RegistryKey) -force
     }
     else {
-        Write-Output -InputObject ('Timespan is outside the allowed range of one day. Timespan is [{0}].' -f $HumanTimespan)
+        Write-Output -InputObject ('Registry {0} already set' -f $RegistryKey)
     }
 }
 Catch {

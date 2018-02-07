@@ -1,0 +1,14 @@
+<Configuration>
+    <Add OfficeClientEdition="64" Channel="Monthly">
+        <Product ID="O365ProPlusRetail">
+            <Language ID="nb-no"/>
+            <Language ID="en-us"/>
+            <ExcludeApp ID="Access"/>
+            <ExcludeApp ID="Groove"/>
+            <ExcludeApp ID="Publisher"/>
+        </Product>
+    </Add>
+    <Updates Enabled="TRUE" Channel="Broad"/>
+    <Display Level="Full" AcceptEULA="TRUE"/>
+    <Logging Level="Standard" Path="C:\Program Files\IronstoneIT\"/>
+</Configuration>

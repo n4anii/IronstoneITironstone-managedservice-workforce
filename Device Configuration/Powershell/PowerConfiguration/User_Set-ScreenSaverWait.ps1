@@ -15,7 +15,7 @@ $Timestamp = Get-Date -Format 'HHmmssffff'
 $LogDirectory = ('{0}\IronstoneIT\Intune\DeviceConfiguration' -f $env:APPData)
 $Transcriptname = ('{2}\{0}_{1}.txt' -f $AppName, $Timestamp, $LogDirectory)
 $RegistryPath = 'HKCU:\SOFTWARE\IronstoneIT\Intune\DeviceConfiguration'
-$RegistryKey = 'ConfigureScreenSaverWait'
+$RegistryKey = 'UserConfigureScreenSaverWait'
 $ErrorActionPreference = 'continue'
 
 if (!(Test-Path -Path $LogDirectory)) {
@@ -66,7 +66,7 @@ public static extern bool SystemParametersInfo(int uAction, int uParam, ref int 
         }
         $Out = Set-ScreenSaverTimeout 15
         if ($out) {
-            Write-Output -InputObject 'Successfully SatScreenSaverWait'
+            Write-Output -InputObject ('Creating registry path {0} key {1}' -f $RegistryPath, $RegistryKey)
             $null = New-Item -Path ('{0}\{1}' -f $RegistryPath, $RegistryKey) -force
         }
         else {
@@ -74,10 +74,8 @@ public static extern bool SystemParametersInfo(int uAction, int uParam, ref int 
         }      
     }
     else {
-        Write-Output -InputObject 'ScreenSaverWait already sat'
+        Write-Output -InputObject ('Registry {0} already set' -f $RegistryKey)
     }
-
-
 
 }
 Catch {

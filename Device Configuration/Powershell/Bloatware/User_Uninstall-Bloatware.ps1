@@ -14,6 +14,8 @@ $AppName = 'User_Uninstall_Bloatware'
 $Timestamp = Get-Date -Format 'HHmmssffff'
 $LogDirectory = ('{0}\IronstoneIT\Intune\DeviceConfiguration' -f $env:APPData)
 $Transcriptname = ('{2}\{0}_{1}.txt' -f $AppName, $Timestamp, $LogDirectory)
+$RegistryPath = 'HKCU:\SOFTWARE\IronstoneIT\Intune\DeviceConfiguration'
+$RegistryKey = 'UserUninstallBloatware'
 $ErrorActionPreference = 'continue'
 
 if (!(Test-Path -Path $LogDirectory)) {
@@ -35,21 +37,18 @@ Try {
         exit $lastexitcode
     }
 
-    #Remove bloatware
-    $Installdate = [timezone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970').AddSeconds($(get-itemproperty -Path 'HKLM:\Software\Microsoft\Windows NT\CurrentVersion').InstallDate))
-    $CurrentDate = Get-date 
-    $Timespan = New-Timespan -Start $Installdate -End $CurrentDate
-    [string]$HumanTimespan = ('Days: {0}. Hours: {1}' -f $Timespan.days, $Timespan.hours)
-    
-    if ($timespan.days -lt 1) {
+    if (!(Test-Path -Path ('{0}\{1}' -f $RegistryPath, $RegistryKey))) {
         $BloatWares = '*D5EA27B7.Duolingo-LearnLanguagesforFree*', '*Microsoft.BingNews*', '*46928bounde.EclipseManager*', 'Microsoft.Office.OneNote', '*Minecraft*', '*DrawboardPDF*', '*FarmVille2CountryEscape*', '*Asphalt8Airborne*', '*PandoraMediaInc*', '*CandyCrushSodaSaga*', '*MicrosoftSolitaireCollection*', '*Twitter*', '*bingsports*', '*bingfinance*', '*BingNews*', '*windowsphone*', '*Netflix*', '*ZuneVideo*', '*Facebook*', '*Microsoft.SkypeApp', '*ZuneMusic*', '*Microsoft.MinecraftUWP*,*OneNote*', '*MarchofEmpires*', '*RoyalRevolt2*', '*AdobePhotoshopExpress*', '*ActiproSoftwareLLC*', '*Duolingo-LearnLanguagesforFree*', '*EclipseManager*', '*KeeperSecurityInc.Keeper*', '*king.com.BubbleWitch3Sag*', '*89006A2E.AutodeskSketchBook*', '*CAF9E577.Plex*'
         Foreach ($BloatWare in $BloatWares) {
             Write-Output -InputObject ('Removing AppxPackage [{0}].' -f $BloatWare)
             Get-AppxPackage -Name $bloatware | Remove-AppxPackage
+		 
         }
+        Write-Output -InputObject ('Creating registry path {0} key {1}' -f $RegistryPath, $RegistryKey)
+        $null = New-Item -Path ('{0}\{1}' -f $RegistryPath, $RegistryKey) -force
     }
     else {
-        Write-Output -InputObject ('Timespan is outside the allowed range of one day. Timespan is [{0}].' -f $HumanTimespan)
+        Write-Output -InputObject ('Registry {0} already set' -f $RegistryKey)
     }
 }
 Catch {
