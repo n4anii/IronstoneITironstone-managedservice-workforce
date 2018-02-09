@@ -51,11 +51,11 @@ Try {
     #Text element inside the first site to match against. this way, we know we have loaded the site correctly. 
     $FirstSiteelementMatchText = 'Google'
     #Name of the root Sharepoint site of the customer
-    $TrustedSite = 'metiero365'
+    $TrustedSite = 'ironstoneit'
     #Second webpage to load. This is normally the customers sharepoint site where the office 365 templates are located
-    $SharepointSite = 'metiero365.sharepoint.com/sites/MetierOECIntranet/Maler'
+    $SharepointSite = 'ironstoneit.sharepoint.com/Office365%20Templates'
     #Text element inside the second site to match against. this way, we know we have loaded the site correctly.
-    $SecondSiteelementMatchText = 'Metier OEC Intranet'
+    $SecondSiteelementMatchText = 'Office365 Templates'
 
     #Do not alter
     #URL to open for the second time
