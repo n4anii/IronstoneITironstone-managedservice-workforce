@@ -4,9 +4,11 @@
 
 .DESCRIPTION
     Deletes registry keys, if they exists and $WriteChanges = $true
+    Script to completely remove CommercialID and AllowTelemetry from all known locations in registry.
 
 .NOTES
-You need to run this script in the DEVICE context in Intune.
+    You need to run this script in the DEVICE context in Intune.
+    This script is generic, no custom per customer values needed.
 #>
 
 
@@ -171,17 +173,3 @@ Catch {
 Finally {
     Stop-Transcript
 }
-
-
-
-<#
-.SYNAPSIS
-    Deletes registry keys
-
-.DESCRIPTION
-    Deletes registry keys, if they exists and $WriteChanges = $true
-
-
-PowerShell 5.1 CMDLets
-- Remove-ItemProperty https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/remove-itemproperty?view=powershell-5.1
-#>
