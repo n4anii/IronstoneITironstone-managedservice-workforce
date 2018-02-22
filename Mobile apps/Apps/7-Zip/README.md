@@ -1,6 +1,6 @@
 # 7-Zip
-##Link to latest MSI:
-(7-Zip latest MSI (Use x64))[http://7-zip.org/download.html]
+## Link to latest MSI:
+[7-Zip latest MSI (Use x64)](http://7-zip.org/download.html)
 
 
 ## Name in Intune:
