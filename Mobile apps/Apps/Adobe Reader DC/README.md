@@ -1,6 +1,6 @@
 # Adobe Reader DC
 ## Info
-Adobe only releases the first version of DC as MSI. First MSI is dates 26.03.2015.
+Adobe only releases the first version of DC as MSI. First MSI is dated 26.03.2015.
 Updates are released as .MSP, but Intune only supports MSI packages.
 Therefore, we must build MSI packages ourselves.
 
