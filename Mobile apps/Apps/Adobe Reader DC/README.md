@@ -5,6 +5,8 @@ Updates are released as .MSP, but Intune only supports MSI packages.
 Therefore, we must build MSI packages ourselves.
 
 ## Other Links
-* [Adobe Acrobat Reader - Latest EXE Files from Adobe](https://get.adobe.com/reader/enterprise)
-* [Adobe Acrobat Reader DC - FTP Server](ftp://ftp.adobe.com/pub/adobe/reader/win/AcrobatDC)
-* [Adobe Acrobat Reader DC - FTP Server - MSI of first version (20150326)](ftp://ftp.adobe.com/pub/adobe/reader/win/AcrobatDC/1500720033)
+* [Adobe Acrobat Reader - Latest EXE Files from Adobe](https://get.adobe.com/reader/enterprise/)
+* [Adobe Acrobat Reader DC - FTP Server](ftp://ftp.adobe.com/pub/adobe/reader/win/AcrobatDC/)
+  * ftp://ftp.adobe.com/pub/adobe/reader/win/AcrobatDC/
+* [Adobe Acrobat Reader DC - FTP Server - MSI of first version (20150326)](ftp://ftp.adobe.com/pub/adobe/reader/win/AcrobatDC/1500720033/)
+  * ftp://ftp.adobe.com/pub/adobe/reader/win/AcrobatDC/1500720033/
