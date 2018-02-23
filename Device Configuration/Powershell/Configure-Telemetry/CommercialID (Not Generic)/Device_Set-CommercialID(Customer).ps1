@@ -1,19 +1,20 @@
 ﻿<#
 
 .SYNOPSIS
-    Sets AllowTelemetry (Telemetry Level) to Full (3)
+    Sets CommercialID in registry.
 
 .DESCRIPTION
-    Sets AllowTelemetry (Telemetry Level) to Full (3)
+    Sets CommercialID in registry.
 
 .NOTES
 You need to run this script in the DEVICE context in Intune.
+Must be configured per customer! Get CommercialID from OMS -> Connected Sources.
 
 #>
 
 
 #Change the app name
-$AppName = 'Device_Set-TelemetryLevel-Full(3)'
+$AppName = 'Device_Set-CommercialID(Customer)'
 $Timestamp = Get-Date -Format 'HHmmssffff'
 $LogDirectory = ('{0}\Program Files\IronstoneIT\Intune\DeviceConfiguration' -f $env:SystemDrive)
 $Transcriptname = ('{2}\{0}_{1}.txt' -f $AppName, $Timestamp, $LogDirectory)
@@ -70,11 +71,11 @@ Try {
  
  
     ##########################################
-    [string] $Local:PathRegDir     = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection'
-    [string[]] $Local:NameRegKeys  = @('AllowTelemetry','AllowTelemetry_PolicyManager')
-    [byte]   $Local:TelemetryLevel = 3
-    foreach ($Key in $Local:NameRegKeys) {
-        Set-ItemProperty -Path $Local:PathRegDir -Name $Key -Value $Local:TelemetryLevel -Type 'DWord' -Force
+    [string]   $Local:CommercialID = ''
+    [string[]] $Local:PathRegDirs  = @('HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection','HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection')
+    [string]   $Local:NameRegKey  = @('CommercialID')    
+    foreach ($Path in $Local:PathRegDirs) {        
+        Set-ItemProperty -Path $Path -Name $Local:NameRegKey -Value $Local:CommercialID -Type 'String' -Force
     }
     ##########################################
  

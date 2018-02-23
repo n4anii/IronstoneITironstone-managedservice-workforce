@@ -13,7 +13,7 @@
 
 
 #Change the app name
-$AppName = 'Device_Remove-Registry-TelemetryCommercialID'
+$AppName = 'Device_Remove-User-AllowTelemetryAndCommercialID'
 $Timestamp = Get-Date -Format 'HHmmssffff'
 $LogDirectory = ('{0}\Program Files\IronstoneIT\Intune\DeviceConfiguration' -f $env:SystemDrive)
 $Transcriptname = ('{2}\{0}_{1}.txt' -f $AppName, $Timestamp, $LogDirectory)
@@ -84,8 +84,7 @@ Try {
         Write-Verbose -Message '### Building variables'
         #region    Static Paths
             # Static paths and items to check
-            [string[]] $Paths = @('HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection',
-                                  'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection')
+            [string[]] $Paths = @()
             [string[]] $Items = @('CommercialID','AllowTelemetry','AllowTelemetry_PolicyManager')
         #endregion Static Paths
 

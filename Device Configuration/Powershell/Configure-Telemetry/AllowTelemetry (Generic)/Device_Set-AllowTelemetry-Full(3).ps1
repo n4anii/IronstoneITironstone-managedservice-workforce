@@ -1,10 +1,10 @@
 ﻿<#
 
 .SYNOPSIS
-    Sets AllowTelemetry (Telemetry Level) to Enhanced (2)
+    Sets AllowTelemetry (Telemetry Level) to Full (3)
 
 .DESCRIPTION
-    Sets AllowTelemetry (Telemetry Level) to Enhanced (2)
+    Sets AllowTelemetry (Telemetry Level) to Full (3)
 
 .NOTES
 You need to run this script in the DEVICE context in Intune.
@@ -13,7 +13,7 @@ You need to run this script in the DEVICE context in Intune.
 
 
 #Change the app name
-$AppName = 'Device_Set-TelemetryLevel-Enhanced(2)'
+$AppName = 'Device_Set-TelemetryLevel-Full(3)'
 $Timestamp = Get-Date -Format 'HHmmssffff'
 $LogDirectory = ('{0}\Program Files\IronstoneIT\Intune\DeviceConfiguration' -f $env:SystemDrive)
 $Transcriptname = ('{2}\{0}_{1}.txt' -f $AppName, $Timestamp, $LogDirectory)
@@ -70,11 +70,13 @@ Try {
  
  
     ##########################################
-    [string] $Local:PathRegDir     = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection'
-    [string[]] $Local:NameRegKeys  = @('AllowTelemetry','AllowTelemetry_PolicyManager')
-    [byte]   $Local:TelemetryLevel = 2
-    foreach ($Key in $Local:NameRegKeys) {
-        Set-ItemProperty -Path $Local:PathRegDir -Name $Key -Value $Local:TelemetryLevel -Type 'DWord' -Force
+    [byte]   $Local:TelemetryLevel = 3
+    [string[]] $Local:PathRegDirs  = @('HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection','HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection')
+    [string[]] $Local:NameRegKeys  = @('AllowTelemetry','AllowTelemetry_PolicyManager')    
+    foreach ($Path in $Local:PathRegDirs) {
+        foreach ($Key in $Local:NameRegKeys) {
+            Set-ItemProperty -Path $Path -Name $Key -Value $Local:TelemetryLevel -Type 'DWord' -Force
+        }
     }
     ##########################################
  
