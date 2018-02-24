@@ -61,24 +61,31 @@
 
     # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
     NestedModules     = 'Authentication\Get-MSGraphAuthenticationToken.ps1',
-	'CompanyPortalBranding\CompanyPortal_Get.ps1',
-	'CompliancePolicy\CompliancePolicy_Get.ps1',
-	'DeviceConfiguration\DeviceConfiguration_Get.ps1',
-	'Generic\Get-AzureADGroupAssignment.ps1',
-	'Generic\Get-AzureADGroup.ps1',
-	'Generic\Get-DeviceConfigurationPolicyAssignment.ps1',
-	'Generic\Get-DeviceCompliancePolicyAssignment.ps1'
+    'CompanyPortalBranding\Get-IntuneBrand.ps1',
+    'CompliancePolicy\Get-DeviceCompliancePolicy.ps1',
+    'DeviceConfiguration\Get-DeviceConfigurationPolicy.ps1',
+    'Generic\Get-AzureADGroupAssignment.ps1',
+    'Generic\Get-AzureADGroup.ps1',
+    'Generic\Get-DeviceConfigurationPolicyAssignment.ps1',
+    'Generic\Get-DeviceCompliancePolicyAssignment.ps1',
+    'Generic\Get-ApplicationAssignment.ps1',
+    'Applications\Get-IntuneApplication.ps1',
+    'SoftwareUpdates\Get-SoftwareUpdatePolicy.ps1'
+    
 	
     # Functions to export from this module
     FunctionsToExport = 'Get-MSGraphAuthenticationToken',
-	'Get-IntuneBrand',
-	'Get-DeviceCompliancePolicy',
-	'Get-DeviceConfigurationPolicy',
-	'Get-DeviceCompliancePolicyAssignment',
-	'Get-AADGroup',
-	'Get-AzureADGroupAssignment',
-	'Get-DeviceConfigurationPolicyAssignment',
-	'Get-DeviceCompliancePolicyAssignment'
+    'Get-IntuneBrand',
+    'Get-DeviceCompliancePolicy',
+    'Get-DeviceConfigurationPolicy',
+    'Get-DeviceCompliancePolicyAssignment',
+    'Get-AADGroup',
+    'Get-AzureADGroupAssignment',
+    'Get-DeviceConfigurationPolicyAssignment',
+    'Get-DeviceCompliancePolicyAssignment',
+    'Get-ApplicationAssignment',
+    'Get-IntuneApplication',
+    'Get-SoftwareUpdatePolicy'
 
     # Cmdlets to export from this module
     CmdletsToExport   = @()
