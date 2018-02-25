@@ -70,7 +70,8 @@
     'Generic\Get-DeviceCompliancePolicyAssignment.ps1',
     'Generic\Get-ApplicationAssignment.ps1',
     'Applications\Get-IntuneApplication.ps1',
-    'SoftwareUpdates\Get-SoftwareUpdatePolicy.ps1'
+    'SoftwareUpdates\Get-SoftwareUpdatePolicy.ps1',
+    'EnrollmentRestrictions\Get-DeviceEnrollmentConfigurations.ps1',
     
 	
     # Functions to export from this module
@@ -85,7 +86,8 @@
     'Get-DeviceCompliancePolicyAssignment',
     'Get-ApplicationAssignment',
     'Get-IntuneApplication',
-    'Get-SoftwareUpdatePolicy'
+    'Get-SoftwareUpdatePolicy',
+    'Get-DeviceEnrollmentConfigurations',
 
     # Cmdlets to export from this module
     CmdletsToExport   = @()
