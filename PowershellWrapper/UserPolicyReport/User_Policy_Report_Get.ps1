@@ -1,14 +1,3 @@
-
-<#
- 
-.COPYRIGHT
-Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
-See LICENSE in the project root for license information.
-
-#>
-
-####################################################
- 
 function Get-AuthToken {
 
 <#
@@ -89,13 +78,13 @@ Write-Host "Checking for AzureAD module..."
 [System.Reflection.Assembly]::LoadFrom($adalforms) | Out-Null
 
 $clientId = "d1ddf0e4-d672-4dae-b554-9d5bdfd93547"
- 
+
 $redirectUri = "urn:ietf:wg:oauth:2.0:oob"
- 
+
 $resourceAppIdURI = "https://graph.microsoft.com"
- 
+
 $authority = "https://login.microsoftonline.com/$Tenant"
- 
+
     try {
 
     $authContext = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext" -ArgumentList $authority
@@ -146,7 +135,7 @@ $authority = "https://login.microsoftonline.com/$Tenant"
     }
 
 }
- 
+
 ####################################################
 
 Function Get-AADUser(){
@@ -183,7 +172,7 @@ $User_resource = "users"
         if($userPrincipalName -eq "" -or $userPrincipalName -eq $null){
         
         $uri = "https://graph.microsoft.com/$graphApiVersion/$($User_resource)"
-        (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value
+        (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value
         
         }
 
@@ -193,7 +182,7 @@ $User_resource = "users"
 
             $uri = "https://graph.microsoft.com/$graphApiVersion/$($User_resource)/$userPrincipalName"
             Write-Verbose $uri
-            Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get
+            Invoke-RestMethod -Uri $uri Headers $authToken Method Get
 
             }
 
@@ -201,7 +190,7 @@ $User_resource = "users"
 
             $uri = "https://graph.microsoft.com/$graphApiVersion/$($User_resource)/$userPrincipalName/$Property"
             Write-Verbose $uri
-            (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value
+            (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value
 
             }
 
@@ -258,7 +247,7 @@ $Resource = "users/$UserID/managedDevices"
     
     $uri = "https://graph.microsoft.com/$graphApiVersion/$($Resource)"
     Write-Verbose $uri
-    (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value
+    (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value
 
     }
 
@@ -313,14 +302,14 @@ $Group_resource = "groups"
         if($id){
 
         $uri = "https://graph.microsoft.com/$graphApiVersion/$($Group_resource)?`$filter=id eq '$id'"
-        (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value
+        (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value
 
         }
         
         elseif($GroupName -eq "" -or $GroupName -eq $null){
         
         $uri = "https://graph.microsoft.com/$graphApiVersion/$($Group_resource)"
-        (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value
+        (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value
         
         }
 
@@ -329,14 +318,14 @@ $Group_resource = "groups"
             if(!$Members){
 
             $uri = "https://graph.microsoft.com/$graphApiVersion/$($Group_resource)?`$filter=displayname eq '$GroupName'"
-            (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value
+            (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value
             
             }
             
             elseif($Members){
             
             $uri = "https://graph.microsoft.com/$graphApiVersion/$($Group_resource)?`$filter=displayname eq '$GroupName'"
-            $Group = (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value
+            $Group = (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value
             
                 if($Group){
 
@@ -346,7 +335,7 @@ $Group_resource = "groups"
                 write-host
 
                 $uri = "https://graph.microsoft.com/$graphApiVersion/$($Group_resource)/$GID/Members"
-                (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value
+                (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value
 
                 }
 
@@ -428,28 +417,28 @@ $DCP_resource = "deviceManagement/deviceCompliancePolicies"
         elseif($Android){
         
         $uri = "https://graph.microsoft.com/$graphApiVersion/$($DCP_resource)"
-        (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value | Where-Object { ($_.'@odata.type').contains("android") }
+        (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value | Where-Object { ($_.'@odata.type').contains("android") }
         
         }
         
         elseif($iOS){
         
         $uri = "https://graph.microsoft.com/$graphApiVersion/$($DCP_resource)"
-        (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value | Where-Object { ($_.'@odata.type').contains("ios") }
+        (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value | Where-Object { ($_.'@odata.type').contains("ios") }
         
         }
 
         elseif($Win10){
         
         $uri = "https://graph.microsoft.com/$graphApiVersion/$($DCP_resource)"
-        (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value | Where-Object { ($_.'@odata.type').contains("windows10CompliancePolicy") }
+        (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value | Where-Object { ($_.'@odata.type').contains("windows10CompliancePolicy") }
         
         }
         
         else {
 
         $uri = "https://graph.microsoft.com/$graphApiVersion/$($DCP_resource)"
-        (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value
+        (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value
 
         }
 
@@ -502,7 +491,7 @@ $DCP_resource = "deviceManagement/deviceCompliancePolicies"
     try {
 
     $uri = "https://graph.microsoft.com/$graphApiVersion/$($DCP_resource)/$id/groupAssignments"
-    (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value
+    (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value
         
     }
     
@@ -585,7 +574,7 @@ $UserDevices = Get-AADUserDevices -UserID $UserID
 
                 $uri = "https://graph.microsoft.com/beta/managedDevices/$UserDeviceId/deviceCompliancePolicyStates"
                 
-                $deviceCompliancePolicyStates = (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value
+                $deviceCompliancePolicyStates = (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value
 
                     foreach($DCPS in $deviceCompliancePolicyStates){
 
@@ -599,7 +588,7 @@ $UserDevices = Get-AADUserDevices -UserID $UserID
 
                         $uri = "https://graph.microsoft.com/beta/managedDevices/$UserDeviceId/deviceCompliancePolicyStates/$SettingStatesId/settingStates"
 
-                        $SettingStates = (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value
+                        $SettingStates = (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value
 
                             foreach($SS in $SettingStates){
 
@@ -619,7 +608,7 @@ $UserDevices = Get-AADUserDevices -UserID $UserID
 
                 # Getting AAD Device using azureActiveDirectoryDeviceId property
                 $uri = "https://graph.microsoft.com/v1.0/devices?`$filter=deviceId eq '$UserDeviceAADDeviceId'"
-                $AADDevice = (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value
+                $AADDevice = (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value
 
                 $AAD_Compliant = $AADDevice.isCompliant
 
@@ -638,7 +627,7 @@ $UserDevices = Get-AADUserDevices -UserID $UserID
 
                 # Getting AAD Device using azureActiveDirectoryDeviceId property
                 $uri = "https://graph.microsoft.com/v1.0/devices?`$filter=deviceId eq '$UserDeviceAADDeviceId'"
-                $AADDevice = (Invoke-RestMethod -Uri $uri –Headers $authToken –Method Get).Value
+                $AADDevice = (Invoke-RestMethod -Uri $uri Headers $authToken Method Get).Value
 
                 $AAD_Compliant = $AADDevice.isCompliant
 
@@ -671,55 +660,6 @@ $UserDevices = Get-AADUserDevices -UserID $UserID
 
 ####################################################
 
-#region Authentication
-
-write-host
-
-# Checking if authToken exists before running authentication
-if($global:authToken){
-
-    # Setting DateTime to Universal time to work in all timezones
-    $DateTime = (Get-Date).ToUniversalTime()
-
-    # If the authToken exists checking when it expires
-    $TokenExpires = ($authToken.ExpiresOn.datetime - $DateTime).Minutes
-
-        if($TokenExpires -le 0){
-
-        write-host "Authentication Token expired" $TokenExpires "minutes ago" -ForegroundColor Yellow
-        write-host
-
-            # Defining Azure AD tenant name, this is the name of your Azure Active Directory (do not use the verified domain name)
-
-            if($User -eq $null -or $User -eq ""){
-
-            $User = Read-Host -Prompt "Please specify your user principal name for Azure Authentication"
-            Write-Host
-
-            }
-
-        $global:authToken = Get-AuthToken -User $User
-
-        }
-}
-
-# Authentication doesn't exist, calling Get-AuthToken function
-
-else {
-
-    if($User -eq $null -or $User -eq ""){
-
-    $User = Read-Host -Prompt "Please specify your user principal name for Azure Authentication"
-    Write-Host
-
-    }
-
-# Getting the authorization token
-$global:authToken = Get-AuthToken -User $User
-
-}
-
-#endregion
 
 ####################################################
 

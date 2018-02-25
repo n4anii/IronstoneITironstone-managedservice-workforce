@@ -72,7 +72,9 @@
     'Applications\Get-IntuneApplication.ps1',
     'SoftwareUpdates\Get-SoftwareUpdatePolicy.ps1',
     'EnrollmentRestrictions\Get-DeviceEnrollmentConfigurations.ps1',
-    
+    'TermsAndConditions\Get-TermsAndConditions.ps1',
+    'DeviceConfiguration\Get-DeviceManagementScripts.ps1'
+
 	
     # Functions to export from this module
     FunctionsToExport = 'Get-MSGraphAuthenticationToken',
@@ -88,6 +90,8 @@
     'Get-IntuneApplication',
     'Get-SoftwareUpdatePolicy',
     'Get-DeviceEnrollmentConfigurations',
+    'Get-TermsAndConditions',
+    'Get-DeviceManagementScripts'
 
     # Cmdlets to export from this module
     CmdletsToExport   = @()
