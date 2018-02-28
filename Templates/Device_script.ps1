@@ -13,13 +13,18 @@ You need to run this script in the DEVICE context in Intune.
 
 
 #Change the app name
-$AppName = 'Device_Uninstall_Bloatware'
+$AppName   = 'Device_Verb-Noun'
+# Settings - Logging
 $Timestamp = Get-Date -Format 'HHmmssffff'
-$LogDirectory = ('{0}\Program Files\IronstoneIT\Intune\DeviceConfiguration' -f $env:SystemDrive)
-$Transcriptname = ('{2}\{0}_{1}.txt' -f $AppName, $Timestamp, $LogDirectory)
-$ErrorActionPreference = 'continue'
+$LogDirectory = ('{0}\Program Files\IronstoneIT\Intune\DeviceConfiguration' -f ($env:SystemDrive))
+$Transcriptname = ('{2}\{0}_{1}.txt' -f ($AppName,$Timestamp,$LogDirectory))
+# Settings - PowerShell
+$ErrorActionPreference = 'Continue'
+$VerbosePreference = 'Continue'
+$WarningPreference = 'Continue'
 
-if (!(Test-Path -Path $LogDirectory)) {
+
+if (-not(Test-Path -Path $LogDirectory)) {
     New-Item -ItemType Directory -Path $LogDirectory -ErrorAction Stop
 }
 
@@ -28,17 +33,17 @@ Start-Transcript -Path $Transcriptname
 Try {
     # Get the ID and security principal of the current user account
     $myWindowsID = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $myWindowsPrincipal = new-object -TypeName System.Security.Principal.WindowsPrincipal -ArgumentList ($myWindowsID)
+    $myWindowsPrincipal = New-Object -TypeName System.Security.Principal.WindowsPrincipal -ArgumentList ($myWindowsID)
  
     # Get the security principal for the Administrator role
     $adminRole = [Security.Principal.WindowsBuiltInRole]::Administrator
  
     # Check to see if we are currently running "as Administrator"
-    if (!($myWindowsPrincipal.IsInRole($adminRole))) {
+    if (-not($myWindowsPrincipal.IsInRole($adminRole))) {
         # We are not running "as Administrator" - so relaunch as administrator
    
         # Create a new process object that starts PowerShell
-        $newProcess = new-object -TypeName System.Diagnostics.ProcessStartInfo -ArgumentList 'PowerShell'
+        $newProcess = New-Object -TypeName System.Diagnostics.ProcessStartInfo -ArgumentList 'PowerShell'
    
         # Specify the current script path and name as a parameter
         $newProcess.Arguments = $myInvocation.MyCommand.Definition
@@ -68,17 +73,22 @@ Try {
     }
  
  
- 
-    #
-    #Your code goes here!
-    #
+
+    #region    Code Goes Here
+    ##############################
+    
+    
+    
+    
+    ##############################
+    #endregion Code Goes Here
  
  
     
 }
 Catch {
     # Construct Message
-    $ErrorMessage = 'Unable to uninstall all AppxProvisionedPackages.'
+    $ErrorMessage = ('Unable to {0}.' -f ($AppName))
     $ErrorMessage += " `n"
     $ErrorMessage += 'Exception: '
     $ErrorMessage += $_.Exception
