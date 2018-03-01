@@ -1,5 +1,6 @@
 # Device_Set-CommercialID
-## What is it
+This script is not generic: You have to add a specific CommercialID to the script before deploying it to the customer.
+## What is CommercialID
 CommercialID is a unique ID which ensures that telemetry data reaches the correct OMS workspace.
 ## Prerequisites
 You'll need a OMS workspace with following solutions deployed to it:
