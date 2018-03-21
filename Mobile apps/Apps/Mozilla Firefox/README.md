@@ -6,6 +6,7 @@
 ## Other resources
 * [Mozilla Firefox - EXE - Latest Version - enUS x64](https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=en-US)
 * [Mozilla Firefox - EXE - Latest Version - nbNO x64](https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=nb-NO)
+* [Mozilla Firefox - Enterprise](https://www.mozilla.org/en-US/firefox/enterprise/)
 
 ## Name in Intune
 Current version: .Mozilla Firefox v58.0.2 x64 enUS
