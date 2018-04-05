@@ -1,4 +1,8 @@
 # Microsoft Yammer
+## Configure with Intune MDM
+* Remember to enable ignore version! Yammer auto-updates.
+
+
 ## Download
 * [Microsoft Yammer 64 bit MSI](https://aka.ms/yammer_desktop_msi_x64)
 * [Microsoft Yammer 32 bit MSI](https://aka.ms/yammer_desktop_msi_ia32)
