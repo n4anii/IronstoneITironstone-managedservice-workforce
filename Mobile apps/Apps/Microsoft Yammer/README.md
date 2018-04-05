@@ -1,7 +1,7 @@
 # Microsoft Yammer
 ## Download
-* [Microsoft Yammer 64 bit MSI](https://aka.ms/yammer_desktop_msi_ia32)
-* [Microsoft Yammer 32 bit MSI](https://aka.ms/yammer_desktop_msi_x64)
+* [Microsoft Yammer 64 bit MSI](https://aka.ms/yammer_desktop_msi_x64)
+* [Microsoft Yammer 32 bit MSI](https://aka.ms/yammer_desktop_msi_ia32)
 
 
 ## Resources
