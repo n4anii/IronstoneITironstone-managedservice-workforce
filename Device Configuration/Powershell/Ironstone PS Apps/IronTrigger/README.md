@@ -52,6 +52,9 @@ Enable_BitLocker.xml is the file holding all the details about the scheduled tas
 ### Microsoft Technet Blogs
 * [How to enable Bitlocker and escrow the keys to Azure AD when using AutoPilot for standard users](https://blogs.technet.microsoft.com/showmewindows/2018/01/18/how-to-enable-bitlocker-and-escrow-the-keys-to-azure-ad-when-using-autopilot-for-standard-users/)
 * [Hardware independent automatic Bitlocker encryption using AAD/MDM](https://blogs.technet.microsoft.com/home_is_where_i_lay_my_head/2017/06/07/hardware-independent-automatic-bitlocker-encryption-using-aadmdm/)
+### Microsoft Workplace Blog
+* [UPDATED BITLOCKER EXPERIENCE WITH WINDOWS 10 INSIDER AND INTUNE](https://www.vroege.biz/?p=3998)
 ### Others
 * [Check device BitLocker Recovery Key (User)](https://account.activedirectory.windowsazure.com/n/#/devices)
+* [Windows Noob Forum: Configuring BitLocker in Intune - Part 1. Automating Encryption](https://www.windows-noob.com/forums/topic/15514-configuring-bitlocker-in-intune-part-1-configuring-bitlocker/)
 * [Windows Noob Forum: Configuring BitLocker in Intune - Part 2. Automating Encryption](https://www.windows-noob.com/forums/topic/15696-configuring-bitlocker-in-intune-part-2-automating-encryption/)
