@@ -1,10 +1,10 @@
 ﻿<#
 
 .SYNOPSIS
-Configures powercfg "lid" action to "Do nothing" for DC and AC power.
+Set's the current users Culture to NB-NO, if the current culture is English. 
 
 .DESCRIPTION
-Configures powercfg "lid" action to "Do nothing" for DC and AC power.
+Set's the current users Culture to NB-NO, if the current culture is English.  There's a small check that will make sure the script is only ran on new computers. 
 
 .NOTES
 You need to run this script in the USER context in Intune.
@@ -14,14 +14,13 @@ You need to run this script in the USER context in Intune.
 
 # Script Variables
 [bool]   $DeviceContext = $false
-[string] $NameScript    = 'Set-PowerConfiguration_LidAction'
+[string] $NameScript    = 'Set-LocalUserCulture'
 
 # Settings - PowerShell - Output Preferences
 $DebugPreference       = 'SilentlyContinue'
 $InformationPreference = 'SilentlyContinue'
 $VerbosePreference     = 'SilentlyContinue'
 $WarningPreference     = 'Continue'
-
 
 
 #region    Don't Touch This
@@ -33,11 +32,11 @@ $ProgressPreference    = 'SilentlyContinue'
 $ErrorActionPreference = 'Continue'
 
 # Dynamic Variables - Process & Environment
-[string] $NameScriptFull      = ('{0}_{1}' -f ($(if($DeviceContext){'Device'}Else{'User'}),$NameScript))
+[string] $NameScriptFull      = ('{0}_{1}' -f ($(if($DeviceContext){'Device'}else{'User'}),$NameScript))
 [string] $NameScriptVerb      = $NameScript.Split('-')[0]
 [string] $NameScriptNoun      = $NameScript.Split('-')[-1]
-[string] $ProcessArchitecture = $(if([System.Environment]::Is64BitProcess){'64'}Else{'32'})
-[string] $OSArchitecture      = $(if([System.Environment]::Is64BitOperatingSystem){'64'}Else{'32'})
+[string] $ProcessArchitecture = $(if([System.Environment]::Is64BitProcess){'64'}else{'32'})
+[string] $OSArchitecture      = $(if([System.Environment]::Is64BitOperatingSystem){'64'}else{'32'})
 
 # Dynamic Variables - User
 [string] $StrIsAdmin       = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -87,25 +86,44 @@ Try {
 ################################################
 #region    Your Code Here
 ################################################
+    
 
+    # Reg Value to Check
+    $PathValueRegIronstone = ('{0}:\SOFTWARE\IronstoneIT\Intune\DeviceConfiguration\{0}' -f ($(if($DeviceContext){'HKLM'}else{'HKCU'}),$NameScriptNoun))
 
-    # Register Value to Check / Write
-    [string] $RegistryPath = 'HKCU:\SOFTWARE\IronstoneIT\Intune\DeviceConfiguration'
-    [string] $RegistryKey = 'UserSetPowerConfigurationLidAction'
-
-
-    # Continue only if it's not been done earlier
-    if (Test-Path -Path ('{0}\{1}' -f ($RegistryPath,$RegistryKey))) {
-        Write-Output -InputObject ('Registry {0} already set.' -f $RegistryKey)
+    # If set already, don't do anything.
+    if (Test-Path -Path ('{0}\{1}' -f ($PathValueRegIronstone))) {
+        Write-Output -InputObject 'Registry culture already set, exiting'
     }
+    
+    # If not set already, go for it.
     else {
-        Write-Output -InputObject ('Setting PowerCFG config.')
-        $null = & "$env:windir\system32\powercfg.exe" -SETACVALUEINDEX '381b4222-f694-41f0-9685-ff5bb260df2e' '4f971e89-eebd-4455-a8de-9e59040e7347' '5ca83367-6e45-459f-a27b-476b1d01c936' 000
-        $null = & "$env:windir\system32\powercfg.exe" -SETDCVALUEINDEX '381b4222-f694-41f0-9685-ff5bb260df2e' '4f971e89-eebd-4455-a8de-9e59040e7347' '5ca83367-6e45-459f-a27b-476b1d01c936' 000
+        Import-Module -Name 'International'
+        [string] $CurrentCulture = Get-Culture | Select-Object -ExpandProperty 'Name'
         
-        # Write to registry that settings were set.
-        Write-Output -InputObject ('Creating registry path "{0}" key "{1}".' -f $RegistryPath, $RegistryKey)
-        $null = New-Item -Path ('{0}\{1}' -f ($RegistryPath,$RegistryKey)) -Force
+        # Only continue if Culture is set to nb-NO or en-US
+        if ($CurrentCulture -eq 'nb-NO' -or $CurrentCulture -eq 'en-US') {
+            
+            # If English, set new culture
+            if ($CurrentCulture -eq 'en-US') {
+                Write-Output -InputObject ('Setting culture to 1044')
+                Set-Culture -CultureInfo 1044
+                $CurrentCulture = Get-Culture | Select-Object -ExpandProperty 'Name'                               
+            }
+            
+            # If Norwegian already, or if change to Norwegian was a success: Write to registry that this has been done.
+            if ($CurrentCulture -eq 'nb-NO') {
+                Write-Output -InputObject ('Creating registry path {0} key {1}' -f $RegistryPath, $RegistryKey)
+                Write-Output -InputObject ('Culture is "{0}", exiting.' -f $CurrentCulture)
+                $null = New-Item -Path $PathValueRegIronstone -ItemType 'Directory' -Force
+            }
+        }
+        
+        # Exit if the culture is not English or Norwegian
+        else {
+            Write-Output -InputObject ('Culture is "{0}", exiting.' -f ($CurrentCulture))
+        }
+	         
     }
 
 

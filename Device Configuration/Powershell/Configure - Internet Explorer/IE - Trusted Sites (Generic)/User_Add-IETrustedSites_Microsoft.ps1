@@ -1,27 +1,44 @@
 ﻿<#
-
 .SYNOPSIS
-Configures powercfg "lid" action to "Do nothing" for DC and AC power.
+Configures generic trusted sites for Windows / Internet Explorer. 
+Adds common Microsoft domains, to make sure SSO works smooth.
+
 
 .DESCRIPTION
-Configures powercfg "lid" action to "Do nothing" for DC and AC power.
+Configures generic trusted sites for Windows / Internet Explorer. 
+Adds common Microsoft domains, to make sure SSO works smooth.
 
-.NOTES
-You need to run this script in the USER context in Intune.
+
+.AUTHOR
+Olav R. Birkeland
+
+
+.CHANGELOG
+180601
+- Implement new Ironstone Intune MDM PowerShell Template
+- Major rewrite, removed unneccesary functions
+180420
+- Initial Release
+
+
+.RESOURCES
+    * O365 Internet Explorer Protected Mode and security zones
+      https://blogs.technet.microsoft.com/victorbutuza/2016/06/20/o365-internet-explorer-protected-mode-and-security-zones/
+
+.TODO
 
 #>
 
 
 # Script Variables
 [bool]   $DeviceContext = $false
-[string] $NameScript    = 'Set-PowerConfiguration_LidAction'
+[string] $NameScript    = 'Add-IETrustedSites_Microsoft'
 
 # Settings - PowerShell - Output Preferences
 $DebugPreference       = 'SilentlyContinue'
 $InformationPreference = 'SilentlyContinue'
 $VerbosePreference     = 'SilentlyContinue'
 $WarningPreference     = 'Continue'
-
 
 
 #region    Don't Touch This
@@ -33,11 +50,11 @@ $ProgressPreference    = 'SilentlyContinue'
 $ErrorActionPreference = 'Continue'
 
 # Dynamic Variables - Process & Environment
-[string] $NameScriptFull      = ('{0}_{1}' -f ($(if($DeviceContext){'Device'}Else{'User'}),$NameScript))
+[string] $NameScriptFull      = ('{0}_{1}' -f ($(if($DeviceContext){'Device'}else{'User'}),$NameScript))
 [string] $NameScriptVerb      = $NameScript.Split('-')[0]
 [string] $NameScriptNoun      = $NameScript.Split('-')[-1]
-[string] $ProcessArchitecture = $(if([System.Environment]::Is64BitProcess){'64'}Else{'32'})
-[string] $OSArchitecture      = $(if([System.Environment]::Is64BitOperatingSystem){'64'}Else{'32'})
+[string] $ProcessArchitecture = $(if([System.Environment]::Is64BitProcess){'64'}else{'32'})
+[string] $OSArchitecture      = $(if([System.Environment]::Is64BitOperatingSystem){'64'}else{'32'})
 
 # Dynamic Variables - User
 [string] $StrIsAdmin       = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -88,24 +105,49 @@ Try {
 #region    Your Code Here
 ################################################
 
-
-    # Register Value to Check / Write
-    [string] $RegistryPath = 'HKCU:\SOFTWARE\IronstoneIT\Intune\DeviceConfiguration'
-    [string] $RegistryKey = 'UserSetPowerConfigurationLidAction'
+    # Settings
+    $VerbosePreference = 'Continue'
 
 
-    # Continue only if it's not been done earlier
-    if (Test-Path -Path ('{0}\{1}' -f ($RegistryPath,$RegistryKey))) {
-        Write-Output -InputObject ('Registry {0} already set.' -f $RegistryKey)
-    }
-    else {
-        Write-Output -InputObject ('Setting PowerCFG config.')
-        $null = & "$env:windir\system32\powercfg.exe" -SETACVALUEINDEX '381b4222-f694-41f0-9685-ff5bb260df2e' '4f971e89-eebd-4455-a8de-9e59040e7347' '5ca83367-6e45-459f-a27b-476b1d01c936' 000
-        $null = & "$env:windir\system32\powercfg.exe" -SETDCVALUEINDEX '381b4222-f694-41f0-9685-ff5bb260df2e' '4f971e89-eebd-4455-a8de-9e59040e7347' '5ca83367-6e45-459f-a27b-476b1d01c936' 000
-        
-        # Write to registry that settings were set.
-        Write-Output -InputObject ('Creating registry path "{0}" key "{1}".' -f $RegistryPath, $RegistryKey)
-        $null = New-Item -Path ('{0}\{1}' -f ($RegistryPath,$RegistryKey)) -Force
+    # Domains, add 'https://*.lync.com' as 'lync.com' in the list 
+    [string[]] $Domains = @('lync.com',
+                            'microsoftonline.com',
+                            'microsoftstream.com'
+                            'office.com',
+                            'office365.com',
+                            'outlook.com',
+                            'powerapps.com',
+                            'sharepoint.com',
+                            'sway.com'
+                           )
+    
+
+    # Registry directories
+    [string[]] $Paths = @('HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains\{0}'
+                          'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains\{0}\www')
+    
+
+    # Only HTTPS will be trusted
+    [string]   $Name  = 'https'
+    [byte]     $Value = 2
+    
+
+    # Set registry values
+    foreach ($Domain in $Domains) {
+        foreach ($Path in $Paths) {                      
+            # Create Path Dynamically
+            [string] $PathDynamic = ($Path -f ($Domain))
+            
+            # Create Path if it does not exist
+            if(-not(Test-Path -Path $PathDynamic)){$null = New-Item -Path $PathDynamic -ItemType 'Directory' -Force}
+            
+            # Set-ItemProperty
+            Set-ItemProperty -Path $PathDynamic -Name $Name -Value $Value -Type 'DWord' -Force
+            Write-Verbose -Message ('Set-ItemProperty -Path "{0}" -Name "{1}" -Value "{2}" -Type "DWord" -Force{3}   Success? {4}.' -f ($PathDynamic,$Name,$Value,"`r`n",$?.ToString()))
+
+            # Write out success
+            Write-Output -InputObject ('Adding "{0}://{1}*.{2}" to InternetExplorer Trusted Sites. Success? {3}' -f ($Name,$(if($PathDynamic.Split('\')[-1] -eq 'www'){'www'}),$Domain,$?.ToString()))
+        }
     }
 
 

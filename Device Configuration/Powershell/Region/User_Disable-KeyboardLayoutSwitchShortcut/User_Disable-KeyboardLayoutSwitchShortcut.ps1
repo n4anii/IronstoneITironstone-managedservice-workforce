@@ -1,27 +1,28 @@
 ﻿<#
 
 .SYNOPSIS
-Configures powercfg "lid" action to "Do nothing" for DC and AC power.
+    Disables Hotkeys for Layout and Language Switch/ Toggle (ctrl+shift etc). WIN+SPACE is still functional.
+
 
 .DESCRIPTION
-Configures powercfg "lid" action to "Do nothing" for DC and AC power.
+
 
 .NOTES
-You need to run this script in the USER context in Intune.
+    * You need to run this script in the USER context in Intune.
+    * Only edit $NameScript and add your code in the #region Your Code Here
 
 #>
 
 
 # Script Variables
 [bool]   $DeviceContext = $false
-[string] $NameScript    = 'Set-PowerConfiguration_LidAction'
+[string] $NameScript    = 'Disable-KeyboardLayoutSwitchShortcut'
 
 # Settings - PowerShell - Output Preferences
 $DebugPreference       = 'SilentlyContinue'
 $InformationPreference = 'SilentlyContinue'
 $VerbosePreference     = 'SilentlyContinue'
 $WarningPreference     = 'Continue'
-
 
 
 #region    Don't Touch This
@@ -33,11 +34,11 @@ $ProgressPreference    = 'SilentlyContinue'
 $ErrorActionPreference = 'Continue'
 
 # Dynamic Variables - Process & Environment
-[string] $NameScriptFull      = ('{0}_{1}' -f ($(if($DeviceContext){'Device'}Else{'User'}),$NameScript))
+[string] $NameScriptFull      = ('{0}_{1}' -f ($(if($DeviceContext){'Device'}else{'User'}),$NameScript))
 [string] $NameScriptVerb      = $NameScript.Split('-')[0]
 [string] $NameScriptNoun      = $NameScript.Split('-')[-1]
-[string] $ProcessArchitecture = $(if([System.Environment]::Is64BitProcess){'64'}Else{'32'})
-[string] $OSArchitecture      = $(if([System.Environment]::Is64BitOperatingSystem){'64'}Else{'32'})
+[string] $ProcessArchitecture = $(if([System.Environment]::Is64BitProcess){'64'}else{'32'})
+[string] $OSArchitecture      = $(if([System.Environment]::Is64BitOperatingSystem){'64'}else{'32'})
 
 # Dynamic Variables - User
 [string] $StrIsAdmin       = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -89,24 +90,18 @@ Try {
 ################################################
 
 
-    # Register Value to Check / Write
-    [string] $RegistryPath = 'HKCU:\SOFTWARE\IronstoneIT\Intune\DeviceConfiguration'
-    [string] $RegistryKey = 'UserSetPowerConfigurationLidAction'
+# Variables
+[PSCustomObject[]] $Keys = @(
+    [PSCustomObject]@{Name=[string]'Hotkey';         Val=[string]'3';Type=[string]'String'},
+    [PSCustomObject]@{Name=[string]'Language Hotkey';Val=[string]'3';Type=[string]'String'},
+    [PSCustomObject]@{Name=[string]'Layout Hotkey';  Val=[string]'3';Type=[string]'String'}
+)
 
-
-    # Continue only if it's not been done earlier
-    if (Test-Path -Path ('{0}\{1}' -f ($RegistryPath,$RegistryKey))) {
-        Write-Output -InputObject ('Registry {0} already set.' -f $RegistryKey)
-    }
-    else {
-        Write-Output -InputObject ('Setting PowerCFG config.')
-        $null = & "$env:windir\system32\powercfg.exe" -SETACVALUEINDEX '381b4222-f694-41f0-9685-ff5bb260df2e' '4f971e89-eebd-4455-a8de-9e59040e7347' '5ca83367-6e45-459f-a27b-476b1d01c936' 000
-        $null = & "$env:windir\system32\powercfg.exe" -SETDCVALUEINDEX '381b4222-f694-41f0-9685-ff5bb260df2e' '4f971e89-eebd-4455-a8de-9e59040e7347' '5ca83367-6e45-459f-a27b-476b1d01c936' 000
-        
-        # Write to registry that settings were set.
-        Write-Output -InputObject ('Creating registry path "{0}" key "{1}".' -f $RegistryPath, $RegistryKey)
-        $null = New-Item -Path ('{0}\{1}' -f ($RegistryPath,$RegistryKey)) -Force
-    }
+# Set registry values
+foreach ($Key in $Keys) {
+    $null = Set-ItemProperty -Path 'HKCU:\Keyboard Layout\Toggle' -Name $Key.Name -Value $Key.Val -Type $Key.Type -Force
+    Write-Output -InputObject ('Success setting {0}? {1}.' -f ($Key.Name,$?))
+}
 
 
 ################################################

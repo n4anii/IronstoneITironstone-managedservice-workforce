@@ -1,4 +1,6 @@
-<#
+﻿<#
+
+Device_Uninstall-Bloatware
 
 .SYNOPSIS
 Removes all specified pre-installed appxprovisionedpackages from the device.
@@ -10,92 +12,131 @@ Removes all specified pre-installed appxprovisionedpackages from the device. Thi
 You need to run this script in the DEVICE context in Intune.
 
 #>
-$AppName = 'Device_Uninstall_Bloatware'
-$Timestamp = Get-Date -Format 'HHmmssffff'
-$LogDirectory = ('{0}\Program Files\IronstoneIT\Intune\DeviceConfiguration' -f $env:SystemDrive)
-$Transcriptname = ('{2}\{0}_{1}.txt' -f $AppName, $Timestamp, $LogDirectory)
-$RegistryPath = 'HKLM:\SOFTWARE\IronstoneIT\Intune\DeviceConfiguration'
-$RegistryKey = 'DeviceUninstallBloatware'
-$ErrorActionPreference = 'continue'
 
-if (!(Test-Path -Path $LogDirectory)) {
-    New-Item -ItemType Directory -Path $LogDirectory -ErrorAction Stop
-}
 
-Start-Transcript -Path $Transcriptname
-#Wrap in a try/catch, so we can always end the transcript
-Try {
-    # Get the ID and security principal of the current user account
-    $myWindowsID = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $myWindowsPrincipal = new-object -TypeName System.Security.Principal.WindowsPrincipal -ArgumentList ($myWindowsID)
- 
-    # Get the security principal for the Administrator role
-    $adminRole = [Security.Principal.WindowsBuiltInRole]::Administrator
- 
-    # Check to see if we are currently running "as Administrator"
-    if (!($myWindowsPrincipal.IsInRole($adminRole))) {
-        # We are not running "as Administrator" - so relaunch as administrator
-   
-        # Create a new process object that starts PowerShell
-        $newProcess = new-object -TypeName System.Diagnostics.ProcessStartInfo -ArgumentList 'PowerShell'
-   
-        # Specify the current script path and name as a parameter
-        $newProcess.Arguments = $myInvocation.MyCommand.Definition
-   
-        # Indicate that the process should be elevated
-        $newProcess.Verb = 'runas'
-   
-        # Start the new process
-        [Diagnostics.Process]::Start($newProcess)
-   
-        # Exit from the current, unelevated, process
-        Write-Output -InputObject 'Restart in elevated'
-        exit
-   
-    }
+# Script Variables
+[bool]   $DeviceContext = $true
+[string] $NameScript    = 'Uninstall-Bloatware'
 
-    #64-bit invocation
-    if ($env:PROCESSOR_ARCHITEW6432 -eq 'AMD64') {
-        write-Output -InputObject "Y'arg Matey, we're off to the 64-bit land....."
+# Settings - PowerShell - Output Preferences
+$DebugPreference       = 'SilentlyContinue'
+$InformationPreference = 'SilentlyContinue'
+$VerbosePreference     = 'SilentlyContinue'
+$WarningPreference     = 'Continue'
+
+
+
+#region    Don't Touch This
+# Settings - PowerShell - Interaction
+$ConfirmPreference     = 'None'
+$ProgressPreference    = 'SilentlyContinue'
+
+# Settings - PowerShell - Behaviour
+$ErrorActionPreference = 'Continue'
+
+# Dynamic Variables - Process & Environment
+[string] $NameScriptFull      = ('{0}_{1}' -f ($(if($DeviceContext){'Device'}Else{'User'}),$NameScript))
+[string] $NameScriptVerb      = $NameScript.Split('-')[0]
+[string] $NameScriptNoun      = $NameScript.Split('-')[-1]
+[string] $ProcessArchitecture = $(if([System.Environment]::Is64BitProcess){'64'}Else{'32'})
+[string] $OSArchitecture      = $(if([System.Environment]::Is64BitOperatingSystem){'64'}Else{'32'})
+
+# Dynamic Variables - User
+[string] $StrIsAdmin       = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+[string] $StrUserName      = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+[string] $SidCurrentUser   = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+[string] $SidSystemUser    = 'S-1-5-18'
+[bool] $CurrentUserCorrect = $(
+    if($DeviceContext -and $SIDCurrentUser -eq $SIDSystemUser){$true}
+    elseif (-not($DeviceContext) -and $SIDCurrentUser -ne $SIDSystemUser){$true}
+    else {$false}
+)
+
+# Dynamic Logging Variables
+$Timestamp    = [DateTime]::Now.ToString('yyMMdd-HHmmssffff')
+$PathDirLog   = ('{0}\IronstoneIT\Intune\DeviceConfiguration\' -f ($(if($DeviceContext -and $CurrentUserCorrect){$env:ProgramW6432}else{$env:APPDATA})))
+$PathFileLog  = ('{0}{1}-{2}bit-{3}.txt' -f ($PathDirLog,$NameScriptFull,$ProcessArchitecture,$Timestamp))
+
+# Start Transcript
+if (-not(Test-Path -Path $PathDirLog)) {New-Item -ItemType 'Directory' -Path $PathDirLog -ErrorAction 'Stop'}
+Start-Transcript -Path $PathFileLog
+
+# Output User Info, Exit if not $CurrentUserCorrect
+Write-Output -InputObject ('Running as user "{0}". Has admin privileges? {1}. $DeviceContext = {2}. Running as correct user? {3}.' -f ($StrUserName,$StrIsAdmin,$DeviceContext.ToString(),$CurrentUserCorrect.ToString()))
+if (-not($CurrentUserCorrect)){Throw 'Not running as correct user!'} 
+
+# Output Process and OS Architecture Info
+Write-Output -InputObject ('PowerShell is running as a {0} bit process on a {1} bit OS.' -f ($ProcessArchitecture,$OSArchitecture))
+
+
+# Wrap in Try/Catch, so we can always end the transcript
+Try {    
+    # If OS is 64 bit, and PowerShell got launched as x86, relaunch as x64
+    if ( (-not([System.Environment]::Is64BitProcess))  -and [System.Environment]::Is64BitOperatingSystem) {
+        write-Output -InputObject (' * Will restart this PowerShell session as x64.')
         if ($myInvocation.Line) {
             &"$env:WINDIR\sysnative\windowspowershell\v1.0\powershell.exe" -NonInteractive -NoProfile $myInvocation.Line
         }
         else {
-            &"$env:WINDIR\sysnative\windowspowershell\v1.0\powershell.exe" -NonInteractive -NoProfile -file ('{0}' -f $myInvocation.InvocationName) $args
+            &"$env:WINDIR\sysnative\windowspowershell\v1.0\powershell.exe" -NonInteractive -NoProfile -File ('{0}' -f ($myInvocation.InvocationName)) $args
         }
         exit $lastexitcode
     }
- 
-    if (!(Test-Path -Path ('{0}\{1}' -f $RegistryPath, $RegistryKey))) {
+    
+    # End the Initialize Region
+    Write-Output -InputObject ('**********************')
+#endregion Don't Touch This
+################################################
+#region    Your Code Here
+################################################
+  
+    
+    # Registry Values to Check / Write
+    $RegistryPath = 'HKLM:\SOFTWARE\IronstoneIT\Intune\DeviceConfiguration'
+    $RegistryKey = 'DeviceUninstallBloatware'
+
+
+    # Only uninstall apps if it has not been attempted before
+    if (Test-Path -Path ('{0}\{1}' -f ($RegistryPath,$RegistryKey))) {
+        Write-Output -InputObject ('Registry {0} already set' -f ($RegistryKey))
+    }
+    else {
+        # List of apps we want to remove
         $AppsToRemove = @(
+            'Microsoft.BingFinance*',
+            'Microsoft.BingNews*',
+            'Microsoft.BingSports*',
+            'Microsoft.BingWeather*', 
             'Microsoft.Messaging',
-            'Microsoft.Office.OneNote',
             'Microsoft.People',
             'Microsoft.SkypeApp',
             'Microsoft.windowscommunicationsapps'
         )
 
-        #There is no better way to do this
-        Foreach ($app in $appsToRemove) {
-            $PackageName = Get-AppxProvisionedPackage -Online | Where-Object {$_.displayname -eq $app} | Select-Object -expandproperty PackageName
-            if ($PackageName) {
-                Write-Output -InputObject ('Removing AppxProvisionedPackage [{1}] with the appname [{0}].' -f $app, $PackageName)
-                Remove-AppxProvisionedPackage -PackageName	$PackageName -Online -allusers
-            }
-            else {
-                Write-Output -InputObject ('AppxProvisionedPackage [{0}] is not installed.' -f $app)
-            }
+
+        # Remove installed packages matching $AppsToRemove
+        $AppxProvisionedPackages = @(Get-AppxProvisionedPackage -Online | Where-Object {$AppsToRemove.Contains($_.DisplayName)} | Select-Object -Property 'DisplayName','PackageName' | Sort-Object -Property 'DisplayName')
+        Write-Output -InputObject ('{0} ProvisionedApps will be removed.' -f ($AppxProvisionedPackages.Count.ToString()))
+        foreach ($App in $AppxProvisionedPackages) {
+            $null = Remove-AppxProvisionedPackage -PackageName	$App.PackageName -Online -AllUsers
+            Write-Output -InputObject ('Removing "{0}"... Success? {1}' -f ($App.DisplayName,$?.ToString()))
         }
-        Write-Output -InputObject ('Creating registry path {0} key {1}' -f $RegistryPath, $RegistryKey)
-        $null = New-Item -Path ('{0}\{1}' -f $RegistryPath, $RegistryKey) -force
+
+
+        # Save to registry that this script has run
+        Write-Output -InputObject ('Creating registry path "{0}" key "{1}".' -f ($RegistryPath,$RegistryKey))
+        $null = New-Item -Path ('{0}\{1}' -f ($RegistryPath,$RegistryKey)) -Force
     }
-    else {
-        Write-Output -InputObject ('Registry {0} already set' -f $RegistryKey)
-    }
+
+
+################################################
+#endregion Your Code Here
+################################################   
+#region    Don't touch this
 }
 Catch {
     # Construct Message
-    $ErrorMessage = 'Unable to uninstall all AppxProvisionedPackages.'
+    $ErrorMessage = ('{0} finished with errors:' -f ($NameScriptFull))
     $ErrorMessage += " `n"
     $ErrorMessage += 'Exception: '
     $ErrorMessage += $_.Exception
@@ -113,3 +154,4 @@ Catch {
 Finally {
     Stop-Transcript
 }
+#endregion Don't touch this

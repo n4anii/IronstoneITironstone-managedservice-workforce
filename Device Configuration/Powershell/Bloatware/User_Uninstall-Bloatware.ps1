@@ -1,10 +1,12 @@
 ﻿<#
 
+User_Uninstall-Bloatware
+
 .SYNOPSIS
-Configures powercfg "lid" action to "Do nothing" for DC and AC power.
+Removes all specified pre-installed applications from the users profile.
 
 .DESCRIPTION
-Configures powercfg "lid" action to "Do nothing" for DC and AC power.
+Removes all specified pre-installed applications from the users profile. This script MUST be deployed together with Device_Uninstall-Bloatware.ps1, else the apps will come back.
 
 .NOTES
 You need to run this script in the USER context in Intune.
@@ -14,7 +16,7 @@ You need to run this script in the USER context in Intune.
 
 # Script Variables
 [bool]   $DeviceContext = $false
-[string] $NameScript    = 'Set-PowerConfiguration_LidAction'
+[string] $NameScript    = 'Uninstall-Bloatware'
 
 # Settings - PowerShell - Output Preferences
 $DebugPreference       = 'SilentlyContinue'
@@ -89,22 +91,74 @@ Try {
 ################################################
 
 
-    # Register Value to Check / Write
-    [string] $RegistryPath = 'HKCU:\SOFTWARE\IronstoneIT\Intune\DeviceConfiguration'
-    [string] $RegistryKey = 'UserSetPowerConfigurationLidAction'
+    # Registry Values to Check / Write
+    $RegistryPath = 'HKCU:\SOFTWARE\IronstoneIT\Intune\DeviceConfiguration'
+    $RegistryKey = 'UserUninstallBloatware'
 
 
-    # Continue only if it's not been done earlier
+    # Only uninstall apps if it has not been attempted before
     if (Test-Path -Path ('{0}\{1}' -f ($RegistryPath,$RegistryKey))) {
-        Write-Output -InputObject ('Registry {0} already set.' -f $RegistryKey)
+        Write-Output -InputObject ('Registry {0} already set' -f ($RegistryKey))
     }
     else {
-        Write-Output -InputObject ('Setting PowerCFG config.')
-        $null = & "$env:windir\system32\powercfg.exe" -SETACVALUEINDEX '381b4222-f694-41f0-9685-ff5bb260df2e' '4f971e89-eebd-4455-a8de-9e59040e7347' '5ca83367-6e45-459f-a27b-476b1d01c936' 000
-        $null = & "$env:windir\system32\powercfg.exe" -SETDCVALUEINDEX '381b4222-f694-41f0-9685-ff5bb260df2e' '4f971e89-eebd-4455-a8de-9e59040e7347' '5ca83367-6e45-459f-a27b-476b1d01c936' 000
+        $AppsToRemove = @(
+            ### Microsoft
+            'Microsoft.BingFinance*',
+            'Microsoft.BingNews*',
+            'Microsoft.BingSports*',
+            'Microsoft.BingWeather*',                       
+            '*LinkedInforWindows*',
+            '*MicrosoftSolitaireCollection*',
+            '*MinecraftUWP*',
+            #'Microsoft.Office.OneNote*',                       # "OneNote" UWP App (The regular app soon to be gone from Office 365)
+            #'Microsoft.OfficeOnline*',                         # "Office Online"
+            'Microsoft.SkypeApp*',
+            'Microsoft.WindowsPhone*',                          # Microsoft "Phone Companion"
+            #'*ZuneMusic*',                                     # "Groove Music"
+            #'*ZuneVideo*',                                     # "Films & TV"
+            #'Microsoft.Wallet*',                               # "Microsoft Pay"
+            ### Other
+            '*ActiproSoftwareLLC*',
+            '*AdobePhotoshopExpress*',
+            '*Asphalt8Airborne*',
+            '*AutodeskSketchBook*',
+            '*CandyCrushSodaSaga*',                       
+            '*DrawboardPDF*',
+            '*Duolingo-LearnLanguagesforFree*',                 
+            '*EclipseManager*',                                             
+            'Facebook.Facebook*',                               # Facebook 
+            'Facebook.317180B0BB486*',                          # Facebook Messenger                       
+            '*FarmVille2CountryEscape*',
+            '*KeeperSecurityInc.Keeper*',
+            '*king.com.BubbleWitch3Sag*',
+            '*MarchofEmpires*',
+            '*Netflix*',                       
+            '*PandoraMediaInc*',
+            '*Plex*',
+            '*RoyalRevolt2*',
+            '*Twitter*'
+        )
         
-        # Write to registry that settings were set.
-        Write-Output -InputObject ('Creating registry path "{0}" key "{1}".' -f $RegistryPath, $RegistryKey)
+        
+        # Cache installed AppcPackages
+        [System.Collections.ArrayList] $AppxPackages = @(Get-AppxPackage -User ('{0}\{1}' -f ([System.Environment]::UserDomainName,[System.Environment]::UserName)) -PackageTypeFilter 'Bundle')
+        
+
+        # Remove installed packages matching $AppsToRemove
+        foreach ($App in $AppsToRemove) {
+            $CurrentApp = @($AppxPackages | Where-Object {$_.Name -like $App} | Select-Object -First 1)
+            Write-Output -InputObject ('AppxPackage "{0}" installed? {1}.' -f ($App,$(if($CurrentApp.Count -eq 1){'True'}else{'False'})))
+            if ($CurrentApp.Count -eq 1) {
+                $null = $CurrentApp[0] | Remove-AppxPackage
+                [bool] $Local:Success = $?             
+                Write-Output -InputObject ('   Uninstalling... Success? {0}.' -f ($Local:Success.ToString()))
+                if ($Success){$null = $AppxPackages.Remove($CurrentApp[0])}
+            }
+        }
+
+
+        # Save to registry that this script has run
+        Write-Output -InputObject ('Creating registry path "{0}" key "{1}".' -f ($RegistryPath,$RegistryKey))
         $null = New-Item -Path ('{0}\{1}' -f ($RegistryPath,$RegistryKey)) -Force
     }
 

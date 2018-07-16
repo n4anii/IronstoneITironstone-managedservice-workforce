@@ -1,27 +1,24 @@
-﻿<#
+﻿<# 
+.NAME
+    Device_Set-CountryTime&Settings
 
-.SYNOPSIS
-Configures powercfg "lid" action to "Do nothing" for DC and AC power.
+.SYNAPSIS
+    Sets culture, locale, time zone, enables automatic time sync and adjustment of time zone, and forces time resync.
 
-.DESCRIPTION
-Configures powercfg "lid" action to "Do nothing" for DC and AC power.
-
-.NOTES
-You need to run this script in the USER context in Intune.
-
+.RESOURCES
+    http://www.thewindowsclub.com/windows-10-clock-time-wrong-fix
 #>
 
 
 # Script Variables
-[bool]   $DeviceContext = $false
-[string] $NameScript    = 'Set-PowerConfiguration_LidAction'
+[bool]   $DeviceContext = $true
+[string] $NameScript    = 'Set-CountryTime&Settings'
 
 # Settings - PowerShell - Output Preferences
 $DebugPreference       = 'SilentlyContinue'
 $InformationPreference = 'SilentlyContinue'
 $VerbosePreference     = 'SilentlyContinue'
 $WarningPreference     = 'Continue'
-
 
 
 #region    Don't Touch This
@@ -33,11 +30,11 @@ $ProgressPreference    = 'SilentlyContinue'
 $ErrorActionPreference = 'Continue'
 
 # Dynamic Variables - Process & Environment
-[string] $NameScriptFull      = ('{0}_{1}' -f ($(if($DeviceContext){'Device'}Else{'User'}),$NameScript))
+[string] $NameScriptFull      = ('{0}_{1}' -f ($(if($DeviceContext){'Device'}else{'User'}),$NameScript))
 [string] $NameScriptVerb      = $NameScript.Split('-')[0]
 [string] $NameScriptNoun      = $NameScript.Split('-')[-1]
-[string] $ProcessArchitecture = $(if([System.Environment]::Is64BitProcess){'64'}Else{'32'})
-[string] $OSArchitecture      = $(if([System.Environment]::Is64BitOperatingSystem){'64'}Else{'32'})
+[string] $ProcessArchitecture = $(if([System.Environment]::Is64BitProcess){'64'}else{'32'})
+[string] $OSArchitecture      = $(if([System.Environment]::Is64BitOperatingSystem){'64'}else{'32'})
 
 # Dynamic Variables - User
 [string] $StrIsAdmin       = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -89,24 +86,57 @@ Try {
 ################################################
 
 
-    # Register Value to Check / Write
-    [string] $RegistryPath = 'HKCU:\SOFTWARE\IronstoneIT\Intune\DeviceConfiguration'
-    [string] $RegistryKey = 'UserSetPowerConfigurationLidAction'
+    $CultureNameWanted = 'nb-NO'
+    $LocaleLCIDWanted  = '1044'
+    $TimeZoneIdWanted  = 'W. Europe Standard Time'
 
 
-    # Continue only if it's not been done earlier
-    if (Test-Path -Path ('{0}\{1}' -f ($RegistryPath,$RegistryKey))) {
-        Write-Output -InputObject ('Registry {0} already set.' -f $RegistryKey)
+    # Culture - Format for time, date etc
+    Write-Output -InputObject ('Current Culture:   {0}' -f (($CultureCurrent = Get-Culture).DisplayName))
+    if ($CultureCurrent.Name -ne $CultureNameWanted) {
+        Set-Culture -CultureInfo $CultureNameWanted
+        Write-Output -InputObject ('   Changed to {0}' -f ($CultureNameWanted))
     }
-    else {
-        Write-Output -InputObject ('Setting PowerCFG config.')
-        $null = & "$env:windir\system32\powercfg.exe" -SETACVALUEINDEX '381b4222-f694-41f0-9685-ff5bb260df2e' '4f971e89-eebd-4455-a8de-9e59040e7347' '5ca83367-6e45-459f-a27b-476b1d01c936' 000
-        $null = & "$env:windir\system32\powercfg.exe" -SETDCVALUEINDEX '381b4222-f694-41f0-9685-ff5bb260df2e' '4f971e89-eebd-4455-a8de-9e59040e7347' '5ca83367-6e45-459f-a27b-476b1d01c936' 000
-        
-        # Write to registry that settings were set.
-        Write-Output -InputObject ('Creating registry path "{0}" key "{1}".' -f $RegistryPath, $RegistryKey)
-        $null = New-Item -Path ('{0}\{1}' -f ($RegistryPath,$RegistryKey)) -Force
+
+
+    # Locale - Format for time, date etc
+    Write-Output -InputObject ('Current Locale:    {0}' -f (($LocaleCurrent = Get-WinSystemLocale).DisplayName))
+    if ($LocaleCurrent.LCID -ne $LocaleLCIDWanted) {
+        Set-WinSystemLocale -SystemLocale $CultureNameWanted
+        Write-Output -InputObject ('   Changed to {0}' -f ($CultureNameWanted))
     }
+
+
+    # TimeZone
+    Write-Output -InputObject ('Current TimeZone:  {0}' -f (($TimeZoneCurrent = Get-TimeZone).Id))
+    if ($TimeZoneCurrent.Id -ne $TimeZoneIdWanted) {
+        Set-TimeZone -Id $TimeZoneIdWanted
+        Write-Output -InputObject ('   Changed to {0}' -f ($TimeZoneIdWanted))
+    }
+
+
+    # NTP Servers - Set default Microsoft NTP Servers & Add 'no.pool.ntp.org' and 'time.google.com' as backup servers
+    $PathDirReg    = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DateTime\Servers'
+    $URLNTPServers = @('time.windows.com','time.nist.gov','no.pool.ntp.org','time.google.com')
+    $C = [byte]::MinValue + 1
+    foreach ($URL in $URLNTPServers) {
+        Set-ItemProperty -Path $PathDirReg -Name $C.ToString() -Value $URL -Type 'String'
+        Write-Output -InputObject ('Adding "{0}" as time server number {1}.' -f ($URL,($C++).ToString()))
+    }
+
+
+    # Make sure "Set time automatically" is enabled
+    $null = Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\W32Time\Parameters' -Name 'Type' -Value 'NTP' -Type 'String' -Force
+
+    # Make sure "Set time zone automatically" is disabled                    (3 = Enabled, 4 = Disabled)
+    $null = Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\tzautoupdate' -Name 'Start' -Value 4 -Type 'DWord' -Force
+
+    # Make sure "Adjust for daylight saving time automatically" is enabled   (0 = Enabled, 1 = Disabled)
+    $null = Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation' -Name 'DynamicDaylightTimeDisabled' -Value 0 -Type 'DWord' -Force
+
+
+    # Resync time
+    $null = Start-Process -FilePath ('{0}\w32tm.exe' -f ([System.Environment]::SystemDirectory)) -ArgumentList ('/resync /force') -NoNewWindow
 
 
 ################################################
