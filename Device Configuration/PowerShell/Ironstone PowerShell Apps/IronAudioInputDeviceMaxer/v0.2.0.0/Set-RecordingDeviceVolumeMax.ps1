@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Set mvolume level to 100% for all Recording Devices using PowerShell Module "AudioDeviceCmdlets"
+    Set volume level to 100% for all Recording Devices using PowerShell Module "AudioDeviceCmdlets"
 
 .DESCRIPTION
     Get Default Recording Device (To reset to this afterwards)
@@ -67,20 +67,24 @@
 
 #region    Main
     Try {
-        # Import modules manually
-        Get-ChildItem -Path ('{0}\WindowsPowerShell\Modules\AudioDeviceCmdlets\' -f ($env:ProgramW6432)) -File -Recurse | Select-Object -ExpandProperty FullName | ForEach-Object {Import-Module -Name $_}
+        # Import AudioDeviceCmdlets module manually (Latest Version)
+        [string] $PathDirModule       = ('{0}\WindowsPowerShell\Modules\AudioDeviceCmdlets' -f ($env:ProgramW6432))
+        [string] $VersionModuleLatest = ([System.Version[]](@(Get-ChildItem -Path $PathDirModule -Directory | Select-Object -ExpandProperty Name)) | Sort-Object)[-1].ToString()
+        [string] $PathModuleLatest    = ('{0}\{1}' -f ($PathDirModule,$VersionModuleLatest))
+        Get-ChildItem -Path $PathModuleLatest -File | Select-Object -ExpandProperty FullName | ForEach-Object {Import-Module -Name $_}
         
         
         # If modules import failed
-        if (@(Get-Module | Where-Object {$_.Name -eq 'AudioDeviceCmdlets'}).Count -lt 2) {
+        if (@(Get-Module | Where-Object -Property 'Name' -EQ 'AudioDeviceCmdlets').Count -lt 1) {
             Write-Output -InputObject ('Failed to import PowerShell Module "AudioDeviceCmdlets"')
+            $Script:Success = $false
         }
 
 
         # If modules import succeeded - Loop through recording devices, set Recording Volume to 100%
         else {    
             $RecordingDeviceDefault = Get-AudioDevice -Recording | Select-Object -Property 'Name','ID'
-            $RecordingDeviceAll     = @((Get-AudioDevice -List | Where-Object {$_.Type -eq 'Recording'}) | Select-Object -Property 'Name','ID')
+            $RecordingDeviceAll     = @((Get-AudioDevice -List | Where-Object -Property 'Type' -EQ 'Recording') | Select-Object -Property 'Name','ID')
             if ($RecordingDeviceAll.Count -eq 0) {
                 Write-Output -InputObject ('Found no recording devices.')
                 $Script:Success = $false
@@ -116,21 +120,18 @@
 
 #region    Catch and Finally
     Catch {
-        $Success = $false
+        $Script:Success = $false
         # Construct Message
-        $ErrorMessage = ('{0} finished with errors:' -f ($NameScript))
-        $ErrorMessage += " `n"
-        $ErrorMessage += 'Exception: '
+        [string] $ErrorMessage = ('{0} finished with errors:' -f ($NameScript))
+        $ErrorMessage += ('{0}{0}Exception:{0}' -f ("`r`n"))
         $ErrorMessage += $_.Exception
-        $ErrorMessage += " `n"
-        $ErrorMessage += 'Activity: '
+        $ErrorMessage += ('{0}{0}Activity:{0}' -f ("`r`n"))
         $ErrorMessage += $_.CategoryInfo.Activity
-        $ErrorMessage += " `n"
-        $ErrorMessage += 'Error Category: '
+        $ErrorMessage += ('{0}{0}Error Category:{0}' -f ("`r`n"))
         $ErrorMessage += $_.CategoryInfo.Category
-        $ErrorMessage += " `n"
-        $ErrorMessage += 'Error Reason: '
+        $ErrorMessage += ('{0}{0}Error Reason:{0}' -f ("`r`n"))
         $ErrorMessage += $_.CategoryInfo.Reason
+        # Write Error Message
         Write-Error -Message $ErrorMessage
     }
     Finally {
