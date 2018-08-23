@@ -3,6 +3,7 @@
 * Microsoft Visual C++ Redistributable 2017, is C++ runtimes mandatory for some programs, like:
 	* HP Hotkey Support
 * They are only offered as EXE installers, but Sebastian Thörnblad repackaged v14.15.26706 to MSI.
+	* x86 MSI only includes x86, x64 MSI includes both x86 and x64
 * 2017 superseeds / upgrades the 2015 version, so no point in installing 2015
 
 ## Download (.EXE)
