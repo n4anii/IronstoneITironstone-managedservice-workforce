@@ -24,6 +24,9 @@
 
     # Settings - PowerShell - Behaviour
     $ErrorActionPreference = 'Continue'
+
+    # Settings - Script
+    [bool] $Script:Unmute  = $true
 #endregion Settings
 
 
@@ -94,21 +97,29 @@
                     # Set Default Recording Device
                     $null = Set-AudioDevice $Device.ID
                     [bool] $Local:Success_SetDefaultDevice = $?
-                    Write-Output -InputObject ('Setting "{0}" as default recording device. Success? {1}.' -f ($Device.Name,$Local:Success_SetDefaultDevice))
+                    Write-Output -InputObject ('Setting "{0}" as default recording device. Success? {1}.' -f ($Device.Name,$Local:Success_SetDefaultDevice.ToString()))
                     
                     # Set Volume to 100%
                     $null = Set-AudioDevice -RecordingVolume 100
                     [bool] $Local:Success_SetVolume = $?
-                    Write-Output -InputObject ('Setting volume to 100%. Success? "{0}".' -f ($Local:Success_SetVolume))
+                    Write-Output -InputObject ('Setting volume to 100%. Success? "{0}".' -f ($Local:Success_SetVolume.ToString()))
+
+                    # Check if muted, unmute if it is
+                    if ([bool](Get-AudioDevice -RecordingMute) -and $Script:Unmute){
+                        $null = Set-AudioDevice -RecordingMute $false
+                        [bool] $Local:Success_Unmute = $?
+                        Write-Output -InputObject ('Unmuting current recording device. Success? "{0}".' -f ($Local:Success_Unmute.ToString()))
+                    }
+                    else {[bool] $Local:Success_Unmute = $true}
                     
                     # Stats
-                    if (-not($Local:Success_SetDefaultDevice -or $Local:Success_SetVolume)){$Script:Success = $false}
+                    if (-not($Local:Success_SetDefaultDevice -or $Local:Success_SetVolume -or $Local:Success_Unmute)){$Script:Success = $false}
                 }
                 
                 # Set Default Recording Device back to what it was
                 $null = Set-AudioDevice $RecordingDeviceDefault.ID
                 $Local:Success_RevertDefault = $?
-                Write-Output -InputObject ('Reverting "{0}" back as default recording device. Success? {1}.' -f ($RecordingDeviceDefault.Name,$Local:Success_RevertDefault))
+                Write-Output -InputObject ('Reverting "{0}" back as default recording device. Success? {1}.' -f ($RecordingDeviceDefault.Name,$Local:Success_RevertDefault.ToString()))
                 if(-not($Local:Success_RevertDefault)){$Script:Success = $Local:Success_RevertDefault}
             }
         }

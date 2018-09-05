@@ -1,7 +1,20 @@
 ### TODO / FUNCTIONALITY WE WANT TO ADD
-
+	Both
+	- Rename to "Set-AudioRecordingDevicesVolumeMax" and "Install-AudioRecordingDevicesVolumeMax"
+	
+	Device_Install-RecordingDeviceVolumeMax.ps1
+	- Require specific version of the AudioDeviceCmdlets module, to make sure it works / no breaking changes is introduced.
+	
+	
 
 ### CHANGELOG
+v0.2.1.0 - 180829
+	Set-RecordingDeviceVolumeMax.ps1
+	- Added unmute if recording device is muted, controlable by [bool] $Script:Unmute in #region Settings
+	- Minor code cleanup
+	
+	
+	
 v0.2.0.0 - 180821
 	Device_Install-RecordingDeviceVolumeMax.ps1
 	- Updated Ironstone Intune MDM Template
