@@ -1,0 +1,51 @@
+PDFFactory v6.20
+* EXE https://fineprint.com/release/pdf620std.exe
+* MSI 
+	* PdfFactory620[1].msi
+
+PDFFactory Pro v6.32
+* EXE https://fineprint.com/release/pdf632pro.exe
+
+Client Installation Details
+https://fineprint.com/serversupport-topic/client-installation-details/
+
+Command line installation
+https://fineprint.com/serversupport-topic/command-line-installation/
+
+Apply registration code during install
+http://fineprint.com/pdfsupport-topic/apply-initial-settings/
+
+/install /quiet=527
+
+C:\Windows\system32\spool\DRIVERS\x64\3\fppinst6.exe /uninstall /quiet /reboot=0
+
+Start-Process
+
+Registry
+HKEY_LOCAL_MACHINE\SOFTWARE\FinePrint Software
+HKLM:\SOFTWARE\FinePrint Software
+
+Install folders
+  * PDFFactory Pro v6.32 x64
+    C:\Windows\System32\spool\drivers\x64\3
+
+METIER
+License: 25H95-FXHA8-QR5SU
+
+
+
+
+##########################
+POWER TO THE SHELL
+##########################
+$PathExe = '{0}\system32\spool\DRIVERS\x64\3\fppinst6.exe' -f $env:windir
+$PathMsi = ''
+$PathMsiexec = '{0}\SysWOW64\msiexec.exe' -f $env:windir
+
+if (Test-Path -Path $PathExe) {
+    Start-Process -FilePath $PathExe -ArgumentList '/uninstall' -Wait
+}
+
+if (Test-Path -Path $PathMsi) {
+    Start-Process -FilePath $PathMsiexec -ArgumentList ('/u {0} /silent' -f ($PathMsi))
+}
