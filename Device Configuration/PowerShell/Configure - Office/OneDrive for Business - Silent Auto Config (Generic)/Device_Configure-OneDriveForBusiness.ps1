@@ -99,52 +99,59 @@ Try {
 
 
 
-    #region    Get Current User + New PS Drive for HKU
+    #region    Get HKU\ path for current user 
         # Get Current User as SecurityIdentifier
         if (-not($Script:PathDirRootCU)){
-            [string] $Script:PathDirRootCU = ('HKU:\{0}\' -f ([System.Security.Principal.NTAccount]::new((Get-Process -Name 'explorer' -IncludeUserName | Select-Object -ExpandProperty UserName -First 1)).Translate([System.Security.Principal.SecurityIdentifier]).Value))
-            if((-not($?)) -or [string]::IsNullOrEmpty($Script:PathDirRootCU)){Break}
+            [string] $Script:PathDirRootCU = ('Registry::HKU\{0}\' -f ([System.Security.Principal.NTAccount]::new(@(Get-Process -Name 'explorer' -IncludeUserName)[0].UserName).Translate([System.Security.Principal.SecurityIdentifier]).Value))
+            if((-not($?)) -or [string]::IsNullOrEmpty($Script:PathDirRootCU) -or $Script:PathDirRootCU -like '*\\*'){Throw 'ERROR: Must be admin to get username from "Get-Process -IncludeUserName".';Break}
         }
-        # Add HKU:\ as PSDrive if not already
-        if ((Get-PSDrive -Name 'HKU' -ErrorAction SilentlyContinue) -eq $null) {$null = New-PSDrive -PSProvider Registry -Name 'HKU' -Root 'HKEY_USERS'}
-    #endregion Get Current User + New PS Drive for HKU
+    #endregion Get HKU\ path for current user 
 
 
 
     #region    Registry Variables
     [PSCustomObject[]] $RegValues = @(
-        [PSCustomObject]@{Dir=[string]'HKCU:\SOFTWARE\Microsoft\OneDrive';          Key=[string]'EnableADAL';           Val=[byte]1; Type=[string]'DWord'},
-        [PSCustomObject]@{Dir=[string]'HKLM:\Software\Policies\Microsoft\OneDrive'; Key=[string]'FilesOnDemandEnabled'; Val=[byte]1; Type=[string]'DWord'},
-        [PSCustomObject]@{Dir=[string]'HKLM:\Software\Policies\Microsoft\OneDrive'; Key=[string]'SilentAccountConfig';  Val=[byte]1; Type=[string]'DWord'}
+        [PSCustomObject]@{Path=[string]'HKCU:\SOFTWARE\Microsoft\OneDrive';          Name=[string]'EnableADAL';           Value=[byte]1; Type=[string]'DWord'},
+        [PSCustomObject]@{Path=[string]'HKLM:\Software\Policies\Microsoft\OneDrive'; Name=[string]'FilesOnDemandEnabled'; Value=[byte]1; Type=[string]'DWord'},
+        [PSCustomObject]@{Path=[string]'HKLM:\Software\Policies\Microsoft\OneDrive'; Name=[string]'SilentAccountConfig';  Value=[byte]1; Type=[string]'DWord'}
     )
     #endregion Registry Variables
 
 
 
-    #region    Set Registry Values
+    #region    Set Registry Values from SYSTEM / DEVICE context
         foreach ($Item in $RegValues) {
-            # Create path variable, switch HKCU: with HKU:
-            [string] $TempPath = $Item.Dir
-            if ($TempPath -like 'HKCU:\*') {$TempPath = $TempPath.Replace('HKCU:\',$Script:PathDirRootCU)}
-            $TempPath = $TempPath.Replace('\\','\')
-            Write-Verbose -Message ('Path: "{0}".' -f ($TempPath))
+            # Create $Path variable, switch HKCU: with HKU:
+            [string] $Path = $Item.Path
+            if ($Path -like 'HKCU:\*') {$Path = $Path.Replace('HKCU:\',$Script:PathDirRootCU)}
+            $Path = $Path.Replace('\\','\')
+            Write-Verbose -Message ('Path: "{0}".' -f ($Path))
 
-            # Check that $TempPath is valid
-            if($TempPath -notlike 'HK*:\*' -or $TempPath -like '*:*:*' -or $TempPath -like '*\\*'){
-                Throw 'Not a valid path! Will not continue'
+            # Check if $Path is valid
+            [bool] $SuccessValidPath = $true
+            if ($Path -like 'HKCU:\*') {$SuccessValidPath = $false}
+            elseif ($Path -like 'HKLM:\*' -or $Path -like 'HKU:\') {
+                $SuccessValidPath = -not ($Path -notlike 'HK*:\*' -or $Path -like '*:*:*' -or $Path -like '*\\*' -or $Path.Split(':')[0].Length -gt 4)       
             }
+            elseif ($Path -like 'Registry::HKU\*') {
+                $SuccessValidPath = -not ($Path -like '*\\*')
+            }
+            else {$SuccessValidPath = $false}
+            if (-not($SuccessValidPath)){Throw 'Not a valid path! Will not continue.'}
 
-            # Check if $TempPath exist, create it if not
-            if (-not(Test-Path -Path $TempPath)){
-                $null = New-Item -Path $TempPath -ItemType 'Directory' -Force
-                Write-Verbose -Message ('   Path did not exist. Successfully created it? {0}.' -f ($?.ToString()))
+
+            # Check if $Path exist, create it if not
+            if (-not(Test-Path -Path $Path)){
+                $null = New-Item -Path $Path -ItemType 'Directory' -Force
+                Write-Verbose -Message ('   Path did not exist. Successfully created it? {0}.' -f (([bool] $Local:SuccessCreatePath = $?).ToString()))
+                if (-not($Local:SuccessCreatePath)){Continue}
             }
         
             # Set Value / ItemPropery
-            Set-ItemProperty -Path $TempPath -Name $Item.Key -Value $Item.Val -Type $Item.Type -Force
-            Write-Verbose -Message ('   Key: {0} | Value: {1} | Type: {2} | Success? {3}' -f ($Item.Key,$Item.Val,$Item.Type,$?.ToString()))
+            Set-ItemProperty -Path $Path -Name $Item.Name -Value $Item.Value -Type $Item.Type -Force
+            Write-Verbose -Message ('   Name: {0} | Value: {1} | Type: {2} | Success? {3}' -f ($Item.Name,$Item.Value,$Item.Type,$?.ToString()))
         }
-    #endregion Set Registry Values
+    #endregion Set Registry Values from SYSTEM / DEVICE context
 
 
 ################################################
