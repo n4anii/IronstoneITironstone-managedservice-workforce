@@ -104,10 +104,10 @@ if ($false) {
 
 
     #region    Remove KFM Wizard
-    foreach ($Item in $RegValuesWizard){$null = Remove-ItemProperty -Path $Item.Path -Name $Item.Name}
+    foreach ($Item in $RegValuesWizard){$null = Remove-ItemProperty -Path $Item.Path -Name $Item.Name -Force}
     #endregion Remove KFM Wizard
 
     #region    Remove KFM Silent
-    foreach ($Item in $RegValuesSilent){$null = Remove-ItemProperty -Path $Item.Path -Name $Item.Name}
+    foreach ($Item in $RegValuesSilent){$null = Remove-ItemProperty -Path $Item.Path -Name $Item.Name -Force}
     #endregion Remove KFM Silent
 }

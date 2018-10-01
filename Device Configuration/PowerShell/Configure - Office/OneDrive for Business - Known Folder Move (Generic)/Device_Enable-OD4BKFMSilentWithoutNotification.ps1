@@ -98,41 +98,58 @@ Try {
         [PSCustomObject]@{Path=[string]$PathDirReg;Name=[string]'KFMSilentOptIn';                Value=[string]$TenantId;Type=[string]'String'},
         [PSCustomObject]@{Path=[string]$PathDirReg;Name=[string]'KFMSilentOptInWithNotification';Value=[byte]0;          Type=[string]'DWord'}
     )
+
+    # Registry Values - Remove
+    [PSCustomObject[]] $RegValuesRemove = @(
+        [PSCustomObject]@{Path=[string]$PathDirReg;Name=[string]'KFMOptInWithWizard'}
+    )
 #endregion Assets
 
 
 #region    Set Registry Values from SYSTEM / DEVICE context
-    foreach ($Item in $RegValues) {
-        # Create $Path variable, switch HKCU: with HKU:
-        [string] $Path = $Item.Path
-        if ($Path -like 'HKCU:\*') {$Path = $Path.Replace('HKCU:\',$Script:PathDirRootCU)}
-        $Path = $Path.Replace('\\','\')
-        Write-Verbose -Message ('Path: "{0}".' -f ($Path))
-
-        # Check if $Path is valid
-        [bool] $SuccessValidPath = $true
-        if ($Path -like 'HKCU:\*') {$SuccessValidPath = $false}
-        elseif ($Path -like 'HKLM:\*' -or $Path -like 'HKU:\') {
-            $SuccessValidPath = -not ($Path -notlike 'HK*:\*' -or $Path -like '*:*:*' -or $Path -like '*\\*' -or $Path.Split(':')[0].Length -gt 4)       
+    #region    Remove
+        foreach ($Item in $RegValuesRemove) {
+            if (-not([string]::IsNullOrEmpty((Get-ItemProperty -Path $Item.Path -Name $Item.Name -ErrorAction SilentlyContinue | Select-Object -ExpandProperty 'PSPath')))) {               
+                $null = Remove-ItemProperty -Path $Item.Path -Name $Item.Name -Force
+                Write-Verbose -Message ('Found item "{0}\{1}". Removing. Success? {2}.' -f ($Item.Path,$Item.Name,$?.ToString()))
+            }
         }
-        elseif ($Path -like 'Registry::HKU\*') {
-            $SuccessValidPath = -not ($Path -like '*\\*')
-        }
-        else {$SuccessValidPath = $false}
-        if (-not($SuccessValidPath)){Throw 'Not a valid path! Will not continue.'}
+    #endregion Remove
 
 
-        # Check if $Path exist, create it if not
-        if (-not(Test-Path -Path $Path)){
-            $null = New-Item -Path $Path -ItemType 'Directory' -Force
-            Write-Verbose -Message ('   Path did not exist. Successfully created it? {0}.' -f (([bool] $Local:SuccessCreatePath = $?).ToString()))
-            if (-not($Local:SuccessCreatePath)){Continue}
-        }
+    #region    Add
+        foreach ($Item in $RegValues) {
+            # Create $Path variable, switch HKCU: with HKU:
+            [string] $Path = $Item.Path
+            if ($Path -like 'HKCU:\*') {$Path = $Path.Replace('HKCU:\',$Script:PathDirRootCU)}
+            $Path = $Path.Replace('\\','\')
+            Write-Verbose -Message ('Path: "{0}".' -f ($Path))
+
+            # Check if $Path is valid
+            [bool] $SuccessValidPath = $true
+            if ($Path -like 'HKCU:\*') {$SuccessValidPath = $false}
+            elseif ($Path -like 'HKLM:\*' -or $Path -like 'HKU:\') {
+                $SuccessValidPath = -not ($Path -notlike 'HK*:\*' -or $Path -like '*:*:*' -or $Path -like '*\\*' -or $Path.Split(':')[0].Length -gt 4)       
+            }
+            elseif ($Path -like 'Registry::HKU\*') {
+                $SuccessValidPath = -not ($Path -like '*\\*')
+            }
+            else {$SuccessValidPath = $false}
+            if (-not($SuccessValidPath)){Throw 'Not a valid path! Will not continue.'}
+
+
+            # Check if $Path exist, create it if not
+            if (-not(Test-Path -Path $Path)){
+                $null = New-Item -Path $Path -ItemType 'Directory' -Force
+                Write-Verbose -Message ('   Path did not exist. Successfully created it? {0}.' -f (([bool] $Local:SuccessCreatePath = $?).ToString()))
+                if (-not($Local:SuccessCreatePath)){Continue}
+            }
         
-        # Set Value / ItemPropery
-        Set-ItemProperty -Path $Path -Name $Item.Name -Value $Item.Value -Type $Item.Type -Force
-        Write-Verbose -Message ('   Name: {0} | Value: {1} | Type: {2} | Success? {3}' -f ($Item.Name,$Item.Value,$Item.Type,$?.ToString()))
-    }
+            # Set Value / ItemPropery
+            Set-ItemProperty -Path $Path -Name $Item.Name -Value $Item.Value -Type $Item.Type -Force
+            Write-Verbose -Message ('   Name: {0} | Value: {1} | Type: {2} | Success? {3}' -f ($Item.Name,$Item.Value,$Item.Type,$?.ToString()))
+        }
+    #endregion Add
 #endregion Set Registry Values from SYSTEM / DEVICE context
 
 
