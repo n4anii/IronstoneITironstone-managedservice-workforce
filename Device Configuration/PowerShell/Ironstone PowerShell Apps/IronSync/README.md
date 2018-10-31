@@ -26,7 +26,7 @@ Device_Install-IronSync.ps1 is the script you deploy through Intune MDM -> Power
 * It creates a scheduled task "IronSync" which is going to run daily at 13:00.
 
 ### Onboard new customer - OfficeTemplates edition
-#### Prerequisites
+#### Azure Storage Account \ Blog Storage
 Files to sync, must be configured on customer tenant as such
 * Azure Storage Account -> Blog Storage with a Private Blob Container where the files will reside
   * Each file should use Access Tier "Hot", Blob Type "Block based"
@@ -35,9 +35,17 @@ Files to sync, must be configured on customer tenant as such
 ##### Run-IronSync(OfficeTemplates_<company>).ps1
 * Rename script file and script name inside it ($NameScript)
 * Add Storage Account name and SAS Token for access to the blob storage container
-##### Install-IronSync(OfficeTemplates_<customer>).ps1*
+##### Install-IronSync(OfficeTemplates_<customer>).ps1
 * Rename script file and script name inside it ($NameScript)
 * Edit region "Variables - Case Specific" with content from Run-IronSync(OfficeTemplates_<company>).ps1
+#### Deploy
+* Deploy both Azure Storage Tools and "Install-IronSync(OfficeTemplates_<customer>).ps1" to the same group
+##### AzSync
+Intune \ Client Apps
+* Add Microsoft Azure Storage Tools as MSI to Intune, and deploy
+##### Script
+Intune \ Device Configuration \ PowerShell
+* Upload the "Install-IronSync(OfficeTemplates_<customer>).ps1" script
 
 
 ## To Do
