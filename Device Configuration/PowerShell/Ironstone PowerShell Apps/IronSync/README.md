@@ -1,5 +1,6 @@
 # IronSync
 
+
 ## Introduction
 IronSync is a solution that let's you sync/ download files from Azure Storage to clients controlled with Azure Intune MDM.
 ### Reliable
@@ -7,22 +8,36 @@ It relies on AzCopy.exe from "Microsoft Azure Storage Tools".
 ### Safe 
 It uses SAS Tokens to authenticate against Azure Storage.
 
+
 ## How it works
 ### Device_Install-IronSync.ps1
 Installs IronSync, creates scheduled task.
-### Schedule-IronSync.ps1
+### Run-IronSync.ps1
 Runs AzCopy.exe with provided parameters, such as URL, SAS Token.
-### Run-IronSync.vbs
-Runs the Schedule-IronSync.ps1, triggered from a scheduled task. Ensures that IronSync run with sufficient privileges (-ExecutionPolicy bypass).
+
 
 ## How to use
+### Quick Overview
 Device_Install-IronSync.ps1 is the script you deploy through Intune MDM -> PowerShell Scripts.
 * Deploy using SYSTEM user
-* It has two files embedded as base64 encoded strings, which get's installed to "C:\Program Files\IronstoneIT\IronSync\".
-  * Scheduled script 
-  * VBScript to run the scheduled script from a scheduled task.
+* It has a file embedded as a ScriptBlock, which get's installed to "C:\Program Files\IronstoneIT\IronSync".
+  * Run-Ironsync.ps1
 * It creates two additional folders, one for logs (only kept if the scheduled script fails), and one for AzCopy journal files.
 * It creates a scheduled task "IronSync" which is going to run daily at 13:00.
+
+### Onboard new customer - OfficeTemplates edition
+#### Prerequisites
+Files to sync, must be configured on customer tenant as such
+* Azure Storage Account -> Blog Storage with a Private Blob Container where the files will reside
+  * Each file should use Access Tier "Hot", Blob Type "Block based"
+  * Copy out storage account name (taken from the storage account), and SAS token for the blob container (creat under "Access policy")
+#### Modify Scripts
+##### Run-IronSync(OfficeTemplates_<company>).ps1
+* Rename script file and script name inside it
+* Add Storage Account name and SAS Token for access to the blob storage container
+##### Install-IronSync(OfficeTemplates_<customer>).ps1*
+* Rename script file and script name inside it
+* Edit region "Variables - Case SPecific" with content from Run-IronSync(OfficeTemplates_<company>).ps1
 
 
 ## To Do
