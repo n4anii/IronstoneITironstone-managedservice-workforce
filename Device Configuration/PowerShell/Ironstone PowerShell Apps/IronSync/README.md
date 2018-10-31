@@ -33,11 +33,11 @@ Files to sync, must be configured on customer tenant as such
   * Copy out storage account name (taken from the storage account), and SAS token for the blob container (creat under "Access policy")
 #### Modify Scripts
 ##### Run-IronSync(OfficeTemplates_<company>).ps1
-* Rename script file and script name inside it
+* Rename script file and script name inside it ($NameScript)
 * Add Storage Account name and SAS Token for access to the blob storage container
 ##### Install-IronSync(OfficeTemplates_<customer>).ps1*
-* Rename script file and script name inside it
-* Edit region "Variables - Case SPecific" with content from Run-IronSync(OfficeTemplates_<company>).ps1
+* Rename script file and script name inside it ($NameScript)
+* Edit region "Variables - Case Specific" with content from Run-IronSync(OfficeTemplates_<company>).ps1
 
 
 ## To Do
