@@ -14,14 +14,30 @@
 
 
 #region    Initialize - Settings and Variables
-    # Variables - Script
-    [string] $NameScript      = 'IronSync'
-    [string] $NameFileScript  = ('Schedule-{0}' -f ($NameScript))
-    [bool] $BoolScriptSuccess = $true
-    # Variables - Log
-    [string] $PathDirLog   = ('{0}\Program Files\IronstoneIT\{1}\Logs\' -f ($env:SystemDrive,$NameScript))
-    [string] $NameFileLog  = ('{0}-runlog-{1}.log' -f ($NameScript,(Get-Date -Format 'yyMMddhhmmss')))
-    [string] $PathFileLog  = ('{0}{1}' -f ($PathDirLog,$NameFileLog))
+    #region    Static Variables - EDIT THESE ONLY
+        [string] $NameScript   = 'Run-IronSync(OfficeTemplates_Metier)'
+        # Variables - Environment
+        [string] $PathDirSync  = ('{0}\Users\Public\OfficeTemplates' -f ($env:SystemDrive))
+        # Variabled - Connection Info
+        [string] $StorageAccountName     = 'metierclientstorage'
+        [string] $StorageAccountSASToken = '?sv=2017-07-29&ss=b&srt=co&sp=rl&se=2019-01-01T21:05:29Z&st=2018-04-11T12:05:29Z&spr=https&sig=K77IKMwiMS7I15DL%2FwtbbPEDDIGARtiWcdJo3U1YGF4%3D'                     
+    #endregion Static Variables - EDIT THESE ONLY
+    
+    
+
+    #region    Dynamic Variables
+        # Variables - Script
+        [string] $NameScriptNoun  = $NameScript.Split('-')[-1]
+        [string] $NameFileScript  = ('Run-{0}' -f ($NameScriptNoun))
+        [bool] $BoolScriptSuccess = $true
+        # Variables - Log
+        [string] $PathDirLog      = ('{0}\IronstoneIT\{1}\Logs' -f ($env:ProgramW6432,$NameScriptNoun))
+        [string] $NameFileLog     = ('{0}-runlog-{1}.log' -f ($NameScriptNoun,[datetime]::Now.ToString('yyMMdd-hhmmss')))
+        [string] $PathFileLog     = ('{0}\{1}' -f ($PathDirLog,$NameFileLog))
+    #endregion Dynamic Variables
+  
+    
+    
     # Settings - PowerShell
     $DebugPreference       = 'SilentlyContinue'
     $ErrorActionPreference = 'Stop'
@@ -29,14 +45,6 @@
     $ProgressPreference    = 'SilentlyContinue'
     $VerbosePreference     = 'Continue'
     $WarningPreference     = 'Continue'
-
-    #region    Variables - EDIT THESE ONLY
-        # Variables - Environment
-        [string] $PathDirSync  = ('{0}\Users\Public\OfficeTemplates\' -f ($env:SystemDrive))
-        # Variabled - Connection Info
-        [string] $StorageAccountName     = 'metierclientstorage'
-        [string] $StorageAccountSASToken = '?sv=2017-07-29&ss=b&srt=co&sp=rl&se=2019-01-01T21:05:29Z&st=2018-04-11T12:05:29Z&spr=https&sig=K77IKMwiMS7I15DL%2FwtbbPEDDIGARtiWcdJo3U1YGF4%3D'                     
-    #endregion Variables - EDIT THESE ONLY
 #endregion Initialize - Settings and Variables
 
 
@@ -62,8 +70,8 @@ try {
         #>
         [string] $StorageAccountURL    = ('https://{0}.blob.core.windows.net' -f ($StorageAccountName))
         [string] $StorageAccountBlobURL= ('{0}/office365-templates' -f ($StorageAccountURL))
-        [string] $PathFileAzCopy       = ('{0}\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\AzCopy.exe' -f ($env:SystemDrive))
-        [string] $PathDirAzCopyJournal = ('{0}\Program Files\IronstoneIT\{1}\AzCopyJournal\' -f ($env:SystemDrive,$NameScript))
+        [string] $PathFileAzCopy       = ('{0}\Microsoft SDKs\Azure\AzCopy\AzCopy.exe' -f (${env:ProgramFiles(x86)}))
+        [string] $PathDirAzCopyJournal = ('{0}\IronstoneIT\{1}\AzCopyJournal' -f ($env:ProgramW6432,$NameScriptNoun))
     #endregion AzCopy - Variables
 
 
@@ -80,7 +88,7 @@ try {
                 $BoolScriptSuccess = $false
             }
         }
-        If (-not($BoolScriptSuccess)) {Break}
+        if (-not($BoolScriptSuccess)) {Break}
     #endregion Check if neccessary paths exist
         
 

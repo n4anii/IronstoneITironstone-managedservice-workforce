@@ -109,7 +109,7 @@ Try {
 
             #region    Variables - Case Specific              
                 # Sync Folder
-                [string] $PathDirSync          = ('{0}\Users\Public\OfficeTemplates\' -f ($env:SystemDrive))               
+                [string] $PathDirSync = ('{0}\Users\Public\OfficeTemplates\' -f ($env:SystemDrive))               
                 #region     Install Files
                     [PSCustomObject[]] $InstallFiles = @(
                         [PSCustomObject[]]@{Name=[string]('Schedule-{0}.ps1' -f ($NameScript));
