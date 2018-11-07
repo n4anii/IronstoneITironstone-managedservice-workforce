@@ -38,6 +38,7 @@ First create a Access Policy on the Azure Storage Container where the Office365 
 * Public Access Level: Private.
 * Stored access policies: Create a storage policy named "users", no start or expiry time, permissions Read and List only.
 * Immutable blob storage: No policies configured.
+
 Then create a SAS token on the Storage Account
 * Go to the Storage Account \ Shared access signature
   * Allowed services: Blob.
