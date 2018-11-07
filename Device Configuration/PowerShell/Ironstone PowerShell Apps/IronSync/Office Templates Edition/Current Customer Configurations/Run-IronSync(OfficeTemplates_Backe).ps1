@@ -124,7 +124,7 @@ Try {
 
 #region    Initialize - Settings and Variables
     #region    Static Variables - EDIT THESE ONLY
-        [string] $NameScript   = 'Run-IronSync(OfficeTemplates_Metier)'
+        [string] $NameScript   = 'Run-IronSync(OfficeTemplates_Backe)'
         # Variables - Environment
         [string] $PathDirSync  = ('{0}\Users\Public\OfficeTemplates' -f ($env:SystemDrive))
         # Variabled - Connection Info
