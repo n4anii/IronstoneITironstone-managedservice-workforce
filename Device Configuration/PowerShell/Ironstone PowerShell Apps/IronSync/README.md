@@ -27,10 +27,27 @@ Device_Install-IronSync.ps1 is the script you deploy through Intune MDM -> Power
 
 ### Onboard new customer - OfficeTemplates edition
 #### Azure Storage Account \ Blog Storage
+##### Upload Files
 Files to sync, must be configured on customer tenant as such
 * Azure Storage Account -> Blog Storage with a Private Blob Container where the files will reside
+  * Storage Container MUST be names "office365-templates"
   * Each file should use Access Tier "Hot", Blob Type "Block based"
   * Copy out storage account name (taken from the storage account), and SAS token for the blob container (creat under "Access policy")
+##### Create SAS (Shared Access Signature) Token
+First create a Access Policy on the Azure Storage Container where the Office365 templates resides
+* Public Access Level: Private.
+* Stored access policies: Create a storage policy named "users", no start or expiry time, permissions Read and List only.
+* Immutable blob storage: No policies configured.
+Then create a SAS token on the Storage Account
+* Go to the Storage Account \ Shared access signature
+  * Allowed services: Blob.
+  * Allowed resource types: Container and Object only.
+  * Allowed permissions: Read and List only.
+  * Start time: Now.
+  * End time: In two years or to your preference.
+  * Time zone: UTC+1.
+  * Allowed protocols: HTTPS only.
+  * Signing key: Which ever, but note that: Regenerating the key will break the SAS token.
 #### Modify Scripts
 ##### Run-IronSync(OfficeTemplates_<company>).ps1
 * Rename script file and script name inside it ($NameScript)
