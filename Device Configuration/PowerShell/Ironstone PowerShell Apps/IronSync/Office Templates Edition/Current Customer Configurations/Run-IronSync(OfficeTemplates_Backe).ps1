@@ -129,7 +129,7 @@ Try {
         [string] $PathDirSync  = ('{0}\Users\Public\OfficeTemplates' -f ($env:SystemDrive))
         # Variabled - Connection Info
         [string] $StorageAccountName     = 'backeclientstorage'
-        [string] $StorageAccountSASToken = '?sv=2018-03-28&si=users&sr=c&sig=q%2BGs6QpGiSxI2%2BTgT2t8b6oP2qpgQWC3%2FlH%2FVH1ijoQ%3D'
+        [string] $StorageAccountSASToken = '?sv=2018-03-28&ss=b&srt=c&sp=rl&st=2018-11-07T13%3A30%3A58Z&se=2018-11-08T13%3A30%3A58Z&sig=lIkctRmDbvosSho4tzbFAclvA0F5xyE8WY6FSgnF6mc%3D'
                          
     #endregion Static Variables - EDIT THESE ONLY
     
