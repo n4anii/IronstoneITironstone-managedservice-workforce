@@ -30,3 +30,6 @@ Go into the OMS Workspace. Then, go to Settings -> Connected Sources -> Windows 
 
 ### Metier
 * b51417b6-2ddf-4125-89bb-2d5a9864f466
+
+### Bergans
+* ab668869-8d3d-4bf0-862c-d5035d6596c4
