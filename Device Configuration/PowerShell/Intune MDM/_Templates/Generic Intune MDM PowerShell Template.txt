@@ -1,0 +1,35 @@
+Updated with latest Ironstone Inttune PowerShell Template		Ironstone	Irontest	Backe	Holta	Metier
+* IronTrigger
+* Device_Activate-Win10EnterpriseMAK													X
+* Device_Configure-GoogleChrome															X
+* Device_Configure-Lenovo_v2												X			X
+* Device_Configure-Office365AIO															X
+* Device_ConfigureOneDriveForBusiness							X			X			X		X		X
+* Device_Install-LenovoSoftware_Force													X
+* Device_Set-CommercialID										X			X			X		X		X
+* Device_Set-AllowTelemetry-Full(3)								X			X
+* Device_Set-AllowTelemetry-Enhanced(2)													X		X		X
+* Device_Set-IEDefaultSearchProvider(Google)											X
+* Device_Set-WindowsFeatures									X			X			X		X		X
+* Device_Uninstall-Bloatware															X
+* User_Add-IETrustedSites_Microsoft								X			X			X
+* User_Add-ShortcutToDesktop_URL(99x_RDP)												X
+* User_Configure-Citrix																	X
+* User_Disable-KeyboardLayoutSwitchShortcut						X			X							X
+* User_Remove-ShortcutFromDesktop(99x-RDP)
+* User_Set-PowerConfiguration_ScreenSaverWait
+* User_Set-PowerConfiguration_LidAction
+* User_Uninstall-Bloatware																X
+
+
+
+Not Updated
+* IronSync(OfficeTemplatesEdition)
+	* Remember scheduled task!
+* IronRecordingVolumeMaximizer
+	* Remember scheduled task!
+* Device_Install-MaxRMMAgent (Metier)
+* Device_Install-HPHotkey (Metier)
+* Device_Install-HPIDTAudioDrivers (Metier)
+* Device_Install-eRoom (Metier)
+* User_Set-LocalUserCulture.ps1

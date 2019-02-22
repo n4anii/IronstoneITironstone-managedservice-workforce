@@ -1,0 +1,9 @@
+{
+	"distribution":{
+		"msi":true,
+		"system_level":true,
+		"verbose_logging":true,
+		"msi_product_id":"CA3A5612-64CB-35A5-AD31-7CD1B1EDA96A",
+		"allow_downgrade":false
+	}
+}

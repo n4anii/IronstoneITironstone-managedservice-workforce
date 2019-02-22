@@ -1,0 +1,45 @@
+﻿{
+  "homepage": "http://intranett/Sider/hjem.aspx",
+  "homepage_is_newtabpage": false,
+  "browser": {
+    "check_default_browser": false,
+	"has_seen_welcome_page": true,
+	"show_home_button": true,
+	"show_update_promotion_info_bar": false
+  },
+  "session": {
+    "restore_on_startup": 4,
+    "startup_urls": ["http://intranett/Sider/hjem.aspx", "https://backe.facebook.com"]
+  },
+  "bookmark_bar": {
+    "show_on_all_tabs": false
+  },
+  "sync_promo": {
+    "show_on_first_run_allowed": false,
+	"user_skipped": true
+  },
+  "distribution": {
+    "allow_downgrade": false,
+	"create_all_shortcuts": true,
+	"do_not_create_desktop_shortcut": false,
+    "do_not_create_quick_launch_shortcut": false,
+    "do_not_launch_chrome": true,
+    "do_not_register_for_update_launch": true,
+	"import_bookmarks": false,
+    "import_history": false,
+    "import_home_page": false,
+    "import_search_engine": false,
+    "make_chrome_default": false,
+    "make_chrome_default_for_user": false,
+    "msi": true,	
+	"ping_delay": 60,
+	"show_welcome_page": false,
+	"skip_first_run_ui": true,
+	"suppress_default_browser_prompt_for_version": true,
+	"suppress_first_run_default_browser_prompt": true,
+    "suppress_first_run_bubble": true,  
+	"system_level": true,
+	"verbose_logging": true
+  },
+  "first_run_tabs": ["http://intranett/Sider/hjem.aspx", "https://backe.facebook.com"]
+}

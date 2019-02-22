@@ -1,0 +1,2 @@
+CitrixReceiver.exe /silent /STORE0="BackeGruppen;https://storefront.backe.no/Citrix/BackeGruppen/discovery" /ENABLEPRELAUNCH=False /EnableCEIP=true /EnableTracing=true
+"CitrixReceiver v4.10.exe" /silent /STORE0="BackeGruppen;https://storefront.backe.no/Citrix/BackeGruppen/discovery" /ENABLEPRELAUNCH=False /EnableCEIP=true /EnableTracing=true

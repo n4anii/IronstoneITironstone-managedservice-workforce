@@ -1,0 +1,48 @@
+Supported parameters:
+/help               - Displays this usage information
+/uninstall          - Removes an existing installation
+/silent             - Suppresses all graphical user interface
+/noreboot           - Suppresses all reboots and reboot prompts
+/preview            - Displays preview of changes without altering the machine
+/extract <folder>   - Extract self-extracting package to an existing folder
+/includeSSON        - Installs the single sign-on component for domain pass-through logon
+/EnableCEIP                     - Enables (true) or disables (false) the Citrix Customer Improvement Program (CEIP)
+/AutoUpdateCheck    - Enables automatic update (auto), enables manual update (manual), bans AutoUpdate (disabled)
+/AutoUpdateStream   - Specify AutoUpdate stream to be in long term (LTSR) or short term service releases (Current)
+/DeferUpdateCount   - Specify number of times AutoUpdate can be deferred
+
+MSI property values are supported and must be separated by spaces, e.g.:
+   PROPERTY="Value" PROPERTY2="Value2"
+
+Example silent command-line using all defaults:
+   CitrixReceiver.exe /silent
+
+Example command-line specifying multiple options:
+   CitrixReceiver.exe /silent ADDLOCAL="ReceiverInside,ICA_Client,USB,DesktopViewer,Flash,Vd3d,WebHelper" INSTALLDIR="C:\myfolder" ENABLE_DYNAMIC_CLIENT_NAME="No" CLIENT_NAME="my_overrided_name" DEFAULT_NDSCONTEXT="Context1,Context2"
+
+Example command-line to enable domain pass-through:
+   CitrixReceiver.exe /silent  /includeSSON ADDLOCAL="ReceiverInside,ICA_Client,SSON,USB,DesktopViewer,Flash,Vd3d,WebHelper" INSTALLDIR="C:\myfolder" ENABLE_DYNAMIC_CLIENT_NAME="No" CLIENT_NAME="my_overrided_name" DEFAULT_NDSCONTEXT="Context1,Context2"
+
+Example command-line to Install Single Sign-On server but to disable capture of logon credentials:
+   CitrixReceiver.exe /includesson LOGON_CREDENTIAL_CAPTURE_ENABLE=No [defaults to Yes]
+
+Example command-line to Install Receiver in NonSelfServiceMode
+   CitrixReceiver.exe SELFSERVICEMODE=false [defaults to true]
+
+Example command-line to support upgrade from unsupported version to latest version
+        CitrixReceiver.exe /RCU
+
+Example command-line to disable CEIP:
+   CitrixReceiver.exe /EnableCEIP=false [defaults to true]
+
+Example command-line to enable manual update:
+    CitrixReceiver.exe /AutoUpdateCheck=manual [defaults to auto]
+
+Example command-line to disable auto update:
+    CitrixReceiver.exe /AutoUpdateCheck=disabled
+
+Example command-line to choose long term service release stream:
+    CitrixReceiver.exe /AutoUpdateStream=LTSR
+
+Example command-line to choose 2 times AutoUpdate can be deferred:
+    CitrixReceiver.exe /DeferUpdateCount=2

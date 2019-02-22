@@ -1,0 +1,29 @@
+Microsoft PowerShell Feedback: Pin To Taskbar no Longer Working in Windows 10
+https://connect.microsoft.com/PowerShell/feedbackdetail/view/1609288/pin-to-taskbar-no-longer-working-in-windows-10#
+
+
+Alex Weinberger: Pinning a network program with a Jump List to the taskbar programmatically in windows 10 – Part 1
+http://alexweinberger.com/main/pinning-network-program-taskbar-programmatically-windows-10/
+
+PowerShell App Deployment Toolkit
+http://psappdeploytoolkit.com/
+
+
+PinTo10 (C# with SourceCode)
+https://pinto10blog.wordpress.com/2016/09/10/pinto10/
+
+
+GitHub: Tasbar Unpinner (VBScript)
+https://github.com/Gundark/TaskbarUnpinner
+
+
+
+
+############## Folders 
+### Pinned
+- '{0}\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar -f ($env:APPDATA)
+### Office365
+- '{0}\Program Files (x86)\Microsoft Office\root\Office16' -f ($env:SystemDrive)
+# Programs
+[string] $StrOfficeFolder = '{0}\Program Files (x86)\Microsoft Office\root\Office16' -f ($env:SystemDrive)
+[string] $StrOfficeApp = $Str

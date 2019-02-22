@@ -1,0 +1,27 @@
+### STEP 1
+Exit Script
+Exit On Failure
+Non Windows OS
+
+
+### STEP 2
+Execute PowerShell Bypass as Local and store result in: @PowerShellOutput@
+	Get-ItemProperty -Path ('Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CloudDomainJoin\JoinInfo\{0}' -f ((Get-ChildItem -Path 'Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CloudDomainJoin\JoinInfo\' -ErrorAction 'SilentlyContinue' | Select-Object -First 1 -ExpandProperty Name).Split('\')[-1])) -Name 'UserEmail' -ErrorAction 'SilentlyContinue' | Select-Object -ExpandProperty 'UserEmail'
+Exit On Failure
+All Operating Systems
+
+
+### STEP 3
+SET: [EXTRAFIELD AADJoinedUPN] = @PowerShellOutput@
+	Extra Field: 	AADJoinedUPN-1
+	ID:				%computerid%
+	Value:			@PowerShellOutput@
+Exit On Failure
+All Operating Systems
+
+
+### STEP 4
+LOG: AADJoinedUPN = "@PowerShellOutput@"
+	Message: AADJoinedUPN = "@PowerShellOutput@"
+Exit On Failure
+All Operating Systems

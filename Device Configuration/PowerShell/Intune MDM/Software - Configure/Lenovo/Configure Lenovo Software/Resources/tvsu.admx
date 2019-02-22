@@ -1,0 +1,470 @@
+<policyDefinitions revision="1.0" schemaVersion="1.0">
+  <policyNamespaces >
+	<target prefix="tvsu" namespace="Lenovo.ADM_Editor.tvsu" />
+  </policyNamespaces>
+  <supersededAdm fileName="tvsu.adm" />
+  <resources minRequiredRevision="1.0" />
+  <supportedOn>
+    <definitions>
+      <definition name="SupportedOn_1" displayName="$(string.String_SupportedOn_Undefined_2)" />
+      <definition name="SupportedOn_3" displayName="$(string.String_SupportedOn_Undefined_4)" />
+      <definition name="SupportedOn_5" displayName="$(string.String_SupportedOn_Undefined_6)" />
+      <definition name="SupportedOn_7" displayName="$(string.String_SupportedOn_Undefined_8)" />
+      <definition name="SupportedOn_9" displayName="$(string.String_SupportedOn_Undefined_10)" />
+      <definition name="SupportedOn_11" displayName="$(string.String_SupportedOn_Undefined_12)" />
+      <definition name="SupportedOn_13" displayName="$(string.String_SupportedOn_Undefined_14)" />
+      <definition name="SupportedOn_15" displayName="$(string.String_SupportedOn_Undefined_16)" />
+      <definition name="SupportedOn_17" displayName="$(string.String_SupportedOn_Undefined_18)" />
+      <definition name="SupportedOn_19" displayName="$(string.String_SupportedOn_Undefined_20)" />
+      <definition name="SupportedOn_21" displayName="$(string.String_SupportedOn_Undefined_22)" />
+      <definition name="SupportedOn_23" displayName="$(string.String_SupportedOn_Undefined_24)" />
+      <definition name="SupportedOn_25" displayName="$(string.String_SupportedOn_Undefined_26)" />
+      <definition name="SupportedOn_27" displayName="$(string.String_SupportedOn_Undefined_28)" />
+      <definition name="SupportedOn_29" displayName="$(string.String_SupportedOn_Undefined_30)" />
+      <definition name="SupportedOn_31" displayName="$(string.String_SupportedOn_Undefined_32)" />
+      <definition name="SupportedOn_33" displayName="$(string.String_SupportedOn_Undefined_34)" />
+      <definition name="SupportedOn_35" displayName="$(string.String_SupportedOn_Undefined_36)" />
+      <definition name="SupportedOn_37" displayName="$(string.String_SupportedOn_Undefined_38)" />
+      <definition name="SupportedOn_39" displayName="$(string.String_SupportedOn_Undefined_40)" />
+      <definition name="SupportedOn_41" displayName="$(string.String_SupportedOn_Undefined_42)" />
+      <definition name="SupportedOn_43" displayName="$(string.String_SupportedOn_Undefined_44)" />
+      <definition name="SupportedOn_45" displayName="$(string.String_SupportedOn_Undefined_46)" />
+      <definition name="SupportedOn_47" displayName="$(string.String_SupportedOn_Undefined_48)" />
+      <definition name="SupportedOn_49" displayName="$(string.String_SupportedOn_Undefined_50)" />
+      <definition name="SupportedOn_51" displayName="$(string.String_SupportedOn_Undefined_52)" />
+      <definition name="SupportedOn_53" displayName="$(string.String_SupportedOn_Undefined_54)" />
+      <definition name="SupportedOn_55" displayName="$(string.String_SupportedOn_Undefined_56)" />
+      <definition name="SupportedOn_57" displayName="$(string.String_SupportedOn_Undefined_58)" />
+      <definition name="SupportedOn_59" displayName="$(string.String_SupportedOn_Undefined_60)" />
+      <definition name="SupportedOn_61" displayName="$(string.String_SupportedOn_Undefined_61)" />
+      <definition name="SupportedOn_62" displayName="$(string.String_SupportedOn_Undefined_62)" />
+	  <definition name="SupportedOn_63" displayName="$(string.String_SupportedOn_Undefined_63)" />
+    </definitions>
+  </supportedOn>
+  <categories>
+    <category name="Cat_ThinkVantage_61" displayName="$(string.String_Cat_ThinkVantage_62)" />
+    <category name="Cat_System_Update_63" displayName="$(string.String_Cat_System_Update_64)">
+      <parentCategory ref="Cat_ThinkVantage_61" />
+    </category>
+    <category name="Cat_UCSettings_65" displayName="$(string.String_Cat_UCSettings_66)">
+      <parentCategory ref="Cat_System_Update_63" />
+    </category>
+    <category name="Cat_BillBoard_67" displayName="$(string.String_Cat_BillBoard_68)">
+      <parentCategory ref="Cat_UCSettings_65" />
+    </category>
+    <category name="Cat_General_69" displayName="$(string.String_Cat_General_70)" explainText="$(string.String_CatExplain_Defines_the_General_71)">
+      <parentCategory ref="Cat_UCSettings_65" />
+    </category>
+    <category name="Cat_HTTPSHelloSettings_72" displayName="$(string.String_Cat_HTTPSHelloSettings_73)">
+      <parentCategory ref="Cat_UCSettings_65" />
+    </category>
+    <category name="Cat_UserSettings_74" displayName="$(string.String_Cat_UserSettings_75)">
+      <parentCategory ref="Cat_System_Update_63" />
+    </category>
+    <category name="Cat_Connection_76" displayName="$(string.String_Cat_Connection_77)">
+      <parentCategory ref="Cat_UserSettings_74" />
+    </category>
+    <category name="Cat_Proxy_1" displayName="$(string.String_Cat_Proxy_1)">
+      <parentCategory ref="Cat_Connection_76" />
+    </category>
+    <category name="Cat_SubProxy_1" displayName="$(string.String_Cat_SubProxy_1)">
+      <parentCategory ref="Cat_Proxy_1" />
+    </category>
+    <category name="Cat_SubProxy_2" displayName="$(string.String_Cat_SubProxy_2)">
+      <parentCategory ref="Cat_Proxy_1" />
+    </category>
+    <category name="Cat_SubProxy_3" displayName="$(string.String_Cat_SubProxy_3)">
+      <parentCategory ref="Cat_Proxy_1" />
+    </category>
+    <category name="Cat_SubProxy_4" displayName="$(string.String_Cat_SubProxy_4)">
+      <parentCategory ref="Cat_Proxy_1" />
+    </category>
+    <category name="Cat_SubProxy_5" displayName="$(string.String_Cat_SubProxy_5)">
+      <parentCategory ref="Cat_Proxy_1" />
+    </category>
+    <category name="Cat_General_78" displayName="$(string.String_Cat_General_79)" explainText="$(string.String_CatExplain_Defines_the_General_80)">
+      <parentCategory ref="Cat_UserSettings_74" />
+    </category>
+    <category name="Cat_Scheduler_80" displayName="$(string.Cat_Scheduler_80)">
+      <parentCategory ref="Cat_UserSettings_74" />
+    </category>
+    <category name="Cat_Mapped_Network_81" displayName="$(string.String_Cat_Mapped_Network_82)" explainText="$(string.String_CatExplain_Configure_the_Mapped_83)">
+      <parentCategory ref="Cat_UserSettings_74" />
+    </category>
+  </categories>
+  <policies>
+    <policy name="Policy_Language_Override_84" class="Both" displayName="$(string.String_Policy_Language_Override_85)" explainText="$(string.String_Explain_At_start_up_System_86)" presentation="$(presentation.Policy_Language_Override_84)" key="Software\Policies\Lenovo\System Update">
+      <parentCategory ref="Cat_System_Update_63" />
+      <supportedOn ref="SupportedOn_1" />
+      <elements>
+        <text id="Policy_TextBox_Element_Language_Override_87" key="Software\Policies\Lenovo\System Update" valueName="LanguageOverride" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_LiveFeed_88" class="Both" displayName="$(string.String_Policy_LiveFeed_89)" explainText="$(string.String_Explain_System_Update_checks_90)" presentation="$(presentation.Policy_LiveFeed_88)" key="Software\Policies\Lenovo\System Update\BillBoard\LiveFeed">
+      <parentCategory ref="Cat_BillBoard_67" />
+      <supportedOn ref="SupportedOn_3" />
+      <elements>
+        <text id="Policy_TextBox_Element_LiveFeed_91" key="Software\Policies\Lenovo\System Update\UCSettings\BillBoard" valueName="LiveFeed" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_Disable_92" class="Both" displayName="$(string.String_Policy_Disable_93)" explainText="$(string.String_Explain_This_flag_is_used_94)" presentation="$(presentation.Policy_Disable_92)" key="Software\Policies\Lenovo\System Update\General">
+      <parentCategory ref="Cat_General_69" />
+      <supportedOn ref="SupportedOn_5" />
+      <elements>
+        <enum id="Policy_DropList_Element_Disable_95" key="Software\Policies\Lenovo\System Update\UCSettings\General" valueName="Disable">
+          <item displayName="$(string.String_Policy_DropList_Select_Disable_YES_96)">
+            <value>
+              <string>YES</string>
+            </value>
+          </item>
+          <item displayName="$(string.String_Policy_DropList_Select_Disable_NO_97)">
+            <value>
+              <string>NO</string>
+            </value>
+          </item>
+        </enum>
+      </elements>
+    </policy>
+    
+    <policy name="Policy_Update_Thyself_104" class="Both" displayName="$(string.String_Policy_Update_Thyself_105)" explainText="$(string.String_Explain_System_Update_checks_106)" presentation="$(presentation.Policy_Update_Thyself_104)" key="Software\Policies\Lenovo\System Update\UCSettings\HTTPSHelloSettings">
+      <parentCategory ref="Cat_HTTPSHelloSettings_72" />
+      <supportedOn ref="SupportedOn_9" />
+      <elements>
+        <text id="Policy_TextBox_Element_Update_Thyself_107" key="Software\Policies\Lenovo\System Update\UCSettings\HTTPSHelloSettings" valueName="ServerName" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_User_Name_108" class="Both" displayName="$(string.String_Policy_User_Name_109)" explainText="$(string.String_Explain_The_user_name_to_110)" presentation="$(presentation.Policy_User_Name_108)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection">
+      <parentCategory ref="Cat_Connection_76" />
+      <supportedOn ref="SupportedOn_11" />
+      <elements>
+        <text id="Policy_TextBox_Element_User_Name_111" key="Software\Policies\Lenovo\System Update\UserSettings\Connection" valueName="User" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_User_Password_112" class="Both" displayName="$(string.String_Policy_User_Password_113)" explainText="$(string.String_Explain_It_stores_the_encrypted_114)" presentation="$(presentation.Policy_User_Password_112)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection">
+      <parentCategory ref="Cat_Connection_76" />
+      <supportedOn ref="SupportedOn_13" />
+      <elements>
+        <text id="Policy_TextBox_Element_User_Password_115" key="Software\Policies\Lenovo\System Update\UserSettings\Connection" valueName="Password" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_Proxy_ProxyEnable_1" class="Machine" displayName="$(string.String_Policy_Proxy_Enable_1)" explainText="$(string.String_Explain_It_specify_proxy_enable_1)" presentation="$(presentation.Policy_Proxy_Enable_1)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\1">
+      <parentCategory ref="Cat_SubProxy_1" />
+      <supportedOn ref="SupportedOn_13" />
+      <elements>
+        <enum id="Policy_DropList_Element_Proxy_ProxyEnable_1" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\1" valueName="ProxyEnable">
+          <item displayName="$(string.String_Policy_DropList_Proxy_Enable_YES_1)">
+            <value>
+              <string>1</string>
+            </value>
+          </item>
+          <item displayName="$(string.String_Policy_DropList_Proxy_Enable_NO_1)">
+            <value>
+              <string>0</string>
+            </value>
+          </item>
+        </enum>
+      </elements>
+    </policy>
+    <policy name="Policy_Proxy_ProxyServer_1" class="Machine" displayName="$(string.String_Policy_Proxy_Server_1)" explainText="$(string.String_Explain_It_stores_the_proxy_server_1)" presentation="$(presentation.Policy_SubProxy_Server_1)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\1">
+      <parentCategory ref="Cat_SubProxy_1" />
+      <supportedOn ref="SupportedOn_13" />
+      <elements>
+        <text id="Policy_TextBox_Element_Proxy_ProxyServer_1" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\1" valueName="ProxyServer" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_Proxy_AutoConfigURL_1" class="Machine" displayName="$(string.String_Policy_AutoConfig_URL_1)" explainText="$(string.String_Explain_It_stores_the_autoConfig_URL_1)" presentation="$(presentation.Policy_SubProxy_AutoConfigURL_1)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\1">
+      <parentCategory ref="Cat_SubProxy_1" />
+      <supportedOn ref="SupportedOn_13" />
+      <elements>
+        <text id="Policy_TextBox_Element_Proxy_AutoConfigURL_1" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\1" valueName="AutoConfigURL" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_Proxy_ProxyEnable_2" class="Machine" displayName="$(string.String_Policy_Proxy_Enable_1)" explainText="$(string.String_Explain_It_specify_proxy_enable_1)" presentation="$(presentation.Policy_Proxy_Enable_1)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\2">
+      <parentCategory ref="Cat_SubProxy_2" />
+      <supportedOn ref="SupportedOn_13" />
+      <elements>
+        <enum id="Policy_DropList_Element_Proxy_ProxyEnable_1" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\2" valueName="ProxyEnable">
+          <item displayName="$(string.String_Policy_DropList_Proxy_Enable_YES_1)">
+            <value>
+              <string>1</string>
+            </value>
+          </item>
+          <item displayName="$(string.String_Policy_DropList_Proxy_Enable_NO_1)">
+            <value>
+              <string>0</string>
+            </value>
+          </item>
+        </enum>
+      </elements>
+    </policy>
+    <policy name="Policy_Proxy_ProxyServer_2" class="Machine" displayName="$(string.String_Policy_Proxy_Server_1)" explainText="$(string.String_Explain_It_stores_the_proxy_server_1)" presentation="$(presentation.Policy_SubProxy_Server_1)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\2">
+      <parentCategory ref="Cat_SubProxy_2" />
+      <supportedOn ref="SupportedOn_13" />
+      <elements>
+        <text id="Policy_TextBox_Element_Proxy_ProxyServer_1" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\2" valueName="ProxyServer" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_Proxy_AutoConfigURL_2" class="Machine" displayName="$(string.String_Policy_AutoConfig_URL_1)" explainText="$(string.String_Explain_It_stores_the_autoConfig_URL_1)" presentation="$(presentation.Policy_SubProxy_AutoConfigURL_1)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\2">
+      <parentCategory ref="Cat_SubProxy_2" />
+      <supportedOn ref="SupportedOn_13" />
+      <elements>
+        <text id="Policy_TextBox_Element_Proxy_AutoConfigURL_1" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\2" valueName="AutoConfigURL" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_Proxy_ProxyEnable_3" class="Machine" displayName="$(string.String_Policy_Proxy_Enable_1)" explainText="$(string.String_Explain_It_specify_proxy_enable_1)" presentation="$(presentation.Policy_Proxy_Enable_1)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\3">
+      <parentCategory ref="Cat_SubProxy_3" />
+      <supportedOn ref="SupportedOn_13" />
+      <elements>
+        <enum id="Policy_DropList_Element_Proxy_ProxyEnable_1" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\3" valueName="ProxyEnable">
+          <item displayName="$(string.String_Policy_DropList_Proxy_Enable_YES_1)">
+            <value>
+              <string>1</string>
+            </value>
+          </item>
+          <item displayName="$(string.String_Policy_DropList_Proxy_Enable_NO_1)">
+            <value>
+              <string>0</string>
+            </value>
+          </item>
+        </enum>
+      </elements>
+    </policy>
+    <policy name="Policy_Proxy_ProxyServer_3" class="Machine" displayName="$(string.String_Policy_Proxy_Server_1)" explainText="$(string.String_Explain_It_stores_the_proxy_server_1)" presentation="$(presentation.Policy_SubProxy_Server_1)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\3">
+      <parentCategory ref="Cat_SubProxy_3" />
+      <supportedOn ref="SupportedOn_13" />
+      <elements>
+        <text id="Policy_TextBox_Element_Proxy_ProxyServer_1" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\3" valueName="ProxyServer" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_Proxy_AutoConfigURL_3" class="Machine" displayName="$(string.String_Policy_AutoConfig_URL_1)" explainText="$(string.String_Explain_It_stores_the_autoConfig_URL_1)" presentation="$(presentation.Policy_SubProxy_AutoConfigURL_1)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\3">
+      <parentCategory ref="Cat_SubProxy_3" />
+      <supportedOn ref="SupportedOn_13" />
+      <elements>
+        <text id="Policy_TextBox_Element_Proxy_AutoConfigURL_1" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\3" valueName="AutoConfigURL" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_Proxy_ProxyEnable_4" class="Machine" displayName="$(string.String_Policy_Proxy_Enable_1)" explainText="$(string.String_Explain_It_specify_proxy_enable_1)" presentation="$(presentation.Policy_Proxy_Enable_1)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\4">
+      <parentCategory ref="Cat_SubProxy_4" />
+      <supportedOn ref="SupportedOn_13" />
+      <elements>
+        <enum id="Policy_DropList_Element_Proxy_ProxyEnable_1" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\4" valueName="ProxyEnable">
+          <item displayName="$(string.String_Policy_DropList_Proxy_Enable_YES_1)">
+            <value>
+              <string>1</string>
+            </value>
+          </item>
+          <item displayName="$(string.String_Policy_DropList_Proxy_Enable_NO_1)">
+            <value>
+              <string>0</string>
+            </value>
+          </item>
+        </enum>
+      </elements>
+    </policy>
+    <policy name="Policy_Proxy_ProxyServer_4" class="Machine" displayName="$(string.String_Policy_Proxy_Server_1)" explainText="$(string.String_Explain_It_stores_the_proxy_server_1)" presentation="$(presentation.Policy_SubProxy_Server_1)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\4">
+      <parentCategory ref="Cat_SubProxy_4" />
+      <supportedOn ref="SupportedOn_13" />
+      <elements>
+        <text id="Policy_TextBox_Element_Proxy_ProxyServer_1" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\4" valueName="ProxyServer" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_Proxy_AutoConfigURL_4" class="Machine" displayName="$(string.String_Policy_AutoConfig_URL_1)" explainText="$(string.String_Explain_It_stores_the_autoConfig_URL_1)" presentation="$(presentation.Policy_SubProxy_AutoConfigURL_1)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\4">
+      <parentCategory ref="Cat_SubProxy_4" />
+      <supportedOn ref="SupportedOn_13" />
+      <elements>
+        <text id="Policy_TextBox_Element_Proxy_AutoConfigURL_1" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\4" valueName="AutoConfigURL" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_Proxy_ProxyEnable_5" class="Machine" displayName="$(string.String_Policy_Proxy_Enable_1)" explainText="$(string.String_Explain_It_specify_proxy_enable_1)" presentation="$(presentation.Policy_Proxy_Enable_1)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\5">
+      <parentCategory ref="Cat_SubProxy_5" />
+      <supportedOn ref="SupportedOn_13" />
+      <elements>
+        <enum id="Policy_DropList_Element_Proxy_ProxyEnable_1" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\5" valueName="ProxyEnable">
+          <item displayName="$(string.String_Policy_DropList_Proxy_Enable_YES_1)">
+            <value>
+              <string>1</string>
+            </value>
+          </item>
+          <item displayName="$(string.String_Policy_DropList_Proxy_Enable_NO_1)">
+            <value>
+              <string>0</string>
+            </value>
+          </item>
+        </enum>
+      </elements>
+    </policy>
+    <policy name="Policy_Proxy_ProxyServer_5" class="Machine" displayName="$(string.String_Policy_Proxy_Server_1)" explainText="$(string.String_Explain_It_stores_the_proxy_server_1)" presentation="$(presentation.Policy_SubProxy_Server_1)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\5">
+      <parentCategory ref="Cat_SubProxy_5" />
+      <supportedOn ref="SupportedOn_13" />
+      <elements>
+        <text id="Policy_TextBox_Element_Proxy_ProxyServer_1" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\5" valueName="ProxyServer" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_Proxy_AutoConfigURL_5" class="Machine" displayName="$(string.String_Policy_AutoConfig_URL_1)" explainText="$(string.String_Explain_It_stores_the_autoConfig_URL_1)" presentation="$(presentation.Policy_SubProxy_AutoConfigURL_1)" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\5">
+      <parentCategory ref="Cat_SubProxy_5" />
+      <supportedOn ref="SupportedOn_13" />
+      <elements>
+        <text id="Policy_TextBox_Element_Proxy_AutoConfigURL_1" key="Software\Policies\Lenovo\System Update\UserSettings\Connection\Proxy\5" valueName="AutoConfigURL" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_Extras_Tab_98" class="Both" displayName="$(string.String_Policy_Extras_Tab_99)" explainText="$(string.String_Explain_The_Extras_tab_100)" presentation="$(presentation.Policy_Extras_Tab_98)" key="Software\Policies\Lenovo\System Update\General">
+      <parentCategory ref="Cat_General_69" />
+      <supportedOn ref="SupportedOn_7" />
+      <elements>
+        <enum id="Policy_DropList_Element_Extras_Tab_101" key="Software\Policies\Lenovo\System Update\UserSettings\General" valueName="ExtrasTab">
+          <item displayName="$(string.String_Policy_DropList_Select_Extras_Tab_YES_102)">
+            <value>
+              <string>YES</string>
+            </value>
+          </item>
+          <item displayName="$(string.String_Policy_DropList_Select_Extras_Tab_NO_103)">
+            <value>
+              <string>NO</string>
+            </value>
+          </item>
+        </enum>
+      </elements>
+    </policy>
+    <policy name="Policy_Repository_Location_116" class="Both" displayName="$(string.String_Policy_Repository_Location_117)" explainText="$(string.String_Explain_Paths_to_repositories_118)" presentation="$(presentation.Policy_Repository_Location_116)" key="Software\Policies\Lenovo\System Update\UserSettings\General">
+      <parentCategory ref="Cat_General_78" />
+      <supportedOn ref="SupportedOn_15" />
+      <elements>
+        <text id="Policy_TextBox_Element_Repository_Location_119" key="Software\Policies\Lenovo\System Update\UserSettings\General" valueName="RepositoryLocation1" maxLength="256" />
+        <text id="Policy_TextBox_Element_Repository_Location_120" key="Software\Policies\Lenovo\System Update\UserSettings\General" valueName="RepositoryLocation2" maxLength="256" />
+        <text id="Policy_TextBox_Element_Repository_Location_121" key="Software\Policies\Lenovo\System Update\UserSettings\General" valueName="RepositoryLocation3" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_UNC_Max_Attempts_122" class="Both" displayName="$(string.String_Policy_UNC_Max_Attempts_123)" explainText="$(string.String_Explain_Maximum_number_124)" presentation="$(presentation.Policy_UNC_Max_Attempts_122)" key="Software\Policies\Lenovo\System Update\UserSettings\General">
+      <parentCategory ref="Cat_General_78" />
+      <supportedOn ref="SupportedOn_17" />
+      <elements>
+        <decimal id="Policy_Numeric_ElementUNC_Max_Attempts_125" key="Software\Policies\Lenovo\System Update\UserSettings\General" valueName="UNCMaxAttempts" minValue="1" maxValue="100" storeAsText="true" />
+      </elements>
+    </policy>
+    <policy name="Policy_Ignore_Local_License_126" class="Both" displayName="$(string.String_Policy_Ignore_Local_License_127)" explainText="$(string.String_Explain_Allows_silent_install_128)" presentation="$(presentation.Policy_Ignore_Local_License_126)" key="Software\Policies\Lenovo\System Update\UserSettings\General">
+      <parentCategory ref="Cat_General_78" />
+      <supportedOn ref="SupportedOn_19" />
+      <elements>
+        <enum id="Policy_DropList_Element_Ignore_Local_License_129" key="Software\Policies\Lenovo\System Update\UserSettings\General" valueName="IgnoreLocalLicense">
+          <item displayName="$(string.String_Policy_DropList_Select_Ignore_Local_License_NO_130)">
+            <value>
+              <string>NO</string>
+            </value>
+          </item>
+          <item displayName="$(string.String_Policy_DropList_Select_Ignore_Local_License_YES_131)">
+            <value>
+              <string>YES</string>
+            </value>
+          </item>
+        </enum>
+      </elements>
+    </policy>
+    <policy name="Policy_IgnoreRMLicCRCSize_132" class="Both" displayName="$(string.String_Policy_IgnoreRMLicCRCSize_133)" explainText="$(string.String_Explain_Allows_System_Update_134)" presentation="$(presentation.Policy_IgnoreRMLicCRCSize_132)" key="Software\Policies\Lenovo\System Update\UserSettings\General">
+      <parentCategory ref="Cat_General_78" />
+      <supportedOn ref="SupportedOn_21" />
+      <elements>
+        <enum id="Policy_DropList_Element_IgnoreRMLicCRCSize_135" key="Software\Policies\Lenovo\System Update\UserSettings\General" valueName="IgnoreRMLicCRCSize">
+          <item displayName="$(string.String_Policy_DropList_Select_IgnoreRMLicCRCSize_NO_136)">
+            <value>
+              <string>NO</string>
+            </value>
+          </item>
+          <item displayName="$(string.String_Policy_DropList_Select_IgnoreRMLicCRCSize_YES_137)">
+            <value>
+              <string>YES</string>
+            </value>
+          </item>
+        </enum>
+      </elements>
+    </policy>
+    <policy name="Policy_NotifyInterval_138" class="Both" displayName="$(string.String_Policy_NotifyInterval_139)" explainText="$(string.String_Explain_Second_of_interval_140)" presentation="$(presentation.Policy_NotifyInterval_138)" key="Software\Policies\Lenovo\System Update\UserSettings\General">
+      <parentCategory ref="Cat_General_78" />
+      <supportedOn ref="SupportedOn_23" />
+      <elements>
+        <decimal id="Policy_Numeric_ElementNotifyInterval_141" key="Software\Policies\Lenovo\System Update\UserSettings\General" valueName="NotifyInterval" minValue="60" maxValue="86400" storeAsText="true" />
+      </elements>
+    </policy>
+    <policy name="Policy_UNC_142" class="Both" displayName="$(string.String_Policy_UNC_143)" explainText="$(string.String_Explain_UNC_location_for_144)" presentation="$(presentation.Policy_UNC_142)" key="Software\Policies\Lenovo\MND\TVSUAPPLICATION">
+      <parentCategory ref="Cat_Mapped_Network_81" />
+      <supportedOn ref="SupportedOn_25" />
+      <elements>
+        <text id="Policy_TextBox_Element_UNC_145" key="Software\Policies\Lenovo\MND\TVSUAPPLICATION" valueName="UNC" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_User_146" class="Both" displayName="$(string.String_Policy_User_147)" explainText="$(string.String_Explain_Use_mapdrv_exe_148)" presentation="$(presentation.Policy_User_146)" key="Software\Policies\Lenovo\MND\TVSUAPPLICATION">
+      <parentCategory ref="Cat_Mapped_Network_81" />
+      <supportedOn ref="SupportedOn_27" />
+      <elements>
+        <text id="Policy_TextBox_Element_User_149" key="Software\Policies\Lenovo\MND\TVSUAPPLICATION" valueName="User" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_Password_150" class="Both" displayName="$(string.String_Policy_Password_151)" explainText="$(string.String_Explain_Use_mapdrv_exe_152)" presentation="$(presentation.Policy_Password_150)" key="Software\Policies\Lenovo\MND\TVSUAPPLICATION">
+      <parentCategory ref="Cat_Mapped_Network_81" />
+      <supportedOn ref="SupportedOn_29" />
+      <elements>
+        <text id="Policy_TextBox_Element_Password_153" key="Software\Policies\Lenovo\MND\TVSUAPPLICATION" valueName="Pwd" maxLength="256" />
+      </elements>
+    </policy>
+    <policy name="Policy_Scheduler_Lock_118" class="Both" displayName="$(string.Policy_Scheduler_Lock_118)" explainText="$(string.Policy_Scheduler_Lock_118_Help)" presentation="$(presentation.Policy_Scheduler_Lock_118)" key="Software\Policies\Lenovo\System Update\UserSettings\Scheduler">
+      <parentCategory ref="Cat_Scheduler_80" />
+      <supportedOn ref="SupportedOn_1" />
+      <elements>
+        <enum id="Policy_DropList_Element_Scheduler_Lock_181" key="Software\Policies\Lenovo\System Update\UserSettings\Scheduler" valueName="SchedulerLock">
+          <item displayName="$(string.String_Policy_DropList_Select_Scheduler_Lock_HIDE_182)">
+            <value>
+              <string>HIDE</string>
+            </value>
+          </item>
+          <item displayName="$(string.String_Policy_DropList_Select_Scheduler_Lock_SHOW_192)">
+            <value>
+              <string>SHOW</string>
+            </value>
+          </item>
+        </enum>
+      </elements>
+    </policy>
+    <policy name="Policy_EnableMetrics_1" class="Both" displayName="$(string.POL_B834D0BA_DA39_4ADA_ACCB_4DD52D5E7229)" explainText="$(string.POL_B834D0BA_DA39_4ADA_ACCB_4DD52D5E7229_Help)" presentation="$(presentation.POL_B834D0BA_DA39_4ADA_ACCB_4DD52D5E7229)" key="Software\Policies\Lenovo\System Update\UserSettings\General">
+      <parentCategory ref="Cat_General_78" />
+      <supportedOn ref="SupportedOn_61" />
+      <elements>
+        <enum id="DST_0D4EE975_5A24_4F98_A5CF_8271E07BD5DD" key="Software\Policies\Lenovo\System Update\UserSettings\General" valueName="MetricsEnabled">
+          <item displayName="$(string.ITM_DFB44924_123E_453B_8D91_EEECCD8188FF)">
+            <value>
+              <string>YES</string>
+            </value>
+          </item>
+          <item displayName="$(string.ITM_6314B134_0CA9_40A6_93AF_2A9499E59BA3)">
+            <value>
+              <string>NO</string>
+            </value>
+          </item>
+        </enum>
+      </elements>
+    </policy>
+    <policy name="Policy_EnableLenovoOffer_1" class="Both" displayName="$(string.POL_F4827D94_0649_4F1D_A754_9B222E267784)" explainText="$(string.POL_F4827D94_0649_4F1D_A754_9B222E267784_Help)" presentation="$(presentation.POL_F4827D94_0649_4F1D_A754_9B222E267784)" key="Software\Policies\Lenovo\System Update\UserSettings\General">
+      <parentCategory ref="Cat_General_78" />
+      <supportedOn ref="SupportedOn_62" />
+      <elements>
+        <enum id="DST_71D7F02B_8986_4F89_BDB1_2D95F3E76DC9" key="Software\Policies\Lenovo\System Update\UserSettings\General" valueName="OfferEnabled">
+          <item displayName="$(string.ITM_652A28EF_057E_4C0E_A95A_0985695AADDE)">
+            <value>
+              <string>YES</string>
+            </value>
+          </item>
+          <item displayName="$(string.ITM_32E3C0BB_ACDB_4648_B8DE_98C2DFADC213)">
+            <value>
+              <string>NO</string>
+            </value>
+          </item>
+        </enum>
+      </elements>
+    </policy>
+	<policy name="Policy_Admin_CommandLine_154" class="Both" displayName="$(string.String_Policy_Admin_Command_153)" explainText="$(string.String_Explain_Admin_Command_154)" presentation="$(presentation.Policy_Admin_CommandLine_154)" key="Software\Policies\Lenovo\System Update\UserSettings\General">
+      <parentCategory ref="Cat_General_78" />
+      <supportedOn ref="SupportedOn_63" />
+      <elements>
+        <text id="Policy_TextBox_Element_Admin_CommandLine_155" key="Software\Policies\Lenovo\System Update\UserSettings\General" valueName="AdminCommandLine" maxLength="256" />
+      </elements>
+    </policy>
+  </policies>
+</policyDefinitions>

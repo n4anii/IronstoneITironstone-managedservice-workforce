@@ -1,0 +1,78 @@
+##################################################################
+########## Get TPM Owner Password / Update TPM Firmware ##########
+##################################################################
+
+
+#################################
+### PREPARE TPM AND BITLOCKER ###
+#################################
+Disable BitLocker if enabled, or decrypt it:
+	Get-BitlockerVolume -MountPoint $env:SystemDrive | Select-Object -Property *
+	Disable-BitLocker -MountPoint $env:SystemDrive
+		https://docs.microsoft.com/en-us/powershell/module/bitlocker/disable-bitlocker
+		* Will clear all keys, and start decrypting
+
+Get Decryption Status
+	(Get-BitlockerVolume -MountPoint $env:SystemDrive).EncryptionPercentage
+		
+Disable TPM Auto Provisioning:
+	Disable-TpmAutoProvisioning
+
+Enable storing TPM Password:
+	Registry: 	Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\TPM' -Name 'OSManagedAuthLevel' -Value 4 -Type 'DWord' -Force
+	GPO:		Computer Configuration \ Administrative Templates \ System \ Trusted Platform Module Services \ 
+					Configure the level of TPM owner authorization information -> Full
+	
+Clear TPM
+	tpm.msc -> Clear TPM
+
+Reboot
+
+Initialize TPM
+	tpm.msc -> Prepare the TPM...
+	
+Get TPM Password	https://stackoverflow.com/questions/48762602/tpm-owner-password-and-lockout-password-with-windows-10-linux
+	- Registry 
+		HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\TPM\WMI\Admin -Name OwnerAuthFull
+	- PowerShell
+		Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\TPM\WMI\Admin' -Name 'OwnerAuthFull' | Select-Object -ExpandProperty OwnerAuthFull
+		
+	
+
+	
+#################################
+## DO WHAT YOU WERE GOING TO DO #
+#################################
+Update TPM Firmware, Convert from 1.2 to 2.0, or whatever
+
+
+
+#################################
+#### ENABLE TPM / BITLOCKER  ####
+#################################	
+Enable TPM Auto Provisioning
+	Enable-TpmAutoProvisioning
+	
+Disable storing TPM Password:
+	Registry: 	Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\TPM' -Name 'OSManagedAuthLevel' -Value 2 -Type 'DWord' -Force
+	GPO:		Computer Configuration \ Administrative Templates \ System \ Trusted Platform Module Services \ 
+					Configure the level of TPM owner authorization information -> Delegated, or disable it
+	
+Clear TPM
+	PowerShell: Clear-TPM
+	tpm.msc -> Clear TPM
+
+Reboot
+
+Reset Windows Hello for Business Login Pin
+	* Settings -> Accounts -> Sign-in options -> PIN -> I Forgot my PIN
+
+Enable BitLocker
+
+
+	
+#################################
+######### OTHER CMDLETS #########
+#################################
+Get All Key Protectors
+	manage-bde -Protectors -Get $env:SystemDrive

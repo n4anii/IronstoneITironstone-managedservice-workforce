@@ -1,0 +1,59 @@
+SCRIPT - RUNBOOK
+* Pulls templates from Exchange, uploads to Blob storage
+
+
+SCRIPT - INSTALL
+* Installs "SCRIPT - SCHEDULED TASK" using Intune MDM
+
+
+SCRIPT - SCHEDULED TASK
+* Checks for changes on the Azure Blob, re-downloads files if any updates
+	* Creates a folder, makes NTFS read only for all users except 'local system'
+
+
+	
+Pre requisites
+* Azure Blob storage
+* AzCopy for downloading files from Azure Blob 
+  
+
+  
+Must do
+* Download templates from: "https://metiero365.sharepoint.com/sites/MetierOECIntranet/Maler/Forms/AllItems.aspx"
+* Upload to Blob (Private, Read and List for "users")
+* Download to client using AzCopy or REST
+* Copy templates to "C:\templatesMO"
+	* Suggestion: "C:\Users\Public\OfficeTemplateMO"
+	* Do not clutter the root dir.
+* Add Office365 reg pointer to "C:\templatesMO"
+
+
+Do once
+* Create template folder
+	* NTFS Readonly, except for SYSTEM
+* Map to Office365 templates
+* Create Scheduled task to run daily
+	* VBScript, run PS1 as SYSTEM
+* Run Scheduled task first time
+
+
+Do daily	
+* Check latest change on blob vs first line in <templatedir>\version.txt
+
+
+Resources
+* AzCopy
+				https://aka.ms/AzCopy
+				https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy
+	GitHub: 	https://github.com/Azure/azure-storage-net-data-movement
+* AzCopy Download
+	Latest:		http://aka.ms/downloadazcopy
+	Current: 	https://azcopy.azureedge.net/azcopy-7-1-0/MicrosoftAzureStorageTools.msi
+* Set-Office365Templates.ps1 - Metier PowerShell Script by Morten
+	https://github.com/IronstoneIT/Customers/blob/master/Metier%20OEC/Intune/Device%20Configuration/Powershell/User_Set-Office365Templates_ict.ps1
+* PowerShell Module - NTFSSecurity
+	https://www.powershellgallery.com/packages/NTFSSecurity
+* PowerShell - NTFS - How to set NTFS ACL Access
+	http://www.tomsitpro.com/articles/powershell-manage-file-system-acl,2-837.html
+* SAS Tokens
+	https://docs.microsoft.com/en-us/azure/storage/common/storage-dotnet-shared-access-signature-part-1

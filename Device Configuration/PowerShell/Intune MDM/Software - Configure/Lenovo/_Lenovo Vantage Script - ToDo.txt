@@ -1,0 +1,35 @@
+Two scripts:
+* Disable everything
+* Try new features on pilot users
+	* Enable instant Windows- and Vantage Updates
+
+Groups
+* Lenovo Vantage Users
+	* Lenovo Vantage
+		* Auto Updates disabled
+	* Windows Update
+		* Prod Default
+* Lenovo Vantage Pilot Users
+	* Lenovo Vantage
+		* Auto Updates Enabled
+	* Windows Updates
+		* Targeted, 14 days feature, 5 days security
+
+
+
+Windows Updates:
+Win10 - Updates - Dev - CB				MDM Win10 - Prod Default - Updates
+Win10 - Updates - Prod - CBB			MDM Win10 - Dev - Updates
+
+
+MDM Win10 - Dev Lenovo Stable - Users		c2r-1.Davidsen@backe.no			LAPTOP-1NVJJ6L6	
+
+MDM Win10 - Dev Lenovo Pilot - Users		c2r-8@backe8.onmicrosoft.com	LAPTOP-ITVD9ONA
+
+
+Backe Lenovo Laptops
+	Lenovo X1 Yoga 3rd Gen (20LES1Q100)
+			Drivers: https://pcsupport.lenovo.com/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x1-yoga-3rd-gen-type-20ld-20le-20lf-20lg/20le/20les1q100/downloads
+	Lenovo P52s (20LCS0L600)
+			Drivers: https://pcsupport.lenovo.com/products/laptops-and-netbooks/thinkpad-p-series-laptops/thinkpad-p52s-type-20lb-20lc/20lc/20lcs0l600/downloads
+	

@@ -1,6 +1,0 @@
-### TODO / FUNCTIONALITY WE WANT TO ADD
-
-
-### CHANGELOG
-v0.1.0.0 - 180524
-	* Initial Release

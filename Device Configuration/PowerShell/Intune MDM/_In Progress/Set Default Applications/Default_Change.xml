@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DefaultAssociations>
+  <!-- 7-Zip				--> 
+  <Association Identifier=".7z" ProgId="Applications\7zFM.exe" ApplicationName="7-Zip File Manager" ApplyOnUpgrade="true" />
+  <Association Identifier=".rar" ProgId="Applications\7zFM.exe" ApplicationName="7-Zip File Manager" ApplyOnUpgrade="true" />
+  <Association Identifier="7z" ProgId="Applications\7zFM.exe" ApplicationName="7-Zip File Manager" ApplyOnUpgrade="true" />
+  <Association Identifier="rar" ProgId="Applications\7zFM.exe" ApplicationName="7-Zip File Manager" ApplyOnUpgrade="true" />
+  <!-- Adobe Reader DC		-->
+  <Association Identifier=".pdf" ProgId="AcroExch.Document.DC" ApplicationName="Adobe Acrobat Reader DC" ApplyOnUpgrade="true" />
+  <Association Identifier=".pdfxml" ProgId="AcroExch.Document.DC" ApplicationName="Adobe Acrobat Reader DC" ApplyOnUpgrade="true" />
+  <Association Identifier=".pdx" ProgId="AcroExch.Document.DC" ApplicationName="Adobe Acrobat Reader DC" ApplyOnUpgrade="true" />
+  <Association Identifier=".xdp" ProgId="AcroExch.Document.DC" ApplicationName="Adobe Acrobat Reader DC" ApplyOnUpgrade="true" />
+  <Association Identifier=".xfdf" ProgId="AcroExch.Document.DC" ApplicationName="Adobe Acrobat Reader DC" ApplyOnUpgrade="true" />
+  <!-- Adobe Reader DC v2	-->
+  
+  <Association Identifier=".acrobatsecuritysettings" ProgId="AcroExch.acrobatsecuritysettings" ApplicationName="Adobe Acrobat Reader DC" ApplyOnUpgrade="true" />
+  <Association Identifier=".fdf" ProdId="AcroExch.FDFDoc" ApplicationName="Adobe Acrobat Reader DC" ApplyOnUpgrade="true" />
+  <Association Identifier=".pdf" ProgId="AcroExch.Document.DC" ApplicationName="Adobe Acrobat Reader DC" ApplyOnUpgrade="true" />
+  <Association Identifier=".pdfxml" ProgId="AcroExch.pdfxml" ApplicationName="Adobe Acrobat Reader DC" ApplyOnUpgrade="true" />
+  <Association Identifier=".pdx" ProgId="PDXFileType" ApplicationName="Adobe Acrobat Reader DC" ApplyOnUpgrade="true" />
+  <Association Identifier=".xdp" ProgId="AcroExch.XDPDoc" ApplicationName="Adobe Acrobat Reader DC" ApplyOnUpgrade="true" />
+  <Association Identifier=".xfdf" ProgId="AcroExch.XFDFDoc" ApplicationName="Adobe Acrobat Reader DC" ApplyOnUpgrade="true" />
+  <!-- Outlook 2016			-->
+  <Association Identifier="mailto" ProgId="Outlook.URL.mailto.15" ApplicationName="Outlook 2016" ApplyOnUpgrade="true"/>
+</DefaultAssociations>

@@ -1,0 +1,2 @@
+tvsukernel auto update prompts user for BIOS update
+https://forums.lenovo.com/t5/Enterprise-Client-Management/tvsukernel-exe-silent-update-prompts-user-for-BIOS-Update-Bug-or/td-p/4094716
