@@ -28,7 +28,7 @@ Device_Install-IronSync.ps1 is the script you deploy through Intune MDM -> Power
 ### Onboard new customer - OfficeTemplates edition
 #### Azure Storage Account \ Blog Storage
 ##### Create Azure Storage Account
-For settings not mentioned here use common sense.
+For settings not mentioned here use common sense. Should preferably be on the same subscription where you manage Intune / BPTW.
 * Performance: Standard
 * Account kind: BlobStorage
 * Replication: Locally-redundant storage (LRS)
@@ -38,12 +38,23 @@ For settings not mentioned here use common sense.
 * Data Protection \ Soft delete: Disabled
 * Data Lake Storage Gen2: Disabled
 
-##### Upload Files
-Files to sync, must be configured on customer tenant as such
-* Azure Storage Account -> Blog Storage with a Private Blob Container where the files will reside
-  * Storage Container MUST be names "office365-templates"
-  * Each file should use Access Tier "Hot", Blob Type "Block based"
-  * Copy out storage account name (taken from the storage account), and SAS token for the blob container (creat under "Access policy")
+##### Create Blob Container
+* Go to Azure Storage Account from previous step \ Blobs
+* Add a Container
+ * Name: "office-templates" for instance.
+ * Public access level: "Private (no anonymous access)"
+
+##### Upload Files to Storage Account \ Blob Container
+* Download and install [Microsoft Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-explorer-relnotes)
+* Make sure you are at least contributor to the Azure Storage Resource in Azure.
+* In Storage Explorer, connect to the tenant. Select the Subscription where the Storage Account was made.
+* Navigate down to the Blobl Container you created in previous step. Select "Upload".
+ * "Upload Files" if there is only files.
+ * "Upload Folder" if there is a folder structure to be kept.
+ * Block Type "Block Blob".
+ * Destination directory: "/".
+* Upload.
+
 ##### Create SAS (Shared Access Signature) Token
 First create a Access Policy on the Azure Storage Container where the Office365 templates resides
 * Public Access Level: Private.
@@ -60,6 +71,7 @@ Then create a SAS token on the Storage Account
   * Time zone: UTC+1.
   * Allowed protocols: HTTPS only.
   * Signing key: Which ever, but note that: Regenerating the key will break the SAS token.
+
 #### Modify Scripts
 ##### Run-IronSync(OfficeTemplates_<company>).ps1
 * Rename script file and script name inside it ($NameScript)
