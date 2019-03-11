@@ -48,11 +48,11 @@ For settings not mentioned here use common sense. Should preferably be on the sa
 * Download and install [Microsoft Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-explorer-relnotes)
 * Make sure you are at least contributor to the Azure Storage Resource in Azure.
 * In Storage Explorer, connect to the tenant. Select the Subscription where the Storage Account was made.
-* Navigate down to the Blobl Container you created in previous step. Select "Upload".
- * "Upload Files" if there is only files.
- * "Upload Folder" if there is a folder structure to be kept.
- * Block Type "Block Blob".
- * Destination directory: "/".
+* Navigate down to the Blob Container you created in previous step. Select "Upload".
+  * "Upload Files" if there is only files.
+  * "Upload Folder" if there is a folder structure to be kept.
+  * Block Type "Block Blob".
+  * Destination directory: "/".
 * Upload.
 
 ##### Create SAS (Shared Access Signature) Token
