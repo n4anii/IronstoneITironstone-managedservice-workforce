@@ -27,6 +27,17 @@ Device_Install-IronSync.ps1 is the script you deploy through Intune MDM -> Power
 
 ### Onboard new customer - OfficeTemplates edition
 #### Azure Storage Account \ Blog Storage
+##### Create Azure Storage Account
+For settings not mentioned here use common sense.
+* Performance: Standard
+* Account kind: BlobStorage
+* Replication: Locally-redundant storage (LRS)
+* Access Tier: Hot
+* Security \ Secure transfer required: Enabled
+* Virtual Networks \ Virtual Networks: All networks
+* Data Protection \ Soft delete: Disabled
+* Data Lake Storage Gen2: Disabled
+
 ##### Upload Files
 Files to sync, must be configured on customer tenant as such
 * Azure Storage Account -> Blog Storage with a Private Blob Container where the files will reside
