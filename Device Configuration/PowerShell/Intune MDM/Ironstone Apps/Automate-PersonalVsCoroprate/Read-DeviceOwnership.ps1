@@ -6,4 +6,4 @@ $Name  = [string]$('DeviceOwnership')
 [string]$($Val=Get-ItemProperty -Path $Path -Name $Name -ErrorAction 'SilentlyContinue';if($?){$Val}else{''})
 
 # Oneliner
-[string]$($Val=Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\IronstoneIT\Intune\DeviceInfo' -Name 'DeviceOwnership' -ErrorAction 'SilentlyContinue';if($?){$Val}else{''})
+[string]$($Val=Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\IronstoneIT\Intune\DeviceInfo' -Name 'DeviceOwnership' -ErrorAction 'SilentlyContinue' | Select-Object -ExpandProperty 'DeviceOwnership';if($?){$Val}else{''})
