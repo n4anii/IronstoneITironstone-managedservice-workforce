@@ -1,0 +1,25 @@
+"C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\AzCopy.exe" /Source:https://metierclientstorage.blob.core.windows.net/office365-templates /Dest:"C:\Users\Public\OfficeTemplates" /SourceSAS:"?sv=2017-07-29&ss=b&srt=co&sp=rl&se=2019-01-01T21:05:29Z&st=2018-04-11T12:05:29Z&spr=https&sig=K77IKMwiMS7I15DL%2FwtbbPEDDIGARtiWcdJo3U1YGF4%3D" /Z:"C:\Program Files\IronstoneIT\IronSync(OfficeTemplates_MetierOEC)\AzCopyJournal" /Y /S /MT /XO
+
+
+
+OLD SAS
+?sv=2017-07-29&ss=b&srt=co&sp=rl&se=2019-01-01T21:05:29Z&st=2018-04-11T12:05:29Z&spr=https&sig=K77IKMwiMS7I15DL%2FwtbbPEDDIGARtiWcdJo3U1YGF4%3D
+
+OLD CODE
+"C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\AzCopy.exe" /Source:https://metierclientstorage.blob.core.windows.net/office365-templates /Dest:"C:\Users\Public\OfficeTemplates" /SourceSAS:"?sv=2017-07-29&ss=b&srt=co&sp=rl&se=2019-01-01T21:05:29Z&st=2018-04-11T12:05:29Z&spr=https&sig=K77IKMwiMS7I15DL%2FwtbbPEDDIGARtiWcdJo3U1YGF4%3D" /Z:"C:\Program Files\IronstoneIT\IronSync(OfficeTemplates_MetierOEC)\AzCopyJournal" /Y /S /MT /XO
+
+NEW SAS
+?sv=2018-03-28&ss=b&srt=co&sp=rl&se=2029-12-31T23:00:00Z&st=2019-03-07T23:00:00Z&spr=https&sig=R6HGJkbM9QCQ9houMT8fLBB%2FXZuA9pTeDYyfesU7174%3D
+
+NEW CODE
+"C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\AzCopy.exe" /Source:https://metierclientstorage.blob.core.windows.net/office365-templates /Dest:"C:\Users\Public\OfficeTemplates" /SourceSAS:"?sv=2018-03-28&ss=b&srt=co&sp=rl&se=2029-12-31T23:00:00Z&st=2019-03-07T23:00:00Z&spr=https&sig=R6HGJkbM9QCQ9houMT8fLBB%2FXZuA9pTeDYyfesU7174%3D" /Z:"C:\Program Files\IronstoneIT\IronSync(OfficeTemplates_MetierOEC)\AzCopyJournal" /Y /S /MT /XO
+
+
+
+TRIGGER SCRIPT
+"%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe" -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -WindowStyle Hidden -File "C:\Program Files\IronstoneIT\IronSync(OfficeTemplates_MetierOEC)\Run-IronSync(OfficeTemplates_MetierOEC).ps1"
+
+
+
+
+"%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe" -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -File "C:\Program Files\IronstoneIT\IronSync(OfficeTemplates_MetierOEC)\Run-IronSync(OfficeTemplates_MetierOEC).ps1"

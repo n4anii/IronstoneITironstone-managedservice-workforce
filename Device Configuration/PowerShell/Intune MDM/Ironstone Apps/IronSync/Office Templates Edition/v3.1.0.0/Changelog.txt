@@ -14,7 +14,11 @@ TODO
 	
 	
 CHANGELOG
-v2.1.0.0
+v3.1.0.0 190311
+	Run-IronSync(Application_Customer).ps1
+		* Added check for internet connectivity.
+
+v3.0.0.0 190308
 	Both
 		* Variable type is now specified AFTER the equal, because "[byte] $Var = 16" turns into a freakin Int32
 	Install-IronSync(Application_Customer).ps1
@@ -23,6 +27,8 @@ v2.1.0.0
 		* All customer variables is only written in top of the install-script, gets "slipstreamed" into the Run-IronSync(Application_Customer).ps1
 	Run-IronSync(Application_Customer).ps1
 		* All customer variables is only written in top of the install-script, gets "slipstreamed" into the Run-IronSync(Application_Customer).ps1
+		* Changed logging filename to use 24 hours instead of 12 hours in log name
+		* Changed logic around detection AzCopy success.
 		
 		
 v2.0.0.0

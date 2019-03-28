@@ -1,0 +1,24 @@
+Scriptet består av følgende komponenter
+
+Azure Storage Account i deres Azure
+* Templates legges i en Azure Storage Account. Denne kan administreres med Azure Storage Explorer; både i Azure GUI, men også med et nedlastbart program: https://azure.microsoft.com/en-us/features/storage-explorer/
+
+Azure Storage Tools - AzSync
+* Bruker Azure Storage Tools AzSync for å hente data fra Azure Storage. 
+* Rulles ut med Intune \ Client Apps som MSI-installer.
+
+Intune PowerShell Script
+* Et script for å installere et skedulert script på alle sin PC.
+* Rulles ut med Intune \ PowerShell Scripts.
+
+Windows 10 Scheduled Tasks
+* Kjører PowerShell-scriptet som ble installert av Intune-scriptet.
+* Sjekker en gang i timen på et tilfeldig tidspunkt (for å ikke overlaste nettverk) etter endringer.
+* Sjekker også ved oppstart av PC'en: AzSync kan nemlig ikke synke dersom malene er i bruk i Word, PowerPoint etc.
+* Laster ned evt. filer man ikke allerede har.
+
+For brukeren
+* Maler blir tilgjengelig i Word, powerPoint etc. under "New" og en fane som blir hetende "Personal". Denne fanen kan vi ikke rename, er Microsoft som har bestemt navnet på denne.
+
+
+Når det er satt opp vil personene dere ønsker kunne administrere hvilke maler som skal ligge i Azure Storage. Da vil brukerne deres få de neste gang det skedulerte scriptet kjører.

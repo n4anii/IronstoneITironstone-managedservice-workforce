@@ -1,13 +1,14 @@
 ﻿<#
 
 .SYNOPSIS
-
+    Syncs Office Templates from Azure Blog Storage, and make them available in Word, PowerPoint and Excel.
 
 .DESCRIPTION
-
+    Syncs Office Templates from Azure Blog Storage, and make them available in Word, PowerPoint and Excel.
+    You need to run this script in the DEVICE context in Intune.
 
 .NOTES
-You need to run this script in the DEVICE context in Intune.
+    Author: Olav Roennestad Birkeland @ Ironstone IT.
 
 #>
 
@@ -16,7 +17,10 @@ You need to run this script in the DEVICE context in Intune.
 $CustomerName                        = [string]$('MetierOEC')
 $CustomerAzureStorageAccountName     = [string]$('metierclientstorage')
 $CustomerAzureStorageAccountBlobName = [string]$('office365-templates')
-$CustomerAzureStorageAccountSASToken = [string]$('?sv=2017-07-29&ss=b&srt=co&sp=rl&se=2019-01-01T21:05:29Z&st=2018-04-11T12:05:29Z&spr=https&sig=K77IKMwiMS7I15DL%2FwtbbPEDDIGARtiWcdJo3U1YGF4%3D')
+$CustomerAzureStorageAccountSASToken = [string]$('?sv=2018-03-28&ss=b&srt=co&sp=rl&se=2029-12-31T23:00:00Z&st=2019-03-07T23:00:00Z&spr=https&sig=R6HGJkbM9QCQ9houMT8fLBB%2FXZuA9pTeDYyfesU7174%3D')
+
+# Script Specific Variables
+$ReadOnly              = [bool] $false
 
 # Script Name & Settings
 $NameScript            = [string]$('Install-IronSync(OfficeTemplates_{0})' -f ($CustomerName))
@@ -25,7 +29,7 @@ $WriteToHKCUFromSystem = [bool]   $true
 
 # Settings - PowerShell - Output Preferences
 $DebugPreference       = 'SilentlyContinue'
-$VerbosePreference     = 'SilentlyContinue'
+$VerbosePreference     = 'Continue'
 $WarningPreference     = 'Continue'
 
 #region    Don't Touch This
@@ -50,6 +54,7 @@ $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'StrSIDRunn
 $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolIsAdmin'  -Value ([bool]$([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
 $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolIsSystem' -Value ([bool]$($Script:StrSIDRunningAs -like ([string]$('S-1-5-18'))))
 $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolIsCorrectUser' -Value ([bool]$(if($Script:DeviceContext -and $Script:BoolIsSystem){$true}elseif(((-not($DeviceContext))) -and (-not($Script:BoolIsSystem))){$true}else{$false}))
+$null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolWriteToHKCUFromSystem' -Value ([bool]$(if($DeviceContext -and $WriteToHKCUFromSystem){$true}else{$false}))
 
 # Dynamic Variables - Logging
 $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'Timestamp' -Value ([string]$([datetime]::Now.ToString('yyMMdd-HHmmssffff')))
@@ -64,7 +69,7 @@ Start-Transcript -Path $Script:PathFileLog -ErrorAction 'Stop'
 # Wrap in Try/Catch, so we can always end the transcript
 Try {
     # Output User Info, Exit if not $BoolIsCorrectUser
-    Write-Output -InputObject ('Running as user "{0}" ({1}). Has admin privileges? {2}. $DeviceContext = {3}. Running as correct user? {4}.' -f ($Script:StrUserNameRunningAs,$Script:StrSIDRunningAs,$Script:BoolIsAdmin.ToString(),$Script:DeviceContext.ToString(),$Script:BoolIsCorrectUser.ToString()))
+    Write-Output -InputObject ('Running as user "{0}" ({1}). Has admin privileges? {2}. $DeviceContext? {3}. Running as correct user? {4}.' -f ($Script:StrUserNameRunningAs,$Script:StrSIDRunningAs,$Script:BoolIsAdmin.ToString(),$Script:DeviceContext.ToString(),$Script:BoolIsCorrectUser.ToString()))
     if (-not($Script:BoolIsCorrectUser)){Throw 'Not running as correct user!'; Break}
 
 
@@ -83,7 +88,7 @@ Try {
     
     #region    Get SID and "Domain\Username" for Intune User only if $WriteToHKCUFromSystem
         # If running in Device Context as "NT Authority\System"
-        if ($DeviceContext -and $Script:BoolIsSystem -and $WriteToHKCUFromSystem) {
+        if ($DeviceContext -and $Script:BoolIsSystem -and $BoolWriteToHKCUFromSystem) {
             # Help Variables
             $Script:RegistryLoadedProfiles = [string[]]@()
             $Local:SID                     = [string]::Empty
@@ -230,8 +235,8 @@ Try {
                     $Local:UN = [string]::Empty
 
                     # Try by registry values in HKEY_CURRENT_USER\Software\IronstoneIT\Intune\UserInfo
-                    if (-not([string]::IsNullOrEmpty($IntuneUser.IntuneUserName))) {
-                        $Local:UN = [string]($IntuneUser.IntuneUserName)
+                    if (-not([string]::IsNullOrEmpty($IntuneUser.'IntuneUserName'))) {
+                        $Local:UN = [string]($IntuneUser.'IntuneUserName')
                     }
                 
                     # If no valid UN yet, try by convertid $Script:StrIntuneUserSID to "Domain\Username"
@@ -296,7 +301,12 @@ Try {
                 }
             #endregion Write SID and UserName to HKCU if running in User Context            
         }
-        Write-Output -InputObject ('Intune User SID "{0}", Username "{1}".' -f ($Script:StrIntuneUserSID,$Script:StrIntuneUserName))
+        
+        
+        # Output Intune User and SID if found
+        if (-not([string]::IsNullOrEmpty($Script:StrIntuneUserSID))) {
+            Write-Output -InputObject ('Intune User SID "{0}", Username "{1}".' -f ($Script:StrIntuneUserSID,$Script:StrIntuneUserName))
+        }
     #endregion Get SID and "Domain\Username" for Intune User
 
 
@@ -311,43 +321,68 @@ Try {
 
 
         #region    Assets
-            #region    Scheduled PowerShell Script File
+            # Verbose
+            Write-Verbose -Message ('### Assets')
+
+            #region    Assets & Variables
+                # Verbose
+                Write-Verbose -Message ('# Assets & Variables')
+
                 # Prerequisites
                 if ([string]::IsNullOrEmpty($NameScriptNoun)){$BoolScriptSuccess = $false; Throw 'ERROR: $NameScriptNoun is Empty!'; Break}
+                else {Write-Verbose -Message ('{0}Prerequisites where met.' -f ("`t"))}
+
                 # Help Variables
-                $ReadOnly               = [bool] $false
-                $BoolScriptSuccess      = [bool] $true
-                # IronSync Folders - ScriptBlock Variables (For passing into the installed PowerShell script file)
-                $PathDirIronSyncSB      = [System.Management.Automation.ScriptBlock]{[string]$('{0}\IronstoneIT\{1}' -f ($env:ProgramW6432,$NameScriptNoun))}
-                $PathDirIronSyncLogsSB  = [System.Management.Automation.ScriptBlock]{[string]$('{0}\Logs' -f ($PathDirIronSync))}
-                $PathDirAzCopyJournalSB = [System.Management.Automation.ScriptBlock]{[string]$('{0}\AzCopyJournal' -f ($PathDirIronSync))}
-                # IronSync Folders - Regular Variables (For use in current script)
-                $PathDirIronSync        = Invoke-Command -ScriptBlock $PathDirIronSyncSB
-                $PathDirIronSyncLogs    = Invoke-Command -ScriptBlock $PathDirIronSyncLogsSB
-                $PathDirAzCopyJournal   = Invoke-Command -ScriptBlock $PathDirAzCopyJournalSB
-                # File Sync Folder - ScriptBlock Variables (For passing into the installed PowerShell script file)
-                $PathDirSyncFilesSB     = [System.Management.Automation.ScriptBlock]{[string]$('{0}\Users\Public\OfficeTemplates' -f ($env:SystemDrive))}
-                # File Sync Folder - Regular Variables (For use in current script)
-                $PathDirSyncFiles       = Invoke-Command -ScriptBlock $PathDirSyncFilesSB
-                # AzCopy Location - ScriptBlock Variables (For passing into the installed PowerShell script file)
-                $PathFileAzCopySB       = [System.Management.Automation.ScriptBlock]{[string]$('{0}\Microsoft SDKs\Azure\AzCopy\AzCopy.exe' -f (${env:ProgramFiles(x86)}))}
-                # AzCopy Location - Regular Variables (For use in current script)
-                $PathFileAzCopy         = Invoke-Command -ScriptBlock $PathFileAzCopySB
-                #region     Install Files
-                    # Regular Variables
-                    $NameFilePS1SB    = [string]$('Run-{0}.ps1' -f ($NameScriptNoun))
-                    $ContentFilePS1SB = [System.Management.Automation.ScriptBlock]{#Requires -RunAsAdministrator
+                $BoolScriptSuccess = [bool] $true
+                
+                <#
+                    *SB = ScriptBlock Variables (For passing into the installed PowerShell script file)
+                #>
+                #region    IronSync Folders
+                    $PathDirIronSyncSB      = [System.Management.Automation.ScriptBlock]{[string]$('{0}\IronstoneIT\{1}' -f ($env:ProgramW6432,$NameScriptNoun))}
+                    $PathDirIronSync        = Invoke-Command -ScriptBlock $PathDirIronSyncSB
+                    $PathDirIronSyncLogsSB  = [System.Management.Automation.ScriptBlock]{[string]$('{0}\Logs' -f ($PathDirIronSync))}
+                    $PathDirIronSyncLogs    = Invoke-Command -ScriptBlock $PathDirIronSyncLogsSB
+                    $PathDirAzCopyJournalSB = [System.Management.Automation.ScriptBlock]{[string]$('{0}\AzCopyJournal' -f ($PathDirIronSync))}
+                    $PathDirAzCopyJournal   = Invoke-Command -ScriptBlock $PathDirAzCopyJournalSB
+                #endregion IronSync Folders
+                
+                #region    File Sync Folders                                                
+                    # File Sync Folder - ScriptBlock Variables (For passing into the installed PowerShell script file)
+                    $PathDirSyncFilesSB     = [System.Management.Automation.ScriptBlock]{[string]$('{0}\Users\Public\OfficeTemplates' -f ($env:SystemDrive))}
+                    # File Sync Folder - Regular Variables (For use in current script)
+                    $PathDirSyncFiles       = Invoke-Command -ScriptBlock $PathDirSyncFilesSB
+                    # AzCopy Location - ScriptBlock Variables (For passing into the installed PowerShell script file)
+                    $PathFileAzCopySB       = [System.Management.Automation.ScriptBlock]{[string]$('{0}\Microsoft SDKs\Azure\AzCopy\AzCopy.exe' -f (${env:ProgramFiles(x86)}))}
+                    # AzCopy Location - Regular Variables (For use in current script)
+                    $PathFileAzCopy         = Invoke-Command -ScriptBlock $PathFileAzCopySB
+                #endregion File Sync Folders
+                
+                # Verbose
+                Write-Verbose -Message ('> Done.')
+            #endregion     Assets & Variables
+
+
+            #region    Install Files
+                # Verbose
+                Write-Verbose -Message ('# Install Files')
+
+                # Regular Variables
+                $NameFilePS1SB    = [System.Management.Automation.ScriptBlock]{[string]$('Run-{0}.ps1' -f ($NameScriptNoun))}
+                $NameFilePS1      = Invoke-Command -ScriptBlock $NameFilePS1SB
+                $PathFilePS1      = [string]$('{0}\{1}' -f ($PathDirIronSync,$NameFilePS1))
+                $EncodingFilePS1  = [string]$('utf8')
+                $ContentFilePS1SB = [System.Management.Automation.ScriptBlock]{#Requires -RunAsAdministrator
 
 <#
+    .SYNAPSIS
+        This script will sync down a Azure Storage Account Blob Container to specified folder
+
     .DESCRIPTION
         This script will sync down a Azure Storage Account Blob Container to specified folder
-        
-    .USAGE
-        * You should only need to edit the variables inside "#region Variables - EDIT THESE ONLY"
-        * Remember to embed it into the install script as BASE64!
-        * Remember to use the same folders in both installer and schedule script!
-            * PathDirSync          = Folder to sync the Azure Blob files
-            * PathDirAzCopyJournal = AzCopy Journal Files. AzCopy won't function without it
+
+    .NOTES
+        Author: Olav Roennestad Birkeland @ Ironstone IT
 #>
 
 
@@ -361,6 +396,11 @@ Try {
         $StorageAccountSASToken = [string]$('###VARIABLESTATIC04###')
     #endregion Inserted Static Variables
 
+    #region    Dynamic Variables 1
+        # IronSync
+        $NameScriptNoun         = [string]$($NameScript.Split('-')[-1].Replace('.ps1',''))
+    #endregion Dynamic Variables 1
+
     #region    Inserted Dynamic Variables
         # IronSync
         $PathDirIronSync        = "###VARIABLEDYNAMIC01###"
@@ -373,15 +413,13 @@ Try {
     #endregion Inserted Dynamic Variables
     
     
-    #region    Dynamic Variables
-        # IronSync
-        $NameScriptNoun         = [string]$($NameScript.Split('-')[-1])
+    #region    Dynamic Variables 2
         # IronSync - Log
-        $NameFileLog            = [string]$('{0}-runlog-{1}.log' -f ($NameScriptNoun,[datetime]::Now.ToString('yyMMdd-hhmmss')))
+        $NameFileLog            = [string]$('{0}-runlog-{1}.log' -f ($NameScriptNoun,[datetime]::Now.ToString('yyMMdd-HHmmss')))
         $PathFileLog            = [string]$('{0}\{1}' -f ($PathDirLog,$NameFileLog))
         # Azure Storage Account Connection Info
         $StorageAccountBlobURL  = [string]$('https://{0}.blob.core.windows.net/{1}' -f ($StorageAccountName,$StorageAccountBlobName))
-    #endregion Dynamic Variables
+    #endregion Dynamic Variables 2
 
 
     #region    Help Variables
@@ -409,61 +447,93 @@ try {
     
 
 
-    #region    AzCopy - Variables
-        <# Switches
-            /Z        = Journal file folder, for AzCopy to resume operation
-            /Y        = Surpress all confirmations
-            /S        = Specifies recursive mode for copy operations. In recursive mode, AzCopy will copy all blobs or files that match the specified file pattern, including those in subfolders.
-            /CheckMD5 = See if destination matches source MD5
-            /L        = Specifies a listing operation only; no data is copied.
-            /MT       = Sets the downloaded file's last-modified time to be the same as the source blob or file's.
-            /XN       = Excludes a newer source resource. The resource will not be copied if the source is the same or newer than destination.
-            /XO       = Excludes an older source resource. The resource will not be copied if the source resource is the same or older than destination.
-        #>
-    #endregion AzCopy - Variables
+    #region    Prerequisites & Tests
+        #region    Check if neccessary paths exist
+            Write-Output -InputObject ('# Checking for neccessary paths and files')
+            $PathsToCheck = [string[]]@($PathDirSync,$PathFileAzCopy,$PathDirAzCopyJournal)
+            foreach ($Path in $PathsToCheck) {
+                if (Test-Path -Path $Path) {
+                    Write-Output -InputObject ('{0}SUCCESS - {1} does exist.' -f ("`t",$Path))
+                }
+                else {
+                    Write-Output -InputObject ('{0}ERROR   - {1} does NOT exists. Can not continue without it' -f ("`t",$Path))
+                    $BoolScriptSuccess = $false
+                }
+            }
+            if (-not($BoolScriptSuccess)) {Break}
+        #endregion Check if neccessary paths exist
 
 
-
-    #region    Check if neccessary paths exist
-        Write-Output -InputObject ('# Checking for neccessary paths and files')
-        $PathsToCheck = [string[]]@($PathDirSync,$PathFileAzCopy,$PathDirAzCopyJournal)
-        foreach ($Path in $PathsToCheck) {
-            if (Test-Path -Path $Path) {
-                Write-Output -InputObject ('   Success - {0} does exist.' -f ($Path))
+        #region    Check Internet Connectivity
+            Write-Output -InputObject ('# Checking internet connectivity')
+            if ([bool]$($null = Resolve-DnsName -Name 'blob.core.windows.net' -ErrorAction 'SilentlyContinue';$?)) {
+                Write-Output -InputObject ('{0}SUCCESS - Could resolve "blob.core.windows.net".' -f ("`t"))
             }
             else {
-                Write-Output -InputObject ('   Error - {0} does NOT exists. Can not continue without it' -f ($Path))
+                Write-Output -InputObject ('{0}ERROR   - Could not resolve "blob.core.windows.net".' -f ("`t"))
+                Write-Output -InputObject ('{0}{0}Either no internet connectivity, or Azure Storage is down.' -f ("`t"))
                 $BoolScriptSuccess = $false
             }
-        }
-        if (-not($BoolScriptSuccess)) {Break}
-    #endregion Check if neccessary paths exist
+            if (-not($BoolScriptSuccess)) {Break}
+        #endregion Check Internet Connectivity
+    #endregion Prerequisites & Tests    
+
+
+
+    #region    AzCopy - Sync down using SAS Token
+        #region    AzCopy - Variables
+            <# Switches
+                /Z        = Journal file folder, for AzCopy to resume operation
+                /Y        = Surpress all confirmations
+                /S        = Specifies recursive mode for copy operations. In recursive mode, AzCopy will copy all blobs or files that match the specified file pattern, including those in subfolders.
+                /CheckMD5 = See if destination matches source MD5
+                /L        = Specifies a listing operation only; no data is copied.
+                /MT       = Sets the downloaded file's last-modified time to be the same as the source blob or file's.
+                /XN       = Excludes a newer source resource. The resource will not be copied if the source is the same or newer than destination.
+                /XO       = Excludes an older source resource. The resource will not be copied if the source resource is the same or older than destination.
+            #>
+        #endregion AzCopy - Variables
         
-
-
-
-    #region    AzCopy - Sync down using SAS Token       
-        # If Files In Use - Exit and set $BoolScriptSuccess to keep log
-        if (@(Get-ChildItem -Path $PathDirSyncFiles -Recurse -Force -File | Where-Object {$_.Name -Like '~$*' -and $_.Mode -eq '-a-h--'}).Count -ge 1) {
+            
+        # If Files In Use - Exit and set $BoolScriptSuccess to $false to keep log
+        if (@(Get-ChildItem -Path $PathDirSync -Recurse -Force -File | Where-Object {$_.Name -Like '~$*' -and $_.Mode -eq '-a-h--'}).Count -ge 1) {
             Write-Output -InputObject ('Files are in use, AzCopy would have failed. Exiting.')
             $BoolScriptSuccess = $false
         }
         else {
             # Syncronize files down from Azure Storage Account Blob
-            $null = Start-Process -FilePath $PathFileAzCopy -WindowStyle 'Hidden' -ArgumentList ('/Source:{0} /Dest:{1} /SourceSAS:{2} /Z:"{3}" /Y /S /MT /XO' -f ($StorageAccountBlobURL,$PathDirSyncFiles,$StorageAccountSASToken,$PathDirAzCopyJournal)) -Wait
+            $AzCopyExitCode = [int16]$(0)
+            Try {
+                Write-Output -InputObject ('#### Start AzCopy Output ####')
+                & cmd /c ('"{4}" /Source:{0} /Dest:"{1}" /SourceSAS:"{2}" /Z:"{3}" /Y /S /MT /XO' -f ($StorageAccountBlobURL,$PathDirSync,$StorageAccountSASToken,$PathDirAzCopyJournal,$PathFileAzCopy))
+                $AzCopyExitCode = $LASTEXITCODE
+            }
+            Catch{$AzCopyExitCode=-1}
+            Finally{Write-Output -InputObject ('#### End AzCopy Output ####')}
+            Write-Output -InputObject ('AzCopy Exit Code: {0}.' -f ($AzCopyExitCode))
+
+
             # If Fail - Write Output and set $BoolScriptSuccess to keep log
-            if ( (-not($?)) -or ((Get-ChildItem -Path $PathDirSync -File -Force).Length -le 0) ) {
-                Write-Output -InputObject ('ERROR - No files found in directory "{0}" after AzCopy finished.' -f ($PathDirSync))
+            if ([int16]$($LASTEXITCODE) -eq [int16](-1)) {
+                Write-Output -InputObject ('ERROR   - Last Exit Code Does Not Smell Like Success: {0}.' -f ($AzCopyExitCode.ToString()))
+                $BoolScriptSuccess = $false
+            }
+            elseif (@(Get-ChildItem -Path $PathDirSync -File -Force).Length -le 0) {
+                Write-Output -InputObject ('ERROR   - No files found in directory "{0}" after AzCopy finished.' -f ($PathDirSync))
                 $BoolScriptSuccess = $false
             }
             else {
-                Write-Output -InputObject ('SUCCESS - Local path are equal to current state of Azure Storage Account Blob.')
+                Write-Output -InputObject ('SUCCESS - Healthy Exit Code and More Than 1 Files Found In Sync Path.')
             }
         }
     #endregion AzCopy - Sync down using SAS Token
 #endregion Main
 }
 
+
+catch {
+    $BoolScriptSuccess = $false
+}
 
 
 finally {
@@ -472,28 +542,36 @@ finally {
     # Don't keep the log file if success
     if ($BoolScriptSuccess) {Remove-Item -Path $PathFileLog -Force}
 }
-                }
-                    # ScriptBlock Variables (For passing into the installed PowerShell script file)
-                    $NameFilePS1      = Invoke-Command -ScriptBlock $NameFilePS1SB
-                    $EncodingFilePS1  = [string]$('utf8')
-                    
-                #endregion Install Files        
-            #endregion Scheduled PowerShell Script File
+            }
+                
+                # Verbose
+                Write-Verbose -Message ('{0}Done.' -f ("`t"))             
+            #endregion Install Files        
+            
 
 
 
             #region    Registry Values
+                # Verbose
+                Write-Verbose -Message ('# Registry Values')
+                
                 # Registry Values
                 $RegValues = [PSCustomObject[]]@(
-                    [PSCustomObject[]]@{Path=[string]$('Registry::HKEY_USERS\{0}\Software\Microsoft\Office\16.0\Excel\Options' -f ($Script:StrIntuneUserSID));     Name=[string]'PersonalTemplates';Value=$PathDirSync;Type=[string]'ExpandString'},
-                    [PSCustomObject[]]@{Path=[string]$('Registry::HKEY_USERS\{0}\Software\Microsoft\Office\16.0\Word\Options' -f ($Script:StrIntuneUserSID));      Name=[string]'PersonalTemplates';Value=$PathDirSync;Type=[string]'ExpandString'},
-                    [PSCustomObject[]]@{Path=[string]$('Registry::HKEY_USERS\{0}\Software\Microsoft\Office\16.0\PowerPoint\Options' -f ($Script:StrIntuneUserSID));Name=[string]'PersonalTemplates';Value=$PathDirSync;Type=[string]'ExpandString'}
+                    [PSCustomObject[]]@{Path=[string]$('Registry::HKEY_USERS\{0}\Software\Microsoft\Office\16.0\Excel\Options' -f ($Script:StrIntuneUserSID));     Name=[string]'PersonalTemplates';Value=$PathDirSyncFiles;Type=[string]'ExpandString'},
+                    [PSCustomObject[]]@{Path=[string]$('Registry::HKEY_USERS\{0}\Software\Microsoft\Office\16.0\Word\Options' -f ($Script:StrIntuneUserSID));      Name=[string]'PersonalTemplates';Value=$PathDirSyncFiles;Type=[string]'ExpandString'},
+                    [PSCustomObject[]]@{Path=[string]$('Registry::HKEY_USERS\{0}\Software\Microsoft\Office\16.0\PowerPoint\Options' -f ($Script:StrIntuneUserSID));Name=[string]'PersonalTemplates';Value=$PathDirSyncFiles;Type=[string]'ExpandString'}
                 )
+
+                # Verbose
+                Write-Verbose -Message ('> Done.')
             #endregion Registry Values
             
 
 
             #region    Dynamic Assets
+                # Verbose
+                Write-Verbose -Message ('# Dynamic Assets')
+
                 # Paths to create if does not exist
                 $PathsToCreate = [string[]]@($PathDirIronSync,$PathDirIronSyncLogs,$PathDirAzCopyJournal,$PathDirSyncFiles)
                 # Paths to remove if exist
@@ -503,8 +581,14 @@ finally {
                     @(Get-ChildItem -Path ('{0}\IronstoneIT' -f ($env:ProgramW6432)) -Directory -Force -Filter '*IronSync*OfficeTemplates*' | Select-Object -ExpandProperty 'FullName' | Where-Object {$_ -notlike $PathDirIronSync}) +                                         
                     ('{0}\IronstoneIT\IronSync' -f ($env:ProgramW6432))
                 ) | Select-Object -Unique
+                
+                # Verbose
+                Write-Verbose -Message ('> Done.')
             #endregion Dynamic Assets
-        #endregion Initialize - Settings and Variables
+
+            # Verbose
+            Write-Verbose -Message ('Done')
+        #endregion Assets
 
 
 
@@ -519,11 +603,14 @@ finally {
 
 
         #region    Cleanup Previous Install           
+            # Verbose
+            Write-Verbose -Message ('### Cleanup Previous Install')
+            
             # Directories
             foreach ($Path in $PathsToRemove) {
                 # Skip if invalid path
                 if ($Path -like ('{0}:*\\*' -f ($env:SystemDrive))) {Write-Error -Message 'ERROR: "{0}" is not a valid path.' -ErrorAction 'Stop'}
-                
+
                 # Skip unless path exist
                 if (Test-Path -Path $Path) {
                     $Attempt  = [byte]$(1)
@@ -554,13 +641,20 @@ finally {
             }
 
             # Scheduled Task
-            $null = Get-ScheduledTask | Where-Object {$_.Author -like 'Ironstone*' -and ($_.TaskName -like 'IronSync*' -or $_.TaskName -like ('*{0}' -f ($NameScriptNoun)) -or $_.TaskName -like $NameScript)} | Unregister-ScheduledTask -Confirm:$false
+            $null = Get-ScheduledTask | Where-Object {$_.'Author' -like 'Ironstone*' -and ($_.'TaskName' -like 'IronSync*' -or $_.'TaskName' -like ('*{0}' -f ($NameScriptNoun)) -or $_.'TaskName' -like $NameScript -or $_.'TaskName' -like '*IronSync(*OfficeTemplates*)')} | Unregister-ScheduledTask -Confirm:$false
+
+            # Verbose
+            Write-Verbose -Message ('Done.')
         #endregion Cleanup Previous Install
 
 
 
 
         #region    Create Template folder & IronSync Folder - For Schedule, Log Files and AzCopy Journal Files
+            # Verbose
+            Write-Verbose -Message ('### Create Template folder & IronSync Folder - For Schedule, Log Files and AzCopy Journal Files')
+
+            # Do it
             foreach ($Dir in $PathsToCreate) {
                 if (Test-Path -Path $Dir) {
                     Write-Verbose -Message ('Path "{0}" already exist.' -f ($Dir))
@@ -574,83 +668,101 @@ finally {
                     }
                 }
             }
+
+            # Verbose
+            Write-Verbose -Message ('Done.')
         #endregion Create Template folder & IronSync Folder - For Schedule, Log Files and AzCopy Journal Files
 
 
 
 
         #region    Set Template folder to be hidden
-            Write-Verbose -Message ('Setting folder "{0}" to be ReadOnly and Hidden' -f ($PathDirFileSync))
+            # Verbose
+            Write-Verbose -Message ('### Set Template folder to be hidden')
+            
+            # Do it
+            Write-Verbose -Message ('Setting folder "{0}" to be ReadOnly and Hidden' -f ($PathDirSyncFiles))
             if ($ReadOnly) {Write-ReadOnly}
             else {
-                (Get-Item $PathDirSync -Force).Attributes = 'Hidden, ReadOnly, Directory'
+                (Get-Item $PathDirSyncFiles -Force).'Attributes' = 'Hidden, ReadOnly, Directory'
                 Write-Verbose -Message ('Success? {0}' -f ($?))
             }
+
+            # Verbose
+            Write-Verbose -Message ('Done.')
         #endregion Set Template folder to be hidden
 
 
 
 
         #region    Registry - Set template folder for O365 application
+            # Verbose
+            Write-Verbose -Message ('### Registry - Set template folder for O365 application')
+            
+            # Do it
             foreach ($Item in $RegValues) {
-                Write-Verbose -Message ('Path: "{0}".' -f ($Item.Path))
+                Write-Verbose -Message ('Path: "{0}".' -f ($Item.'Path'))
 
                 # Check if $Item.Path exist, create it if not
-                if (-not(Test-Path -Path $Item.Path)){
+                if (-not(Test-Path -Path $Item.'Path')){
                     Write-Verbose -Message ('   Path did not exist, creating it.')
-                    $null = New-Item -Path $Item.Path -ItemType 'Directory' -Force -ErrorAction 'Stop'                        
+                    $null = New-Item -Path $Item.'Path' -ItemType 'Directory' -Force -ErrorAction 'Stop'                        
                 }
         
                 # Set Value / ItemPropery
-                Write-Verbose -Message ('   Name: {0} | Value: {1} | Type: {2}' -f ($Item.Name,$Item.Value,$Item.Type))
-                $null = Set-ItemProperty -Path $Item.Path -Name $Item.Name -Value $Item.Value -Type $Item.Type -Force -ErrorAction 'Stop'
+                Write-Verbose -Message ('   Name: {0} | Value: {1} | Type: {2}' -f ($Item.'Name',$Item.'Value',$Item.'Type'))
+                $null = Set-ItemProperty -Path $Item.'Path' -Name $Item.'Name' -Value $Item.'Value' -Type $Item.'Type' -Force -ErrorAction 'Stop'
             }
+
+            # Verbose
+            Write-Verbose -Message ('Done.')
         #endregion Registry - Set template folder for O365 application
 
 
 
 
         #region    Install IronSync
-            $PathFilePS1 = [string]$('{0}\{1}' -f ($PathDirIronSync,$NameFilePS1))
+            # Verbose
+            Write-Verbose -Message ('### Install IronSync')
+            
+            # Do it
             Write-Verbose -Message ('Installing IronSync file to "{0}"' -f ($PathFilePS1))
             if ($ReadOnly) {Write-ReadOnly}
             else {
-                $null = Out-File -FilePath $PathFilePS1 -Encoding $EncodingFilePS1 -InputObject $ContentFilePS1.ToString()`
-                    .Replace('###VARIABLESTATIC01###',('Run-{0}' -f ($NameScriptNoun)))`
-                    .Replace('###VARIABLESTATIC02###',$CustomerAzureStorageAccountName)`
-                    .Replace('###VARIABLESTATIC03###',$CustomerAzureStorageAccountBlobName)`
-                    .Replace('###VARIABLESTATIC04###',$CustomerAzureStorageAccountSASToken)`
-                    .Replace('"###VARIABLEDYNAMIC01###"',$PathDirIronSyncSB.ToString())`
-                    .Replace('"###VARIABLEDYNAMIC02###"',$PathDirIronSyncLogsSB.ToString())`
-                    .Replace('"###VARIABLEDYNAMIC03###"',$PathDirSyncFilesSB.ToString())`
-                    .Replace('"###VARIABLEDYNAMIC04###"',$PathFileAzCopySB.ToString())`
-                    .Replace('"###VARIABLEDYNAMIC05###"',$PathDirAzCopyJournalSB.ToString())
+                $null = Out-File -Force -FilePath $PathFilePS1 -Encoding $EncodingFilePS1 -InputObject ([string]$([string]$($ContentFilePS1SB.ToString()).Replace('###VARIABLESTATIC01###',$NameFilePS1).Replace('###VARIABLESTATIC02###',$CustomerAzureStorageAccountName).Replace('###VARIABLESTATIC03###',$CustomerAzureStorageAccountBlobName).Replace('###VARIABLESTATIC04###',$CustomerAzureStorageAccountSASToken).Replace('"###VARIABLEDYNAMIC01###"',$PathDirIronSyncSB.ToString()).Replace('"###VARIABLEDYNAMIC02###"',$PathDirIronSyncLogsSB.ToString()).Replace('"###VARIABLEDYNAMIC03###"',$PathDirSyncFilesSB.ToString()).Replace('"###VARIABLEDYNAMIC04###"',$PathFileAzCopySB.ToString()).Replace('"###VARIABLEDYNAMIC05###"',$PathDirAzCopyJournalSB.ToString())))
                 Write-Verbose -Message ('Success? {0}.' -f ($?.ToString()))
             }
 
+            # Verbose
+            Write-Verbose -Message ('Done.')
         #endregion Install IronSync
 
 
 
         #region    Create Scheduled Tasks                    
-            #region    Create Scheduled Task running PS1 using PowerShell.exe - Every Day Every Hour When Powered On - Random Second to Not Flood Server
+            # Verbose
+            Write-Verbose -Message ('### Create Scheduled Tasks')
+            
+            #region    Create Scheduled Task running PS1 using PowerShell.exe - Every Day Every Hour When Powered On - Random Second to Not Flood Azure Storage Account
+                # Verbose
+                Write-Verbose -Message ('# Create Scheduled Task running PS1 using PowerShell.exe - Every Day Every Hour When Powered On')
+                
                 # Assets
                 $PathFilePowerShell       = [string]$('%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe') # Works regardless of 64bit vs 32bit
-                $PathFilePS1              = [string]$('{0}\{1}' -f ($PathDirIronSync,$NameFilePS1))
-                $NameScheduledTask        = [string]$('Run-{0}' -f ($NameScriptNoun))
+                $NameScheduledTask        = [string]$($NameScriptNoun)
                 $DescriptionScheduledTask = [string]$('Runs IronSync, which syncs down files from Azure Blob Storage using AzCopy.')
 
                 # Construct Scheduled Task
-                $ScheduledTask = New-ScheduledTask                                                    `
-                    -Action    (New-ScheduledTaskAction -Execute ('"{0}"' -f ($PathFilePowerShell)) -Argument ('-ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -WindowStyle Hidden -File "{0}"' -f ($PathFilePS1)))  `
-                    -Principal (New-ScheduledTaskPrincipal -UserId 'NT AUTHORITY\SYSTEM' -RunLevel 'Highest')                                                                                                                    `
-                    -Trigger   (New-ScheduledTaskTrigger -Once -At ([datetime]::Today.AddSeconds(([System.Random]::new()).Next(900))) -RepetitionInterval ([timespan]::FromHours(1)) -RepetitionDuration ([timespan]::MaxValue)) `
+                $ScheduledTask = New-ScheduledTask `
+                    -Action    (New-ScheduledTaskAction -Execute ('"{0}"' -f ($PathFilePowerShell)) -Argument ('-ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -WindowStyle Hidden -File "{0}"' -f ($PathFilePS1))) `
+                    -Principal (New-ScheduledTaskPrincipal -UserId 'NT AUTHORITY\SYSTEM' -RunLevel 'Highest') `
+                    -Trigger   (New-ScheduledTaskTrigger -Once -At ([datetime]::Today.AddSeconds(([System.Random]::new()).Next(3599))) -RepetitionInterval ([timespan]::FromHours(1))) `
                     -Settings  (New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit ([timespan]::FromMinutes(10)) -Compatibility 4 -StartWhenAvailable:$false -WakeToRun:$false -RunOnlyIfNetworkAvailable)
                 $ScheduledTask.Author      = 'Ironstone'
                 $ScheduledTask.Description = ('{0}Runs a PowerShell script. {1}Execute: "{2}". {1}Arguments: "{3}".' -f (
                     $(if([string]::IsNullOrEmpty($DescriptionScheduledTask)){''}else{('{0} {1}' -f ($DescriptionScheduledTask,"`r`n"))}),"`r`n",
-                    [string]($ScheduledTask | Select-Object -ExpandProperty Actions | Select-Object -ExpandProperty Execute),
-                    [string]($ScheduledTask | Select-Object -ExpandProperty Actions | Select-Object -ExpandProperty Arguments)
+                    [string]($ScheduledTask | Select-Object -ExpandProperty Actions | Select-Object -ExpandProperty 'Execute'),
+                    [string]($ScheduledTask | Select-Object -ExpandProperty Actions | Select-Object -ExpandProperty 'Arguments')
                 ))
                 
                 # Register Scheduled Task
@@ -661,11 +773,20 @@ finally {
                 Write-Verbose -Message ('Success creating scheduled task "{0}"? "{1}".' -f ($NameScheduledTask,$SuccessCreatingScheduledTask.ToString()))
                 
                 # Run Scheduled Task if Success Creating It
-                if ($SuccessCreatingScheduledTask) {$null = Start-ScheduledTask -TaskName $NameScheduledTask}
+                if ($SuccessCreatingScheduledTask) {
+                    $null = Start-ScheduledTask -TaskName $NameScheduledTask
+                    Write-Verbose -Message ('Success starting scheduled task? "{0}".' -f ($?.ToString()))
+                }
                 else {Write-Error -Message 'ERROR: Failed to create scheduled task.'}
-            #endregion Create Scheduled Task running PS1 using PowerShell.exe - Every Day Every Hour When Powered On - Random Second to Not Flood Server
+
+                # Verbose
+                Write-Verbose -Message ('> Done')
+            #endregion Create Scheduled Task running PS1 using PowerShell.exe - Every Day Every Hour When Powered On - Random Second to Not Flood Azure Storage Account
 
             #region    Create Scheduled Task running previous Scheduled Task  - Every Laptop Startup
+                # Verbose
+                Write-Verbose -Message ('# Create Scheduled Task running previous Scheduled Task  - Every Laptop Startup')
+
                 # Assets
                 $NameScheduledTaskRunAtStartup = ('{0}-RunAtStartup' -f ($NameScheduledTask))
                 
@@ -684,7 +805,13 @@ finally {
                 # Check if success registering Scheduled Task
                 $SuccessCreatingScheduledTask = [bool]$($? -and [bool]$([byte](@(Get-ScheduledTask -TaskName $NameScheduledTaskRunAtStartup).Count) -eq 1))
                 Write-Verbose -Message ('Success creating scheduled task "{0}"? "{1}".' -f ($NameScheduledTaskRunAtStartup,$SuccessCreatingScheduledTask.ToString()))
+
+                # Verbose
+                Write-Verbose -Message ('> Done')
             #endregion Create Scheduled Task running previous Scheduled Task  - Every Laptop Startup
+
+            # Verbose
+            Write-Verbose -Message ('Done.')
         #endregion Create Scheduled Tasks
 
 
@@ -706,7 +833,7 @@ Catch {
 }
 Finally {
     # Unload Users' Registry Profiles (NTUSER.DAT) if any were loaded
-    if ($Script:BoolIsSystem -and $WriteToHKCUFromSystem -and ([string[]]@($RegistryLoadedProfiles | Where-Object -FilterScript {-not([string]::IsNullOrEmpty($_))})).Count -gt 0) {
+    if ($Script:BoolIsSystem -and $BoolWriteToHKCUFromSystem -and ([string[]]@($RegistryLoadedProfiles | Where-Object -FilterScript {-not([string]::IsNullOrEmpty($_))})).Count -gt 0) {
         # Close Regedit.exe if running, can't unload hives otherwise
         $null = Get-Process -Name 'regedit' -ErrorAction 'SilentlyContinue' | ForEach-Object -Process{Stop-Process -InputObject $_ -ErrorAction 'SilentlyContinue'}
             
