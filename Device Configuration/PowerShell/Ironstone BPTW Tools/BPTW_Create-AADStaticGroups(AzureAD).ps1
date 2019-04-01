@@ -1,30 +1,33 @@
 ﻿#Requires -Modules AzureAD
 <#
 
-    Default Azure AD Groups for Intune MDM
+    Default Azure AD Groups for Ironstone BPTW based on Intune MDM
 
 #>
 
 
 # Settings
-$WriteChanges = [bool]$true
+$WriteChanges = [bool]$($true)
+$IncludeAndr  = [bool]$($true)
+$IncludeiOS   = [bool]$($false)
+$IncludeMac   = [bool]$($false)
 
 
 
 # Connect
-if(-not([bool](Get-AzureADTenantDetail))){Connect-AzureAD}
+if(-not([bool]$($null = Get-AzureADTenantDetail;$?))){Connect-AzureAD}
 
 
 
 # Variables - Groups
-$Devices      = [string[]]@('Andr','iOS','W10D')
+$Devices      = [string[]]$('W10D';if($IncludeAndr){'Andr'};if($IncludeiOS){'iOS'};if($IncludeMac){'Mac'})
 $Environments = [string[]]@('Dev','Prod Default')
 $Groups       = [string[]]@('Applications','Compliance','Configuration','Updates','Users')
 
 
 
 # Get existing groups
-function Get-GroupsMDM {$Script:ExistingGroups = @(Get-AzureADGroup -All:$true | Where-Object {$_.DisplayName -like 'MDM * - *' -and $_.DisplayName -notlike 'MDM Dev - *'})}
+function Get-GroupsMDM {$Script:ExistingGroups = @(Get-AzureADGroup -All:$true | Where-Object {$_.'DisplayName' -like 'MDM * - *' -and $_.'DisplayName' -notlike 'MDM Dev - *'})}
 Get-GroupsMDM
 
     
@@ -34,7 +37,7 @@ foreach ($Device in $Devices) {
     foreach ($Environment in $Environments) {
         foreach ($Group in $Groups) {
             $NameGroup = [string]('MDM {0} - {1} - {2}' -f ($Device,$Environment,$Group))
-            Write-Output -InputObject ('Group "{0}" already exist? {1}' -f ($NameGroup,([bool] $Exist = [bool]($ExistingGroups | Where-Object -Property DisplayName -eq $NameGroup))))
+            Write-Output -InputObject ('Group "{0}" already exist? {1}' -f ($NameGroup,([bool] $Exist = [bool]($ExistingGroups | Where-Object -Property 'DisplayName' -eq $NameGroup))))
             if (-not($Exist)) {
                 if ($WriteChanges) {
                     $null = New-AzureADGroup -DisplayName $NameGroup -Description ('{0}, used for Intune MDM Assignments.' -f ($NameGroup)) -MailEnabled $false -SecurityEnabled $true -MailNickName 'NotSet' 
@@ -59,10 +62,10 @@ foreach ($Device in $Devices) {
     # ForEach Device
     foreach ($Device in $Devices) {
         # Get all groups tied to Device
-        $ExistingGroupsTiedToDevice = @(@($Script:ExistingGroups) | Where-Object {$_.DisplayName -like ('MDM {0} -*' -f ($Device))})
+        $ExistingGroupsTiedToDevice = @(@($Script:ExistingGroups) | Where-Object {$_.'DisplayName' -like ('MDM {0} -*' -f ($Device))})
         
         # Get all Child groups tied to Device (The "Users" groups)
-        $ChildGroups    = @($ExistingGroupsTiedToDevice | Where-Object {$_.DisplayName -like ('MDM {0}*Users' -f ($Device))} | Sort-Object -Property 'DisplayName')
+        $ChildGroups    = @($ExistingGroupsTiedToDevice | Where-Object {$_.'DisplayName' -like ('MDM {0}*Users' -f ($Device))} | Sort-Object -Property 'DisplayName')
         
         # Get all Parent tied to Device (Groups that *Users group is going to be member of)
         $ParentGroups   = $(foreach ($Group in @($Groups | Where-Object {$_ -notlike 'Users'})) {
@@ -73,19 +76,19 @@ foreach ($Device in $Devices) {
         foreach ($Environment in $Environments) {
             
             # ForEach Parent Group given Environment
-            foreach ($Parent in @($ParentGroups | Where-Object {$_.DisplayName -like ('*{0}*' -f ($Environment))})) {  
+            foreach ($Parent in @($ParentGroups | Where-Object {$_.'DisplayName' -like ('*{0}*' -f ($Environment))})) {  
                 
                 # Foreach Child Group given Environment
-                foreach ($Child in @($ChildGroups | Where-Object {$_.DisplayName -like ('*{0}*' -f ($Environment))})) {
-                    $IsMember = [bool](@(Get-AzureADGroupMember -ObjectId $Parent.ObjectId | Select-Object -ExpandProperty 'ObjectId' | Where-Object {$_ -EQ $Child.ObjectId}).Count -eq 1)
-                    Write-Output -InputObject ('"{0}" already member of "{1}"? {2}' -f ($Child.DisplayName,$Parent.DisplayName,$IsMember))
+                foreach ($Child in @($ChildGroups | Where-Object {$_.'DisplayName' -like ('*{0}*' -f ($Environment))})) {
+                    $IsMember = [bool](@(Get-AzureADGroupMember -ObjectId $Parent.'ObjectId' | Select-Object -ExpandProperty 'ObjectId' | Where-Object {$_ -EQ $Child.'ObjectId'}).Count -eq 1)
+                    Write-Output -InputObject ('"{0}" already member of "{1}"? {2}' -f ($Child.'DisplayName',$Parent.'DisplayName',$IsMember))
                     if ($IsMember) {
                         Write-Output -InputObject ('   Already member, no changes.')
                     }
                     else {
-                        Write-Output -InputObject ('   Adding child "{0}" as member of parent "{1}"' -f ($Child.DisplayName,$Parent.DisplayName))
+                        Write-Output -InputObject ('   Adding child "{0}" as member of parent "{1}"' -f ($Child.'DisplayName',$Parent.'DisplayName'))
                         if ($WriteChanges) {
-                            $null = Add-AzureADGroupMember -ObjectId $Parent.ObjectId -RefObjectId $Child.ObjectId
+                            $null = Add-AzureADGroupMember -ObjectId $Parent.'ObjectId' -RefObjectId $Child.'ObjectId'
                             Write-Output -InputObject ('      Success? {0}' -f ($?))
                         }
                         else {
@@ -118,9 +121,9 @@ if ($false) {
     }
     else {
         foreach ($Group in $GroupsToRename) {
-            Write-Output -InputObject ('Renaming "{0}" to "{1}".' -f ($Group.DisplayName,$Group.DisplayName.Replace($RenameFromTo[0],$RenameFromTo[1])))
+            Write-Output -InputObject ('Renaming "{0}" to "{1}".' -f ($Group.'DisplayName',$Group.'DisplayName'.Replace($RenameFromTo[0],$RenameFromTo[1])))
             if ($WriteChanges) {
-                $null = Set-AzureADGroup -ObjectId $Group.ObjectId -DisplayName ($Group.DisplayName.Replace($RenameFromTo[0],$RenameFromTo[1]))
+                $null = Set-AzureADGroup -ObjectId $Group.'ObjectId' -DisplayName ($Group.'DisplayName'.Replace($RenameFromTo[0],$RenameFromTo[1]))
                 Write-Output -InputObject ('   Creating. Success? {0}' -f ($?))
             }
             else {
