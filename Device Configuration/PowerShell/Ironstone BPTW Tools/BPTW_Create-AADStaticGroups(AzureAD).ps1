@@ -6,22 +6,25 @@
 #>
 
 
-# Settings
-$WriteChanges = [bool]$($true)
-$IncludeAndr  = [bool]$($true)
-$IncludeiOS   = [bool]$($false)
-$IncludeMac   = [bool]$($false)
-
-
 
 # Connect
 if(-not([bool]$($null = Get-AzureADTenantDetail;$?))){Connect-AzureAD}
 
 
 
+
+# Settings
+$WriteChanges = [bool]$($true)
+$IncludeAndr  = [bool]$($false)
+$IncludeiOS   = [bool]$($false)
+$IncludeMac   = [bool]$($false)
+
+
+
+
 # Variables - Groups
 $Devices      = [string[]]$('W10D';if($IncludeAndr){'Andr'};if($IncludeiOS){'iOS'};if($IncludeMac){'Mac'})
-$Environments = [string[]]@('Dev','Prod Default')
+$Environments = [string[]]@('Dev Default','Prod Default')
 $Groups       = [string[]]@('Applications','Compliance','Configuration','Updates','Users')
 
 
