@@ -1,0 +1,1 @@
+"%SystemRoot%\System32\cmd.exe" /c ThinkBiosConfig.hta "file=.\Backe-X1Yoga2nd&3rdGen.ini" "log=%SystemRoot%\Temp"

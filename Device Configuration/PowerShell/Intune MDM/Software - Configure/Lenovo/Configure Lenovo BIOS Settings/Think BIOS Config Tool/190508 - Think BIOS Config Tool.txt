@@ -1,0 +1,93 @@
+Settings
+	AdaptiveThermalManagementAC			= MaximizePerformance
+	AdaptiveThermalManagementBattery	= Balanced
+	BIOSUpdateByEndUsers				= Enable
+	BluetoothAccess						= Enable
+	BootMode							= Quick
+	CPUPowerManagement					= Automatic
+	FingerprintPasswordAuthentication	= Enable
+	FingerprintPredesktopAuthentication	= Enable
+	FingerprintReaderAccess				= Enable
+	FingerprintReaderPriority			= InternalOnly (or "External"?)
+	FingerprintSecurityMode				= Normal (or "High"?)
+	NetworkBoot							= Disable
+	PhysicalPresenceForTpmClear 		= Enable
+	SecureBoot							= Enable
+	SecureRollBackPrevention			= Enable
+	SecurityChip						= Enable
+	ThunderboltAccess					= Enable
+	ThunderboltSecurityLevel			= UserAuthorization
+	USBBIOSSupport						= Enable
+	USBPortAccess						= Enable
+	WakeOnLAN							= Disable
+	WakeOnLANDock						= Disable
+	WiGigWake							= Disable
+	
+	"ThinkBiosConfig.hta" "config=SecureBoot,Enable"
+	
+	
+Install
+	"%SystemRoot%\System32\cmd.exe" /c ".\ThinkBiosConfig.hta" "file=.\Backe-X1Yoga2nd&3rdGen.ini" "log=%SystemRoot%\Temp\LenovoThinkBiosConfigTool-Deploy-%random%.txt"
+	
+Test devices
+	User Dislay Name	UPN							Device Name		Model						Model number		Serial number
+	c2r-9 IntuneTest	c2r-9@backe.no				BPCR90PSVEF		Lenovo X1 Yoga 2nd Gen		20JD0050MX			R90PSVEF
+	Sverre Brynning		sverre.brynning@backe.no	BPCR90QQMA3		Lenovo X1 Yoga 3rd Gen		20LES1Q100			R90QQMA3
+	Henning Enersen		henning.enersen@backe.no	BPCR90QRTJ5		Lenovo X1 Yoga 3rd Gen		20LES1Q100			R90QRTJ5
+
+	
+Backe Lenovo Devices
+	7x		20JD0050MX
+	52x		20LES1Q100
+	1x		80VV			(Miix 720-12IKB, Geir Davidsen, Inactive)
+
+
+Azure AD Goup - Dynamic Device
+	Dyn Device - MDM - Comp - W10D - Lenovo - X1 Yoga 2nd Gen
+		Match full deviceModel
+			(device.accountEnabled -eq true) -and
+			(device.managementType -eq "MDM") -and
+			(device.deviceOwnership -eq "Company") -and
+			(device.deviceOSType -eq "Windows") -and
+			(device.deviceManufacturer -eq "Lenovo") -and
+			(device.deviceModel -eq "20JD0050MX") -and
+			(device.displayName -startsWith "BPC")
+		Match start of deviceModel
+			(device.accountEnabled -eq true) -and
+			(device.managementType -eq "MDM") -and
+			(device.deviceOwnership -eq "Company") -and
+			(device.deviceOSType -eq "Windows") -and
+			(device.deviceManufacturer -eq "Lenovo") -and
+			((device.deviceModel -startsWith "20JD") -or
+			(device.deviceModel -startsWith "20JE") -or
+			(device.deviceModel -startsWith "20JF") -or
+			(device.deviceModel -startsWith "20JG"))
+	Dyn Device - MDM - Comp - W10D - Lenovo - X1 Yoga 3rd Gen
+		Match full deviceModel		
+			(device.accountEnabled -eq true) -and
+			(device.managementType -eq "MDM") -and
+			(device.deviceOwnership -eq "Company") -and
+			(device.deviceOSType -eq "Windows") -and
+			(device.deviceManufacturer -eq "Lenovo") -and
+			(device.deviceModel -eq "20LES1Q100") -and
+			(device.displayName -startsWith "BPC")
+		Match start of deviceModel
+			(device.accountEnabled -eq true) -and
+			(device.managementType -eq "MDM") -and
+			(device.deviceOwnership -eq "Company") -and
+			(device.deviceOSType -eq "Windows") -and
+			(device.deviceManufacturer -eq "Lenovo") -and
+			((device.deviceModel -startsWith "20LD") -or
+			(device.deviceModel -startsWith "20LE") -or
+			(device.deviceModel -startsWith "20LF") -or
+			(device.deviceModel -startsWith "20LG"))
+
+Resources
+	Think Deploy Blog
+		The Think BIOS Config tool
+			https://thinkdeploy.blogspot.com/2016/08/the-think-bios-config-tool.html
+		Deploying ThinkPad BIOS Updates With Intune 	
+			https://thinkdeploy.blogspot.com/2019/03/deploying-thinkpad-bios-updates-with.html
+	Others
+		PowerShell script to Modify Lenovo BIOS settings
+			https://bbiswalcom.wordpress.com/2017/09/11/powershell-script-to-modify-lenovo-bios-settings/
