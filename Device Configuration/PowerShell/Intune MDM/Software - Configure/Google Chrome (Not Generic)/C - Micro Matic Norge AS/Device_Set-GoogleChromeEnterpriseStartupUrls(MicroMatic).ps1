@@ -1,4 +1,4 @@
-﻿<#
+<#
     .NAME
         Device_Set-GoogleChromeEnterpriseStartupUrls(MicroMatic).ps1
 
@@ -20,7 +20,8 @@
 
 # Customer Variables
 $CustomerName          = [string]$('Micro Matic Norge AS')
-$URLs                  = [string[]]@('micro-matic-no.facebook.com','micromaticnorge.crm4.dynamics.com/','micromatic.no','micromaticnorge.sharepoint.com/sites/intranett/sitepages/hjemmeside.aspx','connect.visma.com/')
+$ChromeStartupURLs     = [string[]]@('micro-matic-no.workplace.com','micromaticnorge.crm4.dynamics.com/','www.micromatic.no','https://micromaticnorge.sharepoint.com/sites/Micronett','connect.visma.com/')
+$ChromeRestoreOnStartup= [byte]$(0) # 0 = Not Configured, 1 = Restore the last session, 4 = Open a list of URLs, 5 = Open New Tab Page
 
 # Script Name & Settings
 $NameScript            = [string]$('Set-GoogleChromeEnterpriseStartupUrls({0})' -f ($CustomerName))
@@ -331,15 +332,26 @@ Try {
         # Assets
         $Path  = [string]$('Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome')
         $Name  = [string]$('RestoreOnStartup')
-        $Value = [byte]$(4)
 
-        # Create Folder if not exist
-        if (-not(Test-Path -Path $Path)){$null = New-Item -Path $Path -ItemType 'Directory' -Force -ErrorAction 'Stop'}
+        # Set RestoreOnStartup option
+        if ($ChromeRestoreOnStartup -eq [byte]$(0)) {
+            # Remove "RestoreOnStartup" if it exist
+            if ([bool]$($null = Get-ItemProperty -Path $Path -Name $Name -ErrorAction 'SilentlyContinue';$?)) {
+                $null = Remove-ItemProperty -Path $Path -Name $Name -Force -ErrorAction 'Stop'
+                Write-Output -InputObject ('Removed Google Chrome "RestoreOnStartup" setting. Success? {0}.' -f ($?.ToString()))
+            }
+            else {
+                Write-Output -InputObject ('Google Chrome "RestoreOnStartup" setting is already not configured.')
+            }
+        }
+        else {
+            # Create Folder if not exist
+            if (-not(Test-Path -Path $Path)){$null = New-Item -Path $Path -ItemType 'Directory' -Force -ErrorAction 'Stop'}
 
-        # Set RestoreOnStartup
-        $null = Set-ItemProperty -Path $Path -Name $Name -Value $Value -Type 'Dword' -Force -ErrorAction 'Stop'
-        Write-Output -InputObject ('Changed RestoreOnStartup to "{0}". Success? {1}.' -f ($Value.ToString(),$?.ToString()))
-
+            # Set "RestoreOnStartup"
+            $null = Set-ItemProperty -Path $Path -Name $Name -Value $ChromeRestoreOnStartup -Type 'Dword' -Force -ErrorAction 'Stop'
+            Write-Output -InputObject ('Changed RestoreOnStartup to "{0}". Success? {1}.' -f ($ChromeRestoreOnStartup.ToString(),$?.ToString()))
+        }
 
     <# 
         Startup URLs
@@ -349,14 +361,14 @@ Try {
         $Path = [string]$('Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome\RestoreOnStartupURLs')
 
         # Remove Folder to Reset Startup URLs
-        $null = Remove-Item -Path $Path -Recurse -Force -ErrorAction 'Stop'
+        if (Test-Path -Path $Path) {$null = Remove-Item -Path $Path -Recurse -Force -ErrorAction 'Stop'}
 
         # Create Folder
         if (-not(Test-Path -Path $Path)){$null = New-Item -Path $Path -ItemType 'Directory' -Force -ErrorAction 'Stop'}
 
         # Set Startup URLs
         $C = [byte]$(0)
-        foreach ($URL in $URLs) {
+        foreach ($URL in $ChromeStartupURLs) {
             # Set Startup URL & Increment Counter - Both for next Startup URL and to make output human readable by avoiding 0
             $null = Set-ItemProperty -Path $Path -Name ([string]$(($C++).ToString())) -Value $URL -Type 'String' -Force -ErrorAction 'Stop'
             # Output success
