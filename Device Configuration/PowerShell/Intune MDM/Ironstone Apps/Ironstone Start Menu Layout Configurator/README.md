@@ -48,7 +48,7 @@
 
 ## Detection rules
 ### Custom script
-Name:														Device_DetectionRule-IronstoneStartMenuLayoutConfigurator.ps1
+Name:														Device_DetectionRule-IronstoneStartMenuLayoutConfigurator_v2.ps1
 * Run script as 32-bit process on 64-bit clients:			No
 * Enforce script signature check and run script silently:	No
 
