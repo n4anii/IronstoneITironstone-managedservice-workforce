@@ -1,0 +1,1 @@
+﻿[bool]$([byte]$([array]$(Get-ChildItem -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList' -Depth 0 | Select-Object -ExpandProperty 'Name' | Where-Object -FilterScript {$_ -like '*\S-1-12-*'}).'Count') -le 0)
