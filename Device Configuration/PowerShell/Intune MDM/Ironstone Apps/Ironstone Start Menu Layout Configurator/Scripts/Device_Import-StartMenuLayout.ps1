@@ -23,7 +23,7 @@ $InformationPreference  = 'SilentlyContinue'
 $ProgressPreference     = 'SilentlyContinue'
 
 # Asset
-$ScriptWorkingDirectory = [string]$([string]$($MyInvocation.'InvocationName').Replace(('\{0}' -f ($MyInvocation.'MyCommand')),''))
+$ScriptWorkingDirectory = [string]$([string]$($MyInvocation.'MyCommand'.'Path').Replace(('\{0}' -f ($MyInvocation.'MyCommand'.'Name')),''))
 $LayoutPath   = [string]$('{0}\StartMenuLayout.xml' -f ($ScriptWorkingDirectory))
 $MountPath    = [string]$('{0}\Users\Default\AppData\Local\Microsoft\Windows\Shell\LayoutModification.xml' -f ($env:SystemDrive))
 
