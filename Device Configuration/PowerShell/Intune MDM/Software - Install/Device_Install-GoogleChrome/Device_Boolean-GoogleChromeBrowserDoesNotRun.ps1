@@ -1,0 +1,1 @@
+﻿[bool]$([byte]$(([System.Diagnostics.Process[]]$(Get-Process -Name 'chrome' -ErrorAction 'SilentlyContinue')).'Count') -le 0)
