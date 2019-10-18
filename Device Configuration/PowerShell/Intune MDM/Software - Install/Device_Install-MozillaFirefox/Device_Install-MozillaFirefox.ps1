@@ -42,7 +42,7 @@
                 ForEach-Object -Process {$_.Replace('/','')} | Where-Object -FilterScript {$_ -notlike '*.*'} | Sort-Object) -join "','") | clip
 #>
 
-
+# Input parameters
 [CmdletBinding()]
 Param (
     [Parameter(Mandatory = $true, Position = 0, HelpMessage = 'Language code matching what Mozilla uses. English (US) = "en-US". Case sensitive!')]
@@ -53,7 +53,6 @@ Param (
     [ValidateSet(IgnoreCase = $false,'win','win64')]
     [string] $Architecture
 )
-
 
 # Settings - PowerShell
 ## Output Preferences
@@ -68,7 +67,7 @@ $ProgressPreference     = 'SilentlyContinue'
 $ErrorActionPreference  = 'Stop'
 
 # Script variables
-$ScriptWorkingDirectory      = [string]$([string]$($MyInvocation.'MyCommand'.'Path').Replace(('\{0}' -f ($MyInvocation.'MyCommand'.'Name')),''))
+$ScriptWorkingDirectory      = [string]$(if([string]::IsNullOrEmpty($PSScriptRoot)){[string]$($MyInvocation.'MyCommand'.'Path').Replace(('\{0}' -f ($MyInvocation.'MyCommand'.'Name')),'')}else{$PSScriptRoot})
 $ScriptIsRunningAsAdmin      = [bool]$(([System.Security.Principal.WindowsPrincipal]$([System.Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator))
 $ScriptIsRunningOn64Bit      = [bool]$([System.Environment]::Is64BitOperatingSystem)
 $ScriptIsRunningAs64Bit      = [bool]$([System.Environment]::Is64BitProcess)
@@ -77,13 +76,15 @@ $ScriptRunningAsUserSID      = [string]$([System.Security.Principal.WindowsIdent
 $ScriptRunningAsUserName     = [string]$([System.Security.Principal.WindowsIdentity]::GetCurrent().'Name')
 
 # Product specific variables
+## Manual
 $ProductName            = [string]$('Mozilla Firefox {0}' -f ([string]$(if($Architecture -eq 'win'){'x86'}else{'x64'})))
 $ProcessName            = [string]$('firefox.exe')
 $Uri                    = [string]$('https://download.mozilla.org/?product=firefox-latest&os={0}&lang={1}' -f ($Architecture,$Language))
 $UriExpectedMinimumSize = [uint32]$(40MB)
-$Destination            = [string]$('{0}\Temp\FirefoxSetup.exe' -f ($env:SystemRoot))
 $ArgumentList           = [string]$('-ms')
 $InstallDirPath         = [string]$('{0}\Mozilla Firefox' -f ([string]$(if($Architecture -eq 'win'){${env:ProgramFiles(x86)}}else{$env:ProgramW6432})))
+## Dynamic
+$Destination            = [string]$('{0}\Temp\{1}Setup.exe' -f ($env:SystemRoot,$ProductName.Replace(' ','')))
 $InstallVerifyPath      = [string]$('{0}\{1}' -f ($InstallDirPath,$ProcessName))
 
 # Logging
@@ -96,11 +97,20 @@ if (-not(Test-Path -Path $PathDirLog -ErrorAction 'Stop')) {$null = New-Item -Pa
 ## Start Transcript (Logging)
 Start-Transcript -Path $PathFileLog -Force -ErrorAction 'Stop'
 
-# Make sure we're running
-## As admin
-if (-not $ScriptIsRunningAsAdmin) {Write-Error -Message 'Not running as administrator.'}
-## As 64 bit
-if (-not [bool]$($ScriptIsRunningOn64Bit -and $ScriptIsRunningAs64Bit)) {Write-Error -Message 'Not running as 64 bit process on a 64 bit operating system.'}
+# Make sure
+## We're running as
+### Admin
+if (-not $ScriptIsRunningAsAdmin) {
+    Write-Error -Message 'Not running as administrator.'
+}
+### 64 bit process on a 64 bit OS
+if (-not [bool]$($ScriptIsRunningOn64Bit -and $ScriptIsRunningAs64Bit)) {
+    Write-Error -Message 'Not running as 64 bit process on a 64 bit operating system.'
+}
+## $ScriptWorkingDirectory is real
+if ([string]::IsNullOrEmpty($ScriptWorkingDirectory) -or -not [bool]$(Test-Path -Path $ScriptWorkingDirectory -ErrorAction 'SilentlyContinue')) {
+    Write-Error -Message ('$ScriptWorkingDirectory is either empty or does not exist ("{0}").' -f ($ScriptWorkingDirectory))
+}
 
 #region    Main
 Try {
@@ -111,7 +121,7 @@ Try {
     Write-Output -InputObject ('{0}Running as SID:      "{1}"' -f ("`t",$ScriptRunningAsUserSID))
     Write-Output -InputObject ('{0}Running as admin:    "{1}"' -f ("`t",$ScriptIsRunningAsAdmin.ToString()))
     Write-Output -InputObject ('{0}Is 64 bit OS?        "{1}"' -f ("`t",$ScriptIsRunningOn64Bit.ToString()))
-    Write-Output -InputObject ('{0}Is 64 bit process?   "{1}"' -f ("`t",$ScriptIsRunningAs64Bit.ToString()))   
+    Write-Output -InputObject ('{0}Is 64 bit process?   "{1}"' -f ("`t",$ScriptIsRunningAs64Bit.ToString()))
 
 
     # Fail proofing - Correct architecture

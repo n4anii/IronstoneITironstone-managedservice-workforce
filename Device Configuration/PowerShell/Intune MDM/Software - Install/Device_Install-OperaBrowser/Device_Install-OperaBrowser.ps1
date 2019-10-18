@@ -60,7 +60,7 @@ $ProgressPreference     = 'SilentlyContinue'
 $ErrorActionPreference  = 'Stop'
 
 # Script variables
-$ScriptWorkingDirectory      = [string]$([string]$($MyInvocation.'MyCommand'.'Path').Replace(('\{0}' -f ($MyInvocation.'MyCommand'.'Name')),''))
+$ScriptWorkingDirectory      = [string]$(if([string]::IsNullOrEmpty($PSScriptRoot)){[string]$($MyInvocation.'MyCommand'.'Path').Replace(('\{0}' -f ($MyInvocation.'MyCommand'.'Name')),'')}else{$PSScriptRoot})
 $ScriptIsRunningAsAdmin      = [bool]$(([System.Security.Principal.WindowsPrincipal]$([System.Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator))
 $ScriptIsRunningOn64Bit      = [bool]$([System.Environment]::Is64BitOperatingSystem)
 $ScriptIsRunningAs64Bit      = [bool]$([System.Environment]::Is64BitProcess)
@@ -88,11 +88,20 @@ if (-not(Test-Path -Path $PathDirLog -ErrorAction 'Stop')) {$null = New-Item -Pa
 ## Start Transcript (Logging)
 Start-Transcript -Path $PathFileLog -Force -ErrorAction 'Stop'
 
-# Make sure we're running
-## As admin
-if (-not $ScriptIsRunningAsAdmin) {Write-Error -Message 'Not running as administrator.'}
-## As 64 bit
-if (-not [bool]$($ScriptIsRunningOn64Bit -and $ScriptIsRunningAs64Bit)) {Write-Error -Message 'Not running as 64 bit process on a 64 bit operating system.'}
+# Make sure
+## We're running as
+### Admin
+if (-not $ScriptIsRunningAsAdmin) {
+    Write-Error -Message 'Not running as administrator.'
+}
+### 64 bit process on a 64 bit OS
+if (-not [bool]$($ScriptIsRunningOn64Bit -and $ScriptIsRunningAs64Bit)) {
+    Write-Error -Message 'Not running as 64 bit process on a 64 bit operating system.'
+}
+## $ScriptWorkingDirectory is real
+if ([string]::IsNullOrEmpty($ScriptWorkingDirectory) -or -not [bool]$(Test-Path -Path $ScriptWorkingDirectory -ErrorAction 'SilentlyContinue')) {
+    Write-Error -Message ('$ScriptWorkingDirectory is either empty or does not exist ("{0}").' -f ($ScriptWorkingDirectory))
+}
 
 #region    Main
 Try {
