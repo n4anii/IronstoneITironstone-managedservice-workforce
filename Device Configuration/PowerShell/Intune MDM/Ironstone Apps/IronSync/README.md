@@ -72,6 +72,7 @@ For settings not mentioned here use common sense. Should preferably be on the sa
   * Start time: Now.
   * End time: In two years or to your preference.
   * Time zone: UTC+1.
+  * Allowed IP addresses: <leave empty>
   * Allowed protocols: HTTPS only.
   * Signing key: Which ever, but note that: Regenerating the key will break the SAS token.
 
