@@ -25,24 +25,32 @@ Device_Install-IronSync.ps1 is the script you deploy through Intune MDM -> Power
 * It creates two additional folders, one for logs (only kept if the scheduled script fails), and one for AzCopy journal files.
 * It creates a scheduled task "IronSync" which is going to run daily at 13:00.
 
+
 ### Onboard new customer - OfficeTemplates edition
 #### Azure Storage Account \ Blog Storage
 ##### Create Azure Storage Account
 For settings not mentioned here use common sense. Should preferably be on the same subscription where you manage Intune / BPTW.
+###### Basics
 * Performance: Standard
 * Account kind: BlobStorage
 * Replication: Locally-redundant storage (LRS)
 * Access Tier: Hot
-* Security \ Secure transfer required: Enabled
-* Virtual Networks \ Virtual Networks: All networks
+
+###### Neworking
+* Connectivity method: Public endpoint (all networks)
+
+###### Advanced
+* Secuiry \ Secure transfer required: Enabled
 * Data Protection \ Soft delete: Disabled
 * Data Lake Storage Gen2: Disabled
+
 
 ##### Create Blob Container
 * Go to Azure Storage Account from previous step \ Blobs
 * Add a Container
  * Name: "office-templates" for instance.
  * Public access level: "Private (no anonymous access)"
+
 
 ##### Upload Files to Storage Account \ Blob Container
 * Download and install [Microsoft Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-explorer-relnotes)
@@ -54,6 +62,7 @@ For settings not mentioned here use common sense. Should preferably be on the sa
   * Block Type "Block Blob".
   * Destination directory: "/".
 * Upload.
+
 
 ##### Create SAS (Shared Access Signature) Token
 First create a Access Policy on the Azure Storage Container where the Office365 templates resides
@@ -72,26 +81,37 @@ Then create a SAS token on the Storage Account
   * Allowed protocols: HTTPS only.
   * Signing key: Which ever, but note that: Regenerating the key will break the SAS token.
 
+
+
 #### Modify Scripts
 ##### Run-IronSync(OfficeTemplates_<company>).ps1
 * Rename script file and script name inside it ($NameScript)
 * Add Storage Account name and SAS Token for access to the blob storage container
+
 ##### Install-IronSync(OfficeTemplates_<customer>).ps1
 * Rename script file and script name inside it ($NameScript)
 * Edit region "Variables - Case Specific" with content from Run-IronSync(OfficeTemplates_<company>).ps1
+
 #### Deploy
 * Deploy both Azure Storage Tools and "Install-IronSync(OfficeTemplates_<customer>).ps1" to the same group
+
 ##### AzSync
 Intune \ Client Apps
 * Add Microsoft Azure Storage Tools as MSI to Intune, and deploy
+
 ##### Script
 Intune \ Device Configuration \ PowerShell
 * Upload the "Install-IronSync(OfficeTemplates_<customer>).ps1" script
 
 
+
+
 ## To Do
 * (Maybe) NTFS Permissions ReadOnly for AzureAD\<users> on the IronSync download folder
   * For now it only uses directory labels
+
+
+
 
 ## Resources
 ### AzCopy - Microsoft Azure Storage Tools
@@ -102,5 +122,6 @@ Intune \ Device Configuration \ PowerShell
   * Used in Microsoft Azure Storage Tools
 * [Download Current Latest Version](http://aka.ms/downloadazcopy)
   * [Version used when developing this script (v7.1.0)](https://azcopy.azureedge.net/azcopy-7-1-0/MicrosoftAzureStorageTools.msi)
+
 ### Microsoft Docs
 * [Using shared access signatures (SAS)](https://docs.microsoft.com/en-us/azure/storage/common/storage-dotnet-shared-access-signature-part-1)
