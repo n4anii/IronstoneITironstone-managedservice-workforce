@@ -1,15 +1,19 @@
 # Device_Install-OperaBrowser.ps1
-
-
-
 ## App information
 ### Name
 .Opera Browser vLatest x64
+
 ### Description
-Opera Browser vLatest x64
+Install script version 1.0.0.0.
+Installs latest version of Opera Browser.
+Architecture is set by script parameters.
+Language is set to match OS by default, can be changed by the end user. Not possible to set with install parameters.
+
 ### Publisher
 Ironstone, Opera Software
 
+### Logo
+Opera logo 200x200px.png
 
 
 ## Program
@@ -27,6 +31,9 @@ Ironstone, Opera Software
 
 ### Install Behavior
 System
+
+### Device restart behavior
+No specific action
 
 
 
@@ -56,7 +63,7 @@ Windows 10 1607
 * Property:			File or folder does not exist
 * Associated with a 32-bit app on 64-bit clients: No
 
-#### File - 64-bit
+#### File - 32-bit
 * Path: 			%ProgramFiles(x86)%\Opera
 * File or folder:	launcher.exe
 * Property:			File or folder does not exist

@@ -1,16 +1,18 @@
 # Device_Install-MozillaFirefox.ps1
-
-
-
 ## App information
 ### Name
 .Mozilla Firefox x64 vLatest en-US
 
 ### Description
-Mozilla Firefox x64 vLatest en-US
+Install script version 1.1.0.0.
+Installs latest version of Mozilla Firefox. 
+Architecture and language is given by script parameters passed to the install script.
 
 ### Publisher
-Ironstone IT, Mozilla Foundation
+Ironstone, Mozilla Foundation
+
+### Logo
+Firefox logo 200x200px.png
 
 
 
@@ -28,8 +30,12 @@ Ironstone IT, Mozilla Foundation
 
 #### x86
 "%ProgramFiles(x86)%\Mozilla Firefox\uninstall\helper.exe" -ms
+
 ### Install behavior
 System
+
+### Device restart behavior
+No specific action
 
 
 

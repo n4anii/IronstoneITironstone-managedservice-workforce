@@ -1,16 +1,18 @@
 # Device_Install-GoogleChrome.ps1
-
-
-
 ## App information
 ### Name
-.Google Chrome vLatest
+.Google Chrome vLatest x64
 
 ### Description
+Install script version 1.0.0.0.
 Installs latest Google Chrome x86, if system is x64 it will automatically upgrade to x64 Chrome later during auto update.
+Language is decided by OS language, but can also be changed by end user later. Can not be set using install parameters.
 
 ### Publisher
-Ironstone IT, Alphabet
+Ironstone, Alphabet
+
+### Logo
+Chrome Logo 200x200px
 
 
 
@@ -24,6 +26,9 @@ Ironstone IT, Alphabet
 
 ### Install behavior
 System
+
+### Device restart behavior
+No specific action
 
 
 
@@ -53,7 +58,7 @@ Windows 10 1607
 * Operator:											Equals
 * Value:											Yes
 
-#### Script - Not installed (Use "File - Not installed" instead)
+#### DON'T USE ### Script - Not installed (Use "File - Not installed" instead)
 * Script name:										Device_Boolean-GoogleChromeBrowserIsNotInstalled.ps1
 * Run script as 32-bit process on 64-bit clients:	No
 * Run this script using the logged on credentials:	No
