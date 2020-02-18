@@ -1,0 +1,1 @@
+﻿[string]$(Try{$Tpm = Get-Tpm -ErrorAction 'SilentlyContinue' | Select-Object -Property 'TpmPresent','TpmReady' -ErrorAction 'SilentlyContinue';if($? -and -not [string]::IsNullOrEmpty($Tpm.'TpmPresent')){'{0}{1}' -f ([byte]$($Tpm.'TpmPresent'),[byte]$($Tpm.'TpmReady'))}else{'00'}}Catch{'00'})

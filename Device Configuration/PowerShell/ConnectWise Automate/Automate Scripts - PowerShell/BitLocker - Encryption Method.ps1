@@ -1,7 +1,8 @@
 ﻿#Requires -RunAsAdministrator
-[string]$($BLV = Get-BitLockerVolume -MountPoint $env:SystemDrive -ErrorAction 'SilentlyContinue';if((-not($?)) -or [string]::IsNullOrEmpty($BLV.ProtectionStatus)){'Error'}elseif($BLV.VolumeStatus -ne 'FullyEncrypted'){'FullyDecrypted'}elseif($BLV.VolumeStatus -eq 'FullyEncrypted' -and (-not([string]::IsNullOrEmpty($BLV.EncryptionMethod)))){$BLV.EncryptionMethod}else{'Error'})
+[string]$($BLV = Get-BitLockerVolume -MountPoint $env:SystemDrive -ErrorAction 'SilentlyContinue';if((-not($?)) -or [string]::IsNullOrEmpty($BLV.'ProtectionStatus')){'Error'}elseif($BLV.'VolumeStatus' -ne 'FullyEncrypted'){'FullyDecrypted'}elseif($BLV.'VolumeStatus' -eq 'FullyEncrypted' -and (-not([string]::IsNullOrEmpty($BLV.'EncryptionMethod')))){$BLV.'EncryptionMethod'}else{'Error'})
 
-[string]$($BLV = Get-BitLockerVolume -MountPoint $env:SystemDrive -ErrorAction 'SilentlyContinue';$BLV.VolumeStatus)
+
+[string]$(Get-BitLockerVolume -MountPoint $env:SystemDrive -ErrorAction 'SilentlyContinue' | Select-Object -ExpandProperty 'VolumeStatus')
 
 
 

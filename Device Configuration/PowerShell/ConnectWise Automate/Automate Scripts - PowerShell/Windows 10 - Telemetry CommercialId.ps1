@@ -1,0 +1,1 @@
+﻿[string]$(Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection' -Name 'CommercialID' -ErrorAction 'SilentlyContinue' | Select-Object -ExpandProperty 'CommercialID';if(-not($?)){'00000000-0000-0000-0000-000000000000'}).Trim()
