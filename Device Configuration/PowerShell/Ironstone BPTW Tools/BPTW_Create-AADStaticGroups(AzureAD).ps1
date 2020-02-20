@@ -7,6 +7,7 @@
 
 
 
+
 # Connect
 if(-not([bool]$(Try{$null = Get-AzureADTenantDetail;$?}Catch{$false}))){Connect-AzureAD}
 
@@ -18,20 +19,24 @@ $WriteChanges = [bool]$($true)
 $IncludeAndr  = [bool]$($false)
 $IncludeiOS   = [bool]$($false)
 $IncludeMac   = [bool]$($false)
+$IncludeW10D  = [bool]$($false)
+$IncludeW10K  = [bool]$($true)
 
 
 
 
 # Variables - Groups
-$Devices      = [string[]]$('W10D';if($IncludeAndr){'Andr'};if($IncludeiOS){'iOS'};if($IncludeMac){'Mac'})
+$Devices      = [string[]]$(if($IncludeW10D){'W10D'};if($IncludeW10K){'W10K'};if($IncludeAndr){'Andr'};if($IncludeiOS){'iOS'};if($IncludeMac){'Mac'})
 $Environments = [string[]]@('Dev Default','Prod Default')
 $Groups       = [string[]]@('Applications','Compliance','Configuration','Updates','Users')
+
 
 
 
 # Get existing groups
 function Get-GroupsMDM {$Script:ExistingGroups = [array]($(Get-AzureADGroup -All:$true -Filter "startswith(displayName,'MDM')").Where{$_.'DisplayName' -like 'MDM * - *' -and $_.'DisplayName' -notlike 'MDM Dev - *'})}
 Get-GroupsMDM
+
 
     
 
@@ -110,24 +115,29 @@ foreach ($Device in $Devices) {
 #region    Rename Existing Groups
 if ($false) {
     # Rename from 'MDM Win10 - *' to 'MDM W10D - *'
-    $RenameFromTo = [string[]]@('Win10','W10D')
+    $RenameFromTo = [string[]]@('MDM Win10 -*','MDM Win10','MDM W10D')
     
     # Rename from 'MDM Android - *' to 'MDM Andr - *'
-    $RenameFromTo = [string[]]@('Android','Andr')
+    $RenameFromTo = [string[]]@('MDM Android -*','MDM Android','MDM Andr')
+
+    # Rename from '*- App Prod -*' to '*- Prod App -*'
+    $RenameFromTo = [string[]]@('*- App Prod -*',,'App Prod','Prod App')
 
     # Generic
     Get-GroupsMDM
-    $GroupsToRename = @($ExistingGroups | Where-Object -Property 'DisplayName' -like ('MDM {0} - *' -f ($RenameFromTo[0])))
+    $GroupsToRename = @($Script:ExistingGroups | Where-Object -Property 'DisplayName' -like $RenameFromTo[0])
 
-    if (@($GroupsToRename).Count -le 0) {
+    if (@($GroupsToRename).'Count' -le 0) {
         Write-Output -InputObject 'Found no groups to rename'
     }
     else {
         foreach ($Group in $GroupsToRename) {
-            Write-Output -InputObject ('Renaming "{0}" to "{1}".' -f ($Group.'DisplayName',$Group.'DisplayName'.Replace($RenameFromTo[0],$RenameFromTo[1])))
+            $RenameTo = [string]$($Group.'DisplayName'.Replace($RenameFromTo[1],$RenameFromTo[2]))
+            
+            Write-Output -InputObject ('Renaming "{0}" to "{1}".' -f ($Group.'DisplayName',$RenameTo))
             if ($WriteChanges) {
-                $null = Set-AzureADGroup -ObjectId $Group.'ObjectId' -DisplayName ($Group.'DisplayName'.Replace($RenameFromTo[0],$RenameFromTo[1]))
-                Write-Output -InputObject ('   Creating. Success? {0}' -f ($?))
+                $null = Set-AzureADGroup -ObjectId $Group.'ObjectId' -DisplayName $RenameTo
+                Write-Output -InputObject ('   Renaming. Success? {0}' -f ($?))
             }
             else {
                 Write-Output -InputObject ('   Did not write changes.')
