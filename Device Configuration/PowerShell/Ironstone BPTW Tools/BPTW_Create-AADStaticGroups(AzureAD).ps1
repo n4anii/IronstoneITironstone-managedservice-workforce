@@ -8,7 +8,7 @@
 
 
 # Connect
-if(-not([bool]$($null = Get-AzureADTenantDetail;$?))){Connect-AzureAD}
+if(-not([bool]$(Try{$null = Get-AzureADTenantDetail;$?}Catch{$false}))){Connect-AzureAD}
 
 
 
@@ -30,7 +30,7 @@ $Groups       = [string[]]@('Applications','Compliance','Configuration','Updates
 
 
 # Get existing groups
-function Get-GroupsMDM {$Script:ExistingGroups = @(Get-AzureADGroup -All:$true | Where-Object {$_.'DisplayName' -like 'MDM * - *' -and $_.'DisplayName' -notlike 'MDM Dev - *'})}
+function Get-GroupsMDM {$Script:ExistingGroups = [array]($(Get-AzureADGroup -All:$true -Filter "startswith(displayName,'MDM')").Where{$_.'DisplayName' -like 'MDM * - *' -and $_.'DisplayName' -notlike 'MDM Dev - *'})}
 Get-GroupsMDM
 
     
