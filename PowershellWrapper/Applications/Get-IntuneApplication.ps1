@@ -19,7 +19,8 @@ NAME: Get-IntuneApplication
         $Name
     )
 
-    $graphApiVersion = 'v1.0'
+    $graphApiVersion = 'beta' #'v1.0'
+    Write-Warning 'Using BETA version of deviceAppManagement/mobileApps'
     $Resource = 'deviceAppManagement/mobileApps'
 
     try {
