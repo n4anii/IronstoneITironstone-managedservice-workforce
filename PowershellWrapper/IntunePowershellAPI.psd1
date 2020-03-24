@@ -12,7 +12,7 @@
     RootModule        = '.\IntunePowershellAPI.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.1.0'
+    ModuleVersion     = '0.1.1'
 
     # ID used to uniquely identify this module
     #GUID = ''
@@ -73,7 +73,8 @@
     'SoftwareUpdates\Get-SoftwareUpdatePolicy.ps1',
     'EnrollmentRestrictions\Get-DeviceEnrollmentConfigurations.ps1',
     'TermsAndConditions\Get-TermsAndConditions.ps1',
-    'DeviceConfiguration\Get-DeviceManagementScripts.ps1'
+    'DeviceConfiguration\Get-DeviceManagementScripts.ps1',
+    'Generic\Get-AzureAdOrganization.ps1'
 
 	
     # Functions to export from this module
@@ -91,7 +92,8 @@
     'Get-SoftwareUpdatePolicy',
     'Get-DeviceEnrollmentConfigurations',
     'Get-TermsAndConditions',
-    'Get-DeviceManagementScripts'
+    'Get-DeviceManagementScripts',
+    'Get-AzureADOrganization'
 
     # Cmdlets to export from this module
     CmdletsToExport   = @()
