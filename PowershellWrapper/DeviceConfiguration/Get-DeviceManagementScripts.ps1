@@ -25,10 +25,14 @@ param (
 
 $graphApiVersion = "beta"
 $Resource = "deviceManagement/deviceManagementScripts"
-    
+
+$UriAll = "https://graph.microsoft.com/$graphApiVersion/$Resource"
+[array]$AllIds =  (Invoke-RestMethod -Uri $UriAll -Headers $authToken -Method Get).Value.foreach{$_.id}
+
+
     try {
 
-        if($ScriptId){
+        if($AllIds.Contains($ScriptId)){
 
         $uri = "https://graph.microsoft.com/$graphApiVersion/$Resource/$ScriptId"
 

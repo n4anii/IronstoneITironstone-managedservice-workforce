@@ -1,6 +1,6 @@
 Function Get-AADGroup() {
 
-    <#
+   <#
 .SYNOPSIS
 This function is used to get AAD Groups from the Graph API REST interface
 .DESCRIPTION
@@ -12,57 +12,65 @@ Returns all users registered with Azure AD
 NAME: Get-AADGroup
 #>
 
-    [cmdletbinding()]
+[cmdletbinding()]
 
-    param
-    (
-        $GroupName,
-        $id,
-        [switch]$Members
-    )
+param
+(
+    $GroupName,
+    $id,
+    [switch]$Members
+)
 
-    # Defining Variables
-    $graphApiVersion = 'v1.0'
-    $Group_resource = 'groups'
+# Defining Variables
+$graphApiVersion = "v1.0"
+$Group_resource = "groups"
+# pseudo-group identifiers for all users and all devices
+[string]$AllUsers   = "acacacac-9df4-4c7d-9d50-4ef0226f57a9"
+[string]$AllDevices = "adadadad-808e-44e2-905a-0b7873a8a531"
 
     try {
 
-        if ($id) {
+        if($id){
 
-            $uri = ("https://graph.microsoft.com/{0}/{1}?`$filter=id eq '{2}'" -f $graphApiVersion, ($Group_resource), $id)
-            (Invoke-RestMethod -Uri $uri -Headers $authToken -Method Get).Value
-
+        $uri = "https://graph.microsoft.com/$graphApiVersion/$($Group_resource)?`$filter=id eq '$id'"
+        switch ( $id ) {
+                $AllUsers   { $grp = [PSCustomObject]@{ displayName = "All users"}; $grp           }
+                $AllDevices { $grp = [PSCustomObject]@{ displayName = "All devices"}; $grp         }
+                default     { (Invoke-RestMethod -Uri $uri -Headers $authToken -Method Get).Value  }
+                }
+                
         }
 
-        elseif ($GroupName -eq '' -or $GroupName -eq $null) {
+        elseif($GroupName -eq "" -or $GroupName -eq $null){
 
-            $uri = ('https://graph.microsoft.com/{0}/{1}' -f $graphApiVersion, ($Group_resource))
-            (Invoke-RestMethod -Uri $uri -Headers $authToken -Method Get).Value
+        $uri = "https://graph.microsoft.com/$graphApiVersion/$($Group_resource)"
+        (Invoke-RestMethod -Uri $uri -Headers $authToken -Method Get).Value
 
         }
 
         else {
 
-            if (!$Members) {
+            if(!$Members){
 
-                $uri = ("https://graph.microsoft.com/{0}/{1}?`$filter=displayname eq '{2}'" -f $graphApiVersion, ($Group_resource), $GroupName)
-                (Invoke-RestMethod -Uri $uri -Headers $authToken -Method Get).Value
+            $uri = "https://graph.microsoft.com/$graphApiVersion/$($Group_resource)?`$filter=displayname eq '$GroupName'"
+            (Invoke-RestMethod -Uri $uri -Headers $authToken -Method Get).Value
 
             }
 
-            elseif ($Members) {
+            elseif($Members){
 
-                $uri = ("https://graph.microsoft.com/{0}/{1}?`$filter=displayname eq '{2}'" -f $graphApiVersion, ($Group_resource), $GroupName)
-                $Group = (Invoke-RestMethod -Uri $uri -Headers $authToken -Method Get).Value
+            $uri = "https://graph.microsoft.com/$graphApiVersion/$($Group_resource)?`$filter=displayname eq '$GroupName'"
+            $Group = (Invoke-RestMethod -Uri $uri -Headers $authToken -Method Get).Value
 
-                if ($Group) {
+                if($Group){
 
-                    $GID = $Group.id
+                $GID = $Group.id
 
-                    $Group.displayName
+                $Group.displayName
+                write-host
 
-                    $uri = ('https://graph.microsoft.com/{0}/{1}/{2}/Members' -f $graphApiVersion, ($Group_resource), $GID)
-                    (Invoke-RestMethod -Uri $uri -Headers $authToken -Method Get).Value
+                $uri = "https://graph.microsoft.com/$graphApiVersion/$($Group_resource)/$GID/Members"
+                (Invoke-RestMethod -Uri $uri -Headers $authToken -Method Get).Value
 
                 }
 
@@ -74,16 +82,16 @@ NAME: Get-AADGroup
 
     catch {
 
-        $ex = $_.Exception
-        $errorResponse = $ex.Response.GetResponseStream()
-        $reader = New-Object -TypeName System.IO.StreamReader -ArgumentList ($errorResponse)
-        $reader.BaseStream.Position = 0
-        $reader.DiscardBufferedData()
-        $responseBody = $reader.ReadToEnd()
-
-        Write-Verbose -Message ("Response content:`n{0}" -f $responseBody)
-        Write-Error -Message ('Request to {0} failed with HTTP Status {1} {2}' -f $Uri, $ex.Response.StatusCode, $ex.Response.StatusDescription)
-        break
+    $ex = $_.Exception
+    $errorResponse = $ex.Response.GetResponseStream()
+    $reader = New-Object System.IO.StreamReader($errorResponse)
+    $reader.BaseStream.Position = 0
+    $reader.DiscardBufferedData()
+    $responseBody = $reader.ReadToEnd();
+    Write-Host "Response content:`n$responseBody" -f Red
+    Write-Error "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
+    write-host
+    break
 
     }
 
