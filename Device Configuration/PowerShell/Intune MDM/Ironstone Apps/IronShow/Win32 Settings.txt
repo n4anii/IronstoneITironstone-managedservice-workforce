@@ -1,0 +1,2 @@
+Detection Rule (Custom PowerShell)
+	Get-Item -Path ('{0}\IronstoneIT\IronShow\1904041223.txt' -f ($env:ProgramW6432)) -ErrorAction 'Stop'

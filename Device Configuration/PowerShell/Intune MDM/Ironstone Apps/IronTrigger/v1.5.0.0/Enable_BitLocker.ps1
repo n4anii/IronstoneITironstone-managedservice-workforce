@@ -1,24 +1,17 @@
 #Requires -RunAsAdministrator
+
 <# 
-    .SYNOPSIS
-        Enables BitLocker and backups Recovery Password to both Azure AD and OneDrive for Business.
+ 
+.DESCRIPTION 
+ Check whether BitLocker is Enabled, if not Enable BitLocker on AAD Joined devices and store recovery info in AAD 
+ Added logging
+#> 
 
-    .DESCRIPTION 
-        Enables BitLocker and backups Recovery Password to both Azure AD and OneDrive for Business.
-            * Designed for Intune MDM managed, Azure AD joined devices.
-            * Continously monitors BitLocker status.
-                * Will re-enable if BitLocker gets disabled.
-                * Will backup new Recovery Passwords if not already backed up.
-#>
-
-
-# Input parameters
-[OutputType($null)]
-[CmdletBinding()]
+[cmdletbinding()]
 param()
 
 
-# Import BitLocker module - Requirement
+# Import BitLocker module
 if ([byte]$(Get-Module -Name 'BitLocker' -ErrorAction 'SilentlyContinue' | Measure-Object | Select-Object -ExpandProperty 'Count') -le 0) {
     $null = Import-Module -Name 'BitLocker' -DisableNameChecking -ErrorAction 'Stop'
 }
@@ -30,26 +23,21 @@ if ([byte]$(Get-Module -Name 'BitLocker' -ErrorAction 'SilentlyContinue' | Measu
 
 
 #region Settings and Variables
-    # Settings   
+    # Settings
+    ## GUI
+    ### If on, will prompt user to reboot with Windows Forms GUI.
+    $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolShowGUI' -Value $([bool]$($false))    
     ## Remove files after success
     ### If on, will remove all files after first success.
-    $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolRemoveFilesAfterSuccess' -Value ([bool]$false)
-    
+    $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolRemoveFilesAfterSuccess' -Value $([bool]$($false))
     ## Remove scehduled task after success
-    ### If false, will change scheduled task to run once a day at 12:00 after first successfull run, or after 30 failed runs
-    ### If true, will delete scheduled task after first successfull run and after 30 failed runs
-    $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolRemoveScheduledTaskAfterFirstSuccess' -Value ([bool]$false)
-    
+    ### If off, will change scheduled task to run once a day at 12:00 after first successfull run, or after 30 failed runs
+    ### If on, will delete scheduled task after first successfull run and after 30 failed runs
+    $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolRemoveScheduledTaskAfterFirstSuccess' -Value $([bool]$($false))
     ## Backup to OneDrive
     ### If true will backup to OneDrive for Business, will not count as successful run before this step has completed successfully
     ### If false will skup backup to OneDrive for Business
-    $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolBackupToOneDriveForBusiness' -Value ([bool]$true)
-    
-    ## Skip hardware test if newly enrolled
-    ### If true, will skip hardware test when enabling BitLocker on newly enrolled Intune device.
-    ### If false, will not.
-    $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolSkipHardwareTestOnNewlyEnrolledDevice' -Value ([bool]$true)
-
+    $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolBackupToOneDriveForBusiness' -Value $([bool]$($true))
 
     # Variables
     ## Script
@@ -59,7 +47,6 @@ if ([byte]$(Get-Module -Name 'BitLocker' -ErrorAction 'SilentlyContinue' | Measu
     $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'DirLog' -Value $([string]$('{0}\Program Files\IronstoneIT\Intune\DeviceConfiguration\' -f ($env:SystemDrive)))
     $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'FileLog' -Value $([string]$('{0}IronTrigger - EnableBitLocker.log' -f ($Script:DirLog)))
     $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'FileStats' -Value $([string]$('{0}stats.txt' -f ($Script:DirInstall)))
-    
     ## Help
     ### Static / ReadOnly
     $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'OSDriveLetter' -Value $([string]$($env:SystemDrive.Trim(':').ToUpper()))
@@ -649,7 +636,7 @@ else {
     $Script:BoolDidAnythingChangeThisRuntime = [bool]$($true)
     
     # If 'FullyEncrypted', and TPM present
-    ## Means that OS Drive is successfully encrypted with BitLocker
+    # Means that OS Drive is successfully encrypted with BitLocker
     if (($Script:VolumeEncryptionStatus -eq $Script:BitLockerVolumeEncryptionStatuses[2]) -and $Script:VolumeHasTPMandPW[0]) {
         LogWrite ('OS Drive is fully encrypted!')
         $Script:IsEncrypted = $true
@@ -657,7 +644,7 @@ else {
     
 
     # If 'EncryptionInProgress' and TPM present
-    ## Means computer has restarted after BitLocker encryption was enabled. Waiting for the volume to get encrypted
+    # Means computer has restarted after BitLocker encryption was enabled. Waiting for the volume to get encrypted
     elseif ($Script:VolumeEncryptionStatus -eq $Script:BitLockerVolumeEncryptionStatuses[1] -and $Script:VolumeHasTPMandPW[0]) {
         LogWrite ('OS Drive encryption is in progress:')
         LogWrite ('Restart have taken place, and encryption has started.')
@@ -667,57 +654,22 @@ else {
 
 
     # If 'FullyDrectypted'     
-    elseif ($Script:VolumeEncryptionStatus -eq $Script:BitLockerVolumeEncryptionStatuses[0]) {        
+    elseif ($Script:VolumeEncryptionStatus -eq $Script:BitLockerVolumeEncryptionStatuses[0]) {
+        
         # If 'FullyDrectypted' but there exists a TPM
-        ## Means that encryption has started, but computer is awaiting restart
+        # Means that encryption has started, but computer is awaiting restart
         if ($Script:VolumeHasTPMandPW -and $Script:VolumeHasTPMandPW[0]) {
             LogWrite ('OS Drive Encryption has started, but computer has not been restarted yet.')
             LogWrite ('OS Drive Encryption Percentage: {0}%.' -f ($Script:VolumeEncryptionPercentage))
             LogWrite ('Can continue to check if Recovery Password is present, and backup it.')
         }
         
-        # Else
-        ## Means BitLocker should be enabled
         else {
             LogWrite ('OS Drive is not encrypted.')
             LogWrite ('Attempting to Enable BitLocker on OS drive ({0})' -f ($OSDrive))
-            
-            # Set $SkipHardwareTest
-            $SkipHardwareTest = [bool]$(
-                if ($Script:BoolSkipHardwareTestOnNewlyEnrolledDevice) {
-                    # Set to true if it's less than one day since enrollment.
-                    $Path = ('{0}\Microsoft Intune Management Extension' -f (${env:ProgramFiles(x86)}))
-                    [bool]$(
-                        [datetime]$(
-                            if ([bool]$(Test-Path -Path $Path -ErrorAction 'SilentlyContinue')) {
-                                Try{
-                                    $Date = [datetime]$(Get-Item -Path $Path -ErrorAction 'SilentlyContinue' | Select-Object -ExpandProperty 'CreationTimeUtc')
-                                    if ($Date -ne [datetime]::MinValue) {
-                                        $Date
-                                    }
-                                    else{
-                                        [datetime]::UtcNow
-                                    }
-                                }
-                                Catch{
-                                    [datetime]::UtcNow
-                                }
-                            }
-                            else {
-                                [datetime]::UtcNow
-                            }
-                        ) -gt [datetime]::UtcNow.AddDays(-1)
-                    )
-                }
-                else {
-                    $false
-                }
-            )
-            
-            # Try to enable BitLocker
             try {
                 # Enable BitLocker using TPM
-                $null = Enable-BitLocker -MountPoint $OSDriveLetter -TpmProtector -UsedSpaceOnly:$false -HardwareEncryption:$false -SkipHardwareTest:$SkipHardwareTest -ErrorAction 'Continue'
+                $null = Enable-BitLocker -MountPoint $OSDriveLetter -TpmProtector -UsedSpaceOnly:$false -HardwareEncryption:$false -ErrorAction 'Continue'
                 if ($?) {
                     LogWrite ('Successfully enabled bitlocker.')                   
                 }
@@ -727,7 +679,7 @@ else {
             } 
             catch {
                 LogErrors
-                Enable-BitLocker -MountPoint $OSDriveLetter -TpmProtector -UsedSpaceOnly:$false -HardwareEncryption:$false -SkipHardwareTest:$SkipHardwareTest -ErrorAction 'SilentlyContinue'
+                Enable-BitLocker -MountPoint $OSDriveLetter -TpmProtector -UsedSpaceOnly:$false -HardwareEncryption:$false -ErrorAction 'SilentlyContinue'
                 LogWrite ('Will attempt to Enable BitLocker anyway and then continue. Success? {0}' -f ($?))
             }
             finally {
@@ -740,15 +692,8 @@ else {
                 # Check result
                 if ($Script:VolumeHasTPMandPW -and $Script:VolumeHasTPMandPW[0]) {
                     LogWrite ('TPM present for OS Drive? {0}' -f ($Script:VolumeHasTPMandPW[0]))
-                    
-                    # Prompt reboot if not $SkipHardwareTest
-                    if ($SkipHardwareTest) {
-                        LogWrite ('Not prompting for reboot - $SkipHardwareTest is $true.')
-                    }
-                    else {
-                        LogWrite ('Prompting reboot - $SkipHardwareTest is $false.')
-                        Prompt-Reboot
-                    }
+                    LogWrite ('Prompting reboot.')
+                    Prompt-Reboot
                 }
                 else {
                     LogWrite ('ERROR, not encrypted. TPM not present for OS Drive')
@@ -839,7 +784,7 @@ if ($Script:IsEncrypted -or ($Script:VolumeHasTPMandPW -and $Script:VolumeHasTPM
                     $Local:Success = $true
                 }
                 else {
-                    $null = Enable-BitLocker -MountPoint $OSDriveLetter -RecoveryPasswordProtector -UsedSpaceOnly:$false -HardwareEncryption:$false -SkipHardwareTest:$false -ErrorAction 'Stop'
+                    $null = Enable-BitLocker -MountPoint $OSDriveLetter -RecoveryPasswordProtector -ErrorAction 'Stop'
                     if ($?) {
                         $Local:Success = $true
                     }
@@ -852,7 +797,7 @@ if ($Script:IsEncrypted -or ($Script:VolumeHasTPMandPW -and $Script:VolumeHasTPM
                     $Local:Success = $true
                 }
                 else {
-                    $null = Enable-BitLocker -MountPoint $OSDriveLetter -RecoveryPasswordProtector -UsedSpaceOnly:$false -HardwareEncryption:$false -SkipHardwareTest:$false -ErrorAction 'SilentlyContinue'
+                    $null = Enable-BitLocker -MountPoint $OSDriveLetter -RecoveryPasswordProtector -ErrorAction 'SilentlyContinue'
                     if ($?) {
                         $Local:Success = $true
                     }
@@ -1137,7 +1082,7 @@ if (-not($Script:IsBackupAAD -and [bool]$([bool]$($Script:BoolBackupToOneDriveFo
                     # BackupToAAD-BitLockerKeyProtector commandlet not available, using other mechanism 
                     LogWrite 'BackupToAAD-BitLockerKeyProtector commandlet not available, using other mechanism.' 
                     # Get the AAD Machine Certificate
-                    $Certificate           = ($([array]$(Get-ChildItem -Path 'Certificate::LocalMachine\My')).Where{$_.'Issuer' -match 'CN=MS-Organization-Access'})
+                    $Certificate           = $([array]$(Get-ChildItem -Path 'Cert:\LocalMachine\My\').Where{$_.'Issuer' -match 'CN=MS-Organization-Access'})
                     $CertificateThumbprint = [string]$($Certificate | Select-Object -ExpandProperty 'Thumbprint')
                     $CertificateSubject    = [string]$([string]$($Certificate | Select-Object -ExpandProperty 'Subject').Replace('CN=',''))
                     
@@ -1196,6 +1141,84 @@ if (-not($Script:IsBackupAAD -and [bool]$([bool]$($Script:BoolBackupToOneDriveFo
 #endregion Backup
 #endregion Main
 
+
+
+####################
+######  G U I ######
+####################
+#region GUI
+if ($Script:IsEncrypted -and $Script:IsProtectionPassw -and $Script:BoolShowGUI) {
+    # Show reboot prompt to user
+    LogWrite "Prompting user to Reboot computer."
+           
+
+    [void][System.Reflection.Assembly]::LoadWithPartialName( “System.Windows.Forms”)
+    [void][System.Reflection.Assembly]::LoadWithPartialName( “Microsoft.VisualBasic”)
+
+    $form = [System.Windows.Forms.Form]::new()
+    $form.'Width' = 500
+    $form.'Height' = 150
+    $form.'Text' = 'BitLocker requires a reboot!'
+    $form.'StartPosition' = [System.Windows.Forms.FormStartPosition]::CenterScreen
+
+    $DropDownArray = @("4:Hours", "8:Hours", "12:Hours", "24:Hours")
+    $DDL = [System.Windows.Forms.ComboBox]::new()
+    $DDL.'Location' = [System.Drawing.Size]::new(140, 10)
+    $DDL.'Size' = [System.Drawing.Size]::new(130, 30)
+    foreach ($Item in $DropDownArray) {
+        $DDL.'Items'.Add($Item) | Out-Null
+    }
+    $DDL.'SelectedIndex' = 0
+
+    $button1 = [System.Windows.Forms.button]::new()
+    $button1.'Left' = 40
+    $button1.'Top' = 85
+    $button1.'Width' = 100
+    $button1.'Text' = 'Reboot Now'
+    $button1.'Add_Click'({$global:xinput = 'Reboot'; $Form.Close()})
+
+    $button2 = [System.Windows.Forms.button]::new()
+    $button2.'Left' = 170
+    $button2.'Top' = 85
+    $button2.'Width' = 100
+    $button2.'Text' = 'Postpone'
+    $button2.'Add_Click'({$global:xinput = 'Postpone:' + $DDL.Text; $Form.Close()})
+
+    $button3 = [System.Windows.Forms.button]::new()
+    $button3.'Left' = 290;
+    $button3.'Top' = 85;
+    $button3.'Width' = 100;
+    $button3.'Text' = 'Cancel';
+    $button3.'Add_Click'({$global:xinput = "Postpone24"; $Form.Close()})
+
+
+    $form.'KeyPreview' = $True
+    $form.'Add_KeyDown'( {if ($_.'KeyCode' -eq 'Enter') 
+        {$x = $textBox1.'Text'; $form.Close()}})
+    $form.'Add_KeyDown'( {if ($_.'KeyCode' -eq 'Escape') 
+        {$form.Close()}})
+
+    $eventHandler = [System.EventHandler] { 
+        $button1.'Click';
+        $DropDownArray.'Text';
+        $form.Close(); };
+
+    #$button.Add_Click($eventHandler) ;
+    $form.'Controls'.Add($button1);
+    $form.'Controls'.Add($button2);
+    $form.'Controls'.Add($button3);
+    $form.'Controls'.Add($DDL);
+    $form.'Controls'.Add($textLabel1)
+    $ret = $form.ShowDialog();
+
+    if ($global:xinput -eq 'Reboot') {shutdown -r -f /t 600}
+    if ($global:xinput -like 'Postpone:*:Hours') {
+        $hval = (([int]$global:xinput.split(":")[1]) * 60 * 60)
+        shutdown -r -f /t $hval
+    }
+    if ($global:xinput -eq 'Postpone24') {shutdown -r -f /t 86400}
+}
+#endregion GUI
 
 
 
@@ -1297,8 +1320,34 @@ if ($Script:BoolDidAnythingChangeThisRuntime) {
 ### Give up after X runs and IsFinished1stTime -eq $false
 if ($Script:CountRuns -eq 30 -and (-not($Script:IsFinished1stTime))) {
     LogWrite ('Should have been done by now.')
-    Edit-ScheduledTask -TaskName $Script:ScheduledTaskName    
+    Edit-ScheduledTask -TaskName $Script:ScheduledTaskName
+
+    if ($false) {
+        ### Gathering info for the email
+        if (-not($Script:WindowsVersion)) {
+            Create-EnvVariables
+        }
+        ### Building email string
+        $Local:StrSubject = [string]$('BitLockerTrigger failed {0} times for tenant "{1}", device: "{2}"' -f ($CountRuns.ToString(),$Local:NameTenant,$Local:NameComputer))
+        $Local:StrEmail = [string]::Empty
+        $Local:StrEmail += ($Local:StrSubject)
+        $Local:StrEmail += ("`r`n")
+        $Local:StrEmail += ("`r`n" + '## Environment info')
+        $Local:StrEmail += ("`r`n" + 'Device name: ' + $Script:ComputerName + ' | Manufacturer: ' + $Script:ComputerManufacturer + ' | Model: ' + $Script:ComputerProductName) 
+        $Local:StrEmail += ("`r`n" + 'Windows Edition: ' + $Script:WindowsEdition + ' | Windows Version' + $Script:WindowsVersion)
+        $Local:StrEmail += ("`r`n`r`n" + 'There have now been {0} runs, but BitLockerTrigger STILL fails.' -f ($Script:CountRuns))
+        $Local:StrEmail += ("`r`n" + 'Success status | Encrypted : {0} | Protection Passwords present : {1} | Backup to AzureAD : {2} | Backup to OneDrive : {3}' -f ($Script:IsEncrypted,$Script:IsProtectionPassw,$Script:IsBackupAAD,$Script:IsBackupOD))
+        LogWrite ($Local:StrEmail)
+        <### Send email
+        ## Mail address(es)
+        [string] $Local:StrToEmailAddress = 'Olav R. Birkeland <olavb@ironstoeit.com>;'
+        #$StrEmailAddress += 'Ironstone Servicedesk <servicedeks@ironstoneit.com>'
+        [string] $Local:StrFromEmailAddress = ('BitLockerTriggerFail@{0}' -f ($Script:NameTenant))
+        #Send-MailMessage -To $Local:StrToEmailAddress -SmtpServer  -From $Local:StrFromEmailAddress -Subject $Local:StrSubject -Body $Local:StrEmail
+        #>
+    }
 }
+
 
 
 
