@@ -1,0 +1,118 @@
+[05F0:40CC][2020-03-29T18:27:21]i001: Burn v3.10.4.5028, Windows v10.0 (Build 19041: Service Pack 0), path: C:\Windows\Temp\{16804574-A012-4F0C-BC11-447C444B1B7B}\.cr\ConnectWiseAutomateControlCenterSetup.EXE
+[05F0:40CC][2020-03-29T18:27:21]i000: Initializing string variable 'InstallFolder' to value '[ProgramFilesFolder]LabTech Client'
+[05F0:40CC][2020-03-29T18:27:21]i009: Command Line: '-burn.clean.room=C:\Windows\Temp\ConnectWiseAutomateControlCenterSetup.EXE -burn.filehandle.attached=628 -burn.filehandle.self=656 /install /quiet /norestart /log "%ProgramData%\IronstoneIT\Intune\ClientApps\ConnectWise Automate Control Center -  Install Log %random%.txt"'
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting string variable 'WixBundleOriginalSource' to value 'C:\Windows\Temp\ConnectWiseAutomateControlCenterSetup.EXE'
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting string variable 'WixBundleOriginalSourceFolder' to value 'C:\Windows\Temp\'
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting string variable 'WixBundleLog' to value 'C:\Users\OlavRønnestadBirkela\OneDrive - Ironstone\Documents - Work\Script & Code\PowerShell\Intune MDM\Software - Install\Device_Install-EXEorMSI\%ProgramData%\IronstoneIT\Intune\ClientApps\ConnectWise Automate Control Center -  Install Log %random%.txt'
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting string variable 'WixBundleName' to value 'Automate Control Center'
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting string variable 'WixBundleManufacturer' to value 'ConnectWise, Inc.'
+[05F0:22B8][2020-03-29T18:27:21]i000: Setting numeric variable 'WixStdBALanguageId' to value 1033
+[05F0:22B8][2020-03-29T18:27:21]i000: Setting version variable 'WixBundleFileVersion' to value '20.0.112.0'
+[05F0:40CC][2020-03-29T18:27:21]i100: Detect begin, 5 packages
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting string variable 'NETFRAMEWORK45' to value '528372'
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting version variable 'VCR2K5SP1_2x64' to value '8.0.59192.0'
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting version variable 'VCR2K5SP1_2x86' to value '8.0.59193.0'
+[05F0:40CC][2020-03-29T18:27:21]i000: Product or related product not found: {F65DB027-AFF3-4070-886A-0D87064AABB1}
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting version variable 'VCR2013_30501_x86' to value '0.0.0.0'
+[05F0:40CC][2020-03-29T18:27:21]i000: Product or related product not found: {050D4FC8-5D48-4B8F-8972-47C82C46020F}
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting version variable 'VCR2013_30501_x64' to value '0.0.0.0'
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting string variable 'Netfx3064Version' to value '3.0.30729.4926'
+[05F0:40CC][2020-03-29T18:27:21]i000: Registry value not found. Key = 'HARDWARE\DESCRIPTION\System\CentralProcessor\0', Value = 'Platform ID'
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting string variable 'Netfx20Version' to value '2.0.50727.4927'
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting string variable 'Netfx3564Version' to value '3.5.30729.4926'
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting string variable 'Netfx35Version' to value '3.5.30729.4926'
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting string variable 'Netfx30Version' to value '3.0.30729.4926'
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting string variable 'Netfx2064Version' to value '2.0.50727.4927'
+[05F0:40CC][2020-03-29T18:27:21]i052: Condition 'VCR2013_30501_x86' evaluates to false.
+[05F0:40CC][2020-03-29T18:27:21]i052: Condition 'Netfx20Version OR Netfx2064Version OR Netfx30Version OR Netfx3064Version OR Netfx35Version OR Netfx3564Version' evaluates to true.
+[05F0:40CC][2020-03-29T18:27:21]i052: Condition 'NETFRAMEWORK45 >= 379893' evaluates to true.
+[05F0:40CC][2020-03-29T18:27:21]i101: Detected package: VC2013_30501_x86Redist, state: Absent, cached: None
+[05F0:40CC][2020-03-29T18:27:21]i101: Detected package: Netfx35Full, state: Present, cached: None
+[05F0:40CC][2020-03-29T18:27:21]i101: Detected package: NetFx452Web, state: Present, cached: None
+[05F0:40CC][2020-03-29T18:27:21]i101: Detected package: MySqlODBC3_51Package, state: Present, cached: Complete
+[05F0:40CC][2020-03-29T18:27:21]i101: Detected package: LabTechClient, state: Absent, cached: None
+[05F0:40CC][2020-03-29T18:27:21]i199: Detect complete, result: 0x0
+[05F0:40CC][2020-03-29T18:27:21]i200: Plan begin, 5 packages, action: Install
+[05F0:40CC][2020-03-29T18:27:21]i052: Condition 'NOT VCR2013_30501_x86' evaluates to true.
+[05F0:40CC][2020-03-29T18:27:21]w321: Skipping dependency registration on package with no dependency providers: VC2013_30501_x86Redist
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting string variable 'WixBundleLog_VC2013_30501_x86Redist' to value 'C:\Users\OlavRønnestadBirkela\OneDrive - Ironstone\Documents - Work\Script & Code\PowerShell\Intune MDM\Software - Install\Device_Install-EXEorMSI\%ProgramData%\IronstoneIT\Intune\ClientApps\ConnectWise Automate Control Center -  Install Log %random%_000_VC2013_30501_x86Redist.txt'
+[05F0:40CC][2020-03-29T18:27:21]i052: Condition '(NOT (Netfx20Version OR Netfx2064Version OR Netfx30Version OR Netfx3064Version OR Netfx35Version OR Netfx3564Version)) AND VersionNT < 602' evaluates to false.
+[05F0:40CC][2020-03-29T18:27:21]w321: Skipping dependency registration on package with no dependency providers: Netfx35Full
+[05F0:40CC][2020-03-29T18:27:21]w321: Skipping dependency registration on package with no dependency providers: NetFx452Web
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting string variable 'WixBundleRollbackLog_LabTechClient' to value 'C:\Users\OlavRønnestadBirkela\OneDrive - Ironstone\Documents - Work\Script & Code\PowerShell\Intune MDM\Software - Install\Device_Install-EXEorMSI\%ProgramData%\IronstoneIT\Intune\ClientApps\ConnectWise Automate Control Center -  Install Log %random%_001_LabTechClient_rollback.txt'
+[05F0:40CC][2020-03-29T18:27:21]i000: Setting string variable 'WixBundleLog_LabTechClient' to value 'C:\Users\OlavRønnestadBirkela\OneDrive - Ironstone\Documents - Work\Script & Code\PowerShell\Intune MDM\Software - Install\Device_Install-EXEorMSI\%ProgramData%\IronstoneIT\Intune\ClientApps\ConnectWise Automate Control Center -  Install Log %random%_001_LabTechClient.txt'
+[05F0:40CC][2020-03-29T18:27:21]i201: Planned package: VC2013_30501_x86Redist, state: Absent, default requested: Present, ba requested: Present, execute: Install, rollback: None, cache: Yes, uncache: No, dependency: None
+[05F0:40CC][2020-03-29T18:27:21]i201: Planned package: Netfx35Full, state: Present, default requested: Absent, ba requested: Absent, execute: None, rollback: None, cache: No, uncache: No, dependency: None
+[05F0:40CC][2020-03-29T18:27:21]i201: Planned package: NetFx452Web, state: Present, default requested: Present, ba requested: Present, execute: None, rollback: None, cache: No, uncache: No, dependency: None
+[05F0:40CC][2020-03-29T18:27:21]i201: Planned package: MySqlODBC3_51Package, state: Present, default requested: Present, ba requested: Present, execute: None, rollback: None, cache: No, uncache: No, dependency: Register
+[05F0:40CC][2020-03-29T18:27:21]i201: Planned package: LabTechClient, state: Absent, default requested: Present, ba requested: Present, execute: Install, rollback: Uninstall, cache: Yes, uncache: No, dependency: Register
+[05F0:40CC][2020-03-29T18:27:21]i299: Plan complete, result: 0x0
+[05F0:40CC][2020-03-29T18:27:21]i300: Apply begin
+[05F0:40CC][2020-03-29T18:27:21]i010: Launching elevated engine process.
+[05F0:40CC][2020-03-29T18:27:21]i011: Launched elevated engine process.
+[05F0:40CC][2020-03-29T18:27:22]i012: Connected to elevated engine.
+[14FC:1F7C][2020-03-29T18:27:22]i358: Pausing automatic updates.
+[14FC:1F7C][2020-03-29T18:27:22]i359: Paused automatic updates.
+[14FC:1F7C][2020-03-29T18:27:22]i360: Creating a system restore point.
+[14FC:1F7C][2020-03-29T18:27:22]i361: Created a system restore point.
+[14FC:1F7C][2020-03-29T18:27:22]i370: Session begin, registration key: SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{01f08ce8-554d-4ca6-ae88-740fe2d44a3a}, options: 0x7, disable resume: No
+[14FC:1F7C][2020-03-29T18:27:22]i000: Caching bundle from: 'C:\Windows\Temp\{849DD37B-56A2-4C97-809F-BC328BF498D6}\.be\ControlCenterInstaller.exe' to: 'C:\ProgramData\Package Cache\{01f08ce8-554d-4ca6-ae88-740fe2d44a3a}\ControlCenterInstaller.exe'
+[14FC:1F7C][2020-03-29T18:27:22]i320: Registering bundle dependency provider: {01f08ce8-554d-4ca6-ae88-740fe2d44a3a}, version: 20.0.112.0
+[14FC:1F7C][2020-03-29T18:27:22]i371: Updating session, registration key: SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{01f08ce8-554d-4ca6-ae88-740fe2d44a3a}, resume: Active, restart initiated: No, disable resume: No
+[05F0:3FDC][2020-03-29T18:27:22]w343: Prompt for source of package: VC2013_30501_x86Redist, payload: VC2013_30501_x86Redist, path: C:\Windows\Temp\redist\vcredist_x86.exe
+[05F0:3FDC][2020-03-29T18:27:22]i338: Acquiring package: VC2013_30501_x86Redist, payload: VC2013_30501_x86Redist, download from: http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x86.exe
+[14FC:0624][2020-03-29T18:27:23]i305: Verified acquired payload: VC2013_30501_x86Redist at path: C:\ProgramData\Package Cache\.unverified\VC2013_30501_x86Redist, moving to: C:\ProgramData\Package Cache\df7f0a73bfa077e483e51bfb97f5e2eceedfb6a3\redist\vcredist_x86.exe.
+[14FC:0624][2020-03-29T18:27:23]i305: Verified acquired payload: LabTechClient at path: C:\ProgramData\Package Cache\.unverified\LabTechClient, moving to: C:\ProgramData\Package Cache\{6C5F2B57-DA09-426C-AB4A-A80BD9FC2F21}v20.0.112\ClientSetup.msi.
+[14FC:1F7C][2020-03-29T18:27:23]i301: Applying execute package: VC2013_30501_x86Redist, action: Install, path: C:\ProgramData\Package Cache\df7f0a73bfa077e483e51bfb97f5e2eceedfb6a3\redist\vcredist_x86.exe, arguments: '"C:\ProgramData\Package Cache\df7f0a73bfa077e483e51bfb97f5e2eceedfb6a3\redist\vcredist_x86.exe" /q /norestart'
+[05F0:40CC][2020-03-29T18:27:24]i319: Applied execute package: VC2013_30501_x86Redist, result: 0x0, restart: None
+[14FC:1F7C][2020-03-29T18:27:24]i323: Registering package dependency provider: {B53D7D6B-9BB0-4EA8-82B9-9293CB41FCE1}, version: 3.51.26, package: MySqlODBC3_51Package
+[14FC:1F7C][2020-03-29T18:27:24]i325: Registering dependency: {01f08ce8-554d-4ca6-ae88-740fe2d44a3a} on package provider: {B53D7D6B-9BB0-4EA8-82B9-9293CB41FCE1}, package: MySqlODBC3_51Package
+[14FC:1F7C][2020-03-29T18:27:24]i323: Registering package dependency provider: {6C5F2B57-DA09-426C-AB4A-A80BD9FC2F21}, version: 20.0.112, package: LabTechClient
+[14FC:1F7C][2020-03-29T18:27:24]e000: Error 0x80070057: Failed to enable logging for package: LabTechClient to: C:\Users\OlavRønnestadBirkela\OneDrive - Ironstone\Documents - Work\Script & Code\PowerShell\Intune MDM\Software - Install\Device_Install-EXEorMSI\%ProgramData%\IronstoneIT\Intune\ClientApps\ConnectWise Automate Control Center -  Install Log %random%_001_LabTechClient.txt
+[14FC:1F7C][2020-03-29T18:27:24]e000: Error 0x80070057: Failed to execute MSI package.
+[05F0:40CC][2020-03-29T18:27:24]e000: Error 0x80070057: Failed to configure per-machine MSI package.
+[05F0:40CC][2020-03-29T18:27:24]i319: Applied execute package: LabTechClient, result: 0x80070057, restart: None
+[05F0:40CC][2020-03-29T18:27:24]e000: Error 0x80070057: Failed to execute MSI package.
+[14FC:1F7C][2020-03-29T18:27:24]i318: Skipped rollback of package: LabTechClient, action: Uninstall, already: Absent
+[05F0:40CC][2020-03-29T18:27:24]i319: Applied rollback package: LabTechClient, result: 0x0, restart: None
+[14FC:1F7C][2020-03-29T18:27:24]i329: Removed package dependency provider: {6C5F2B57-DA09-426C-AB4A-A80BD9FC2F21}, package: LabTechClient
+[14FC:1F7C][2020-03-29T18:27:24]i351: Removing cached package: LabTechClient, from path: C:\ProgramData\Package Cache\{6C5F2B57-DA09-426C-AB4A-A80BD9FC2F21}v20.0.112\
+[14FC:1F7C][2020-03-29T18:27:24]i372: Session end, registration key: SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{01f08ce8-554d-4ca6-ae88-740fe2d44a3a}, resume: None, restart: None, disable resume: No
+[14FC:1F7C][2020-03-29T18:27:24]i330: Removed bundle dependency provider: {01f08ce8-554d-4ca6-ae88-740fe2d44a3a}
+[14FC:1F7C][2020-03-29T18:27:24]i352: Removing cached bundle: {01f08ce8-554d-4ca6-ae88-740fe2d44a3a}, from path: C:\ProgramData\Package Cache\{01f08ce8-554d-4ca6-ae88-740fe2d44a3a}\
+[14FC:1F7C][2020-03-29T18:27:24]i371: Updating session, registration key: SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{01f08ce8-554d-4ca6-ae88-740fe2d44a3a}, resume: None, restart initiated: No, disable resume: No
+[05F0:40CC][2020-03-29T18:27:24]i399: Apply complete, result: 0x80070057, restart: None, ba requested restart:  No
+[05F0:40CC][2020-03-29T18:27:24]i500: Shutting down, exit code: 0x57
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: InstallFolder = C:\Program Files (x86)\LabTech Client
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: NETFRAMEWORK45 = 528372
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: Netfx2064Version = 2.0.50727.4927
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: Netfx20Version = 2.0.50727.4927
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: Netfx3064Version = 3.0.30729.4926
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: Netfx30Version = 3.0.30729.4926
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: Netfx3564Version = 3.5.30729.4926
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: Netfx35Version = 3.5.30729.4926
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: ProgramFilesFolder = C:\Program Files (x86)\
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: VCR2013_30501_x64 = 0.0.0.0
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: VCR2013_30501_x86 = 0.0.0.0
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: VCR2K5SP1_2x64 = 8.0.59192.0
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: VCR2K5SP1_2x86 = 8.0.59193.0
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: VersionNT = 10.0.0.0
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleAction = 5
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleElevated = 1
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleFileVersion = 20.0.112.0
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleInstalled = 0
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleLog = C:\Users\OlavRønnestadBirkela\OneDrive - Ironstone\Documents - Work\Script & Code\PowerShell\Intune MDM\Software - Install\Device_Install-EXEorMSI\%ProgramData%\IronstoneIT\Intune\ClientApps\ConnectWise Automate Control Center -  Install Log %random%.txt
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleLog_LabTechClient = C:\Users\OlavRønnestadBirkela\OneDrive - Ironstone\Documents - Work\Script & Code\PowerShell\Intune MDM\Software - Install\Device_Install-EXEorMSI\%ProgramData%\IronstoneIT\Intune\ClientApps\ConnectWise Automate Control Center -  Install Log %random%_001_LabTechClient.txt
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleLog_VC2013_30501_x86Redist = C:\Users\OlavRønnestadBirkela\OneDrive - Ironstone\Documents - Work\Script & Code\PowerShell\Intune MDM\Software - Install\Device_Install-EXEorMSI\%ProgramData%\IronstoneIT\Intune\ClientApps\ConnectWise Automate Control Center -  Install Log %random%_000_VC2013_30501_x86Redist.txt
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleManufacturer = ConnectWise, Inc.
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleName = Automate Control Center
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleOriginalSource = C:\Windows\Temp\ConnectWiseAutomateControlCenterSetup.EXE
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleOriginalSourceFolder = C:\Windows\Temp\
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleProviderKey = {01f08ce8-554d-4ca6-ae88-740fe2d44a3a}
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleRollbackLog_LabTechClient = C:\Users\OlavRønnestadBirkela\OneDrive - Ironstone\Documents - Work\Script & Code\PowerShell\Intune MDM\Software - Install\Device_Install-EXEorMSI\%ProgramData%\IronstoneIT\Intune\ClientApps\ConnectWise Automate Control Center -  Install Log %random%_001_LabTechClient_rollback.txt
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleSourceProcessFolder = C:\Windows\Temp\
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleSourceProcessPath = C:\Windows\Temp\ConnectWiseAutomateControlCenterSetup.EXE
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleTag = 
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixBundleVersion = 20.0.112.0
+[05F0:40CC][2020-03-29T18:27:24]i410: Variable: WixStdBALanguageId = 1033
+[05F0:40CC][2020-03-29T18:27:24]i007: Exit code: 0x57, restarting: No

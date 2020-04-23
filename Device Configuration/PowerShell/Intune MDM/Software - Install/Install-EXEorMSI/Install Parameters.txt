@@ -1,0 +1,101 @@
+## Programs (vLatest, x64 if available)
+### System context
+#### ConnectWise Automate Control Center
+https://ironstoneit.hostedrmm.com/LabTech/Updates/ControlCenterInstaller.exe
+exe
+"installer.exe" /install /quiet /norestart /log "%ProgramData%\IronstoneIT\Intune\ClientApps\ConnectWise Automate Control Center -  Install Log %random%.txt"
+%ProgramFiles(x86)%\LabTech Client\LTClient.exe
+"%ProgramData%\Package Cache\{ffefc153-1559-437d-b850-6c4dac969c66}\ControlCenterInstaller.exe" /uninstall /quiet /norestart /log "%ProgramData%\IronstoneIT\Intune\ClientApps\ConnectWise Automate Control Center - Uninstall Log %random%.txt
+
+#### Dell SupportAssist
+https://downloads.dell.com/serviceability/catalog/SupportAssistInstaller.exe
+exe
+"installer.exe" /S
+"%ProgramW6432%\Dell\SupportAssistAgent\
+"%ProgramW6432%\Dell\SupportAssist\uninstaller.exe" /arp /S
+
+#### Google Chrome
+https://dl.google.com/chrome/install/latest/chrome_installer.exe
+exe
+"installer.exe" /silent /install
+%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe
+
+#### Lenovo System Interface Foundation
+https://filedownload.lenovo.com/enm/sift/core/SystemInterfaceFoundation.exe
+exe
+"installer.exe" /SP- /VERYSILENT /NORESTART /SUPPRESSMSGBOXES /TYPE=installpackageswithreboot
+%SystemRoot%\System32\ImController.InfInstaller.exe
+"%windir%\System32\ImController.InfInstaller.exe" -Uninstall
+
+#### Lenovo System Update
+exe
+"installer.exe" /SP- /VERYSILENT /NORESTART /SUPPRESSMSGBOXES
+%ProgramFiles(x86)%\Lenovo\System Update\Tvsukernel.exe
+"%ProgramFiles(x86)%\Lenovo\System Update\unins000.exe" /VERYSILENT /NORESTART /SUPPRESSMSGBOXES /DELETE
+
+#### Mozilla Firefox
+https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=en-US
+exe
+"installer.exe" -ms
+%ProgramW6432%\Mozilla Firefox\firefox.exe
+"%ProgramW6432%\Mozilla Firefox\uninstall\helper.exe" -ms
+
+#### OneDrive
+https://go.microsoft.com/fwlink/p/?LinkId=248256
+exe
+"installer.exe"  /silent /allusers
+%ProgramFiles(x86)%\Microsoft OneDrive\OneDrive.exe
+"%ProgramFiles(x86)%\Microsoft OneDrive\<current_version>\OneDriveSetup.exe" /uninstall /silent /allusers
+"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\OneDriveSetup.exe\UninstallString" + "/silent"
+
+#### Visual Studio Code
+https://go.microsoft.com/fwlink/?Linkid=852157
+exe
+"installer.exe" /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /NORESTARTAPPLICATIONS /MERGETASKS=!runcode
+ProgramW6432\Microsoft VS Code\Code.exe
+ProgramW6432\Microsoft VS Code\unins000.exe /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /NORESTARTAPPLICATIONS
+
+#### Visual Studio Code Insiders
+https://go.microsoft.com/fwlink/?Linkid=852155
+exe
+"installer.exe" /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /NORESTARTAPPLICATIONS /MERGETASKS=!runcode
+ProgramW6432\Microsoft VS Code Insiders\Code.exe
+ProgramW6432\Microsoft VS Code Insiders\unins000.exe /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /NORESTARTAPPLICATIONS
+
+#### Yammer
+https://aka.ms/yammer_desktop_msi_x64
+msi
+"%windir%\System32\msiexec.exe" /i "installer.msi" /qn /norestart
+%ProgramFiles(x86)%\Yammer Installer\yammerdesktop.exe
+"%windir%\System32\msiexec.exe" /x{A25E6A43-042B-4080-ADB2-93EC6D21FD90} /qn /norestart
+
+
+### User context
+#### Discord
+https://discordapp.com/api/download?platform=win
+exe
+"installer.exe" -s
+%localappdata%\Discord\Update.exe
+"%localappdata%\Discord\Update.exe" --uninstall -s
+
+#### GitHub Desktop
+https://central.github.com/deployments/desktop/desktop/latest/win32
+exe
+"installer.exe" -s
+%localappdata%\GitHubDesktop\GitHubDesktop.exe
+"%localappdata%\GitHubDesktop\Update.exe" --uninstall -s
+
+#### OneDrive
+https://go.microsoft.com/fwlink/p/?LinkId=248256
+exe
+"installer.exe"  /silent
+%localappdata%\Microsoft\OneDrive\OneDrive.exe
+"%localappdata%\Microsoft\OneDrive\<latest_version>\OneDriveSetup.exe" /uninstall
+"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OneDriveSetup.exe\UninstallString" + "/silent"
+
+#### Yammer
+https://aka.ms/yammer_desktop_x64
+exe
+"installer.exe" -s
+%localappdata%\yammerdesktop\Yammer.exe
+"%localappdata%\yammerdesktop\Update.exe" --uninstall -s

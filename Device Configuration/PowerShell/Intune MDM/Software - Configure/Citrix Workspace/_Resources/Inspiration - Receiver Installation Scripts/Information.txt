@@ -1,0 +1,73 @@
+Startup and Logon Scripts for Deploying Citrix Receiver Admin and Citrix Receiver Web
+Contents
+Introduction	1
+Deployment Scripts:	1
+Removal Scripts:	1
+Modify Scripts	2
+Create OU	2
+Create a GPO	2
+Per-User Logon Scripts	2
+Per-Machine Startup Scripts	3
+Per-User Deployment	3
+Per-Machine Deployment	3
+Per-User Removal	3
+Per-Machine Removal	3
+
+
+Introduction
+Enclosed are six deployment scripts for Citrix Receiver deployments via AD broken into two groups:
+Deployment Scripts:
+1.	CheckAndDeployReceiverAdminStartupScript.bat
+2.	CheckAndDeployReceiverWebPerMachineStartupScript.bat
+3.	CheckAndDeployReceiverWebPerUserLogonScript.bat
+Removal Scripts:
+1.	CheckAndRemoveReceiverAdminStartupScript.bat
+2.	CheckAndRemoveReceiverWebPerMachineStartupScript.bat
+3.	CheckAndRemoveReceiverWebPerUserLogonScript.bat
+
+Modify Scripts
+The scripts are modified in the header section of each file.  Here are the parameters that can be set:
+1.	Current Version of package – example set DesiredVersion= 13.0.0 – This Plugin version number is validated and if it is not present, then the deployment proceeds.
+2.	Package Location/Deployment directory – This points to a network share where the Plugin packages are located.  This network share is not authenticated by the script, so the shared folder must contain the EVERYONE = READ security setting.
+3.	Script Logging Directory – This points to a network share where the Install Logs are copied.  This network share is not authenticated by the script, so the shared folder must contain the EVERYONE = READ, WRITE security setting.
+4.	Package Installer Command Line Options – These command line options are passed to the installer and typically include the XenApp server name, among other settings.
+Create OU
+To begin the deployment using AD, one must first create an OU.  The administrator should create one OU for each script that is executed.  For example, go to your server, Open Active Directory Users and Computers, select the Domain Name and right-click and select the Domain Name node and select “New Organizational Unit”.  Create a Deploy OU and a Remove OU.  Enter the name(s) for your new OU(s) and close the window.
+Create a GPO
+Right click on the newly created OU(s), and then select “Enforced”.
+
+Right-click on the newly created OU(s) and then select Edit.  Notice that there are two main headers in the left-hand pane described as both Computer Configuration and User Configuration.
+Per-User Logon Scripts
+a.	Open Group Policy Management Editor
+b.	Select User Configuration -> Policies -> Windows Settings -> Scripts
+c.	In the right-hand pane of Group Policy Management Editor, you should see two scripts: Logon and Logoff.  Select Logon
+d.	When the Logon Properties window opens, select ’Show Files’ .
+e.	Copy the appropriate script to this folder.
+f.	Close the “Show Files window, on the ‘Logon Properties’
+g.	Select the “Add” button and add the newly created script within this GPO.
+
+Per-Machine Startup Scripts
+a.	Open Group Policy Management Editor
+b.	Select Computer Configuration -> Policies -> Windows Settings -> Scripts
+c.	In the right-hand pane of Group Policy Management Editor, you should see two scripts: Startup and Shutdown.  Select Startup.
+d.	When the Startup Properties window opens, select ’Show Files’ .
+e.	Copy the appropriate script to this folder.
+f.	Close the “Show Files window, on the ‘Startup Properties’
+g.	Select the “Add” button and add the newly created script within this GPO.
+Per-User Deployment
+a.	Move the specific users who are targeted to receive this deployment to the specific OU created above.
+b.	Reboot the client machine and logon as the user specified above
+c.	Verify that Program and Features (previously Add Remove Programs) contains the newly installed package.
+Per-Machine Deployment
+a.	Move the specific computers that are targeted to receive this deployment to the specific OU created above.
+b.	Reboot the client machine.  Logon as any user
+c.	Verify that Program and Features (previously Add Remove Programs) contains the newly installed package.
+Per-User Removal
+a.	Move the specific users who are targeted to receive this deployment to the specific OU created above.
+b.	Reboot the client machine and logon as the user specified above
+c.	Verify that Program and Features (previously Add Remove Programs) removes the previously installed package.
+Per-Machine Removal
+a.	Move the specific computers that are targeted to receive this deployment to the specific OU created above.
+b.	Reboot the client machine.  Logon as any user
+c.	Verify that Program and Features (previously Add Remove Programs) removes the previously installed package.
+
