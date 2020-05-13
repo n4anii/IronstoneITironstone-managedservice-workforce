@@ -5,17 +5,35 @@
         
     .DESCRIPTION
         Cleans most common Ironstone scheduled tasks, file paths, and registry paths, both for system/ device context, and user context.
-          * Must run as NT AUTHORITY\SYSTEM
+          * Must run as administrator.
           * Remember to change $WriteChanges to your liking, will not delete anything if set to $false
+
+        Get content of latest log
+            Get-Content -Path $([array](Get-ChildItem -Path ([string]('{0}\Temp\Nuke-BPTW-*.txt' -f ($env:windir))) | Sort-Object -Property 'LastWriteTime' -Descending))[0].'FullName' -Raw
 #>
+
+
+
+# Input parameters
+[OutputType($null)]
+Param ()
+
 
 
 # Settings
 ## Script settings
-$WriteChanges = [bool] $false
+$WriteChanges = [bool] $true
 
 ## PowerShell Preferences
+$ConfirmPreference     = 'None'
 $ErrorActionPreference = 'Stop'
+$InformationPreference = 'SilentlyContinue'
+$ProgressPreference    = 'SilentlyContinue'
+$WarningPreference     = 'Continue'
+$WhatIfPreference      = $false
+
+## Help variables
+$ScriptSuccess = $true
 
 
 
@@ -26,11 +44,25 @@ if ([System.Environment]::Is64BitOperatingSystem -and -not [System.Environment]:
     Exit 1
 }
 
-## Make sure we're running as "NT AUTHORITY\SYSTEM"
-if ([string]([System.Security.Principal.WindowsIdentity]::GetCurrent().'User'.'Value') -ne 'S-1-5-18') {
-    Throw 'ERROR: Not running as NT AUTHORITY\SYSTEM.'
+## Make sure we're running as administrator
+if (-not $([System.Security.Principal.WindowsPrincipal][System.Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Throw 'ERROR: Not running as admin.'
     Exit 1
 }
+
+
+# Logging
+$LogPath = [string]('{0}\Temp\Nuke-BPTW-{1}.txt' -f ($env:windir,[datetime]::Now.ToString('yyyyMMdd-HHmmss')))
+$null = Start-Transcript -Path $LogPath -Force
+
+
+
+#region Try
+#######################
+#######################
+Try {
+#######################
+#######################
 
 
 
@@ -45,7 +77,7 @@ $ScheduledTasks = [array](Get-ScheduledTask -TaskName '*' | Where-Object -Proper
 foreach ($ScheduledTask in $ScheduledTasks) {
     Write-Output -InputObject ('Found "{0}" by author "{1}"' -f ($ScheduledTask.'TaskName',$ScheduledTask.'Author'))
     if ($WriteChanges) {
-        $null = Unregister-ScheduledTask -InputObject $ScheduledTask        
+        $null = Unregister-ScheduledTask -InputObject $ScheduledTask -Confirm:$false      
         Write-Output -InputObject ('{0}Success? {1}' -f ("`t",$?.ToString()))
     }
     else {
@@ -57,7 +89,7 @@ foreach ($ScheduledTask in $ScheduledTasks) {
 
 # File System Paths - System context
 ## Introduce
-Write-Output -InputObject '# File system paths - System Context'
+Write-Output -InputObject ('{0}# File system paths - System Context' -f ([System.Environment]::NewLine))
 
 ## Assets
 $FileSystemPaths = [string[]](
@@ -89,7 +121,7 @@ foreach ($Path in $FileSystemPaths) {
 
 # File System Paths - User context
 ## Introduce
-Write-Output -InputObject '# File system paths - User Context'
+Write-Output -InputObject ('{0}# File system paths - User Context' -f ([System.Environment]::NewLine))
 
 ## Assets
 ### Get by SIDs
@@ -163,7 +195,7 @@ foreach ($UserName in $IntuneUsers) {
 
 # Registry - System Context
 ## Introduce
-Write-Output -InputObject '# Registry - System Context'
+Write-Output -InputObject ('{0}# Registry - System Context' -f ([System.Environment]::NewLine))
 
 ## Assets
 $RegistryPaths = [string[]](
@@ -190,7 +222,7 @@ foreach ($RegistryPath in $RegistryPaths) {
 
 # Registry - User Context
 ## Introduce
-Write-Output -InputObject '# Registry - User Context'
+Write-Output -InputObject ('{0}# Registry - User Context' -f ([System.Environment]::NewLine))
 
 ## Assets
 $RegistryPaths = [string[]](
@@ -219,6 +251,7 @@ foreach ($SID in $SIDsProfileList) {
         # Get User Registry File, NTUSER.DAT
         $PathFileUserRegistry = ('{0}\NTUSER.DAT' -f ($PathUserDirectory))
         if (-not(Test-Path -Path $PathFileUserRegistry)) {
+            $ScriptSuccess = $false
             Throw ('ERROR: "{0}" does not exist.' -f ($PathFileUserRegistry))
         }
 
@@ -229,6 +262,7 @@ foreach ($SID in $SIDsProfileList) {
             $RegistryLoadedProfiles += [string[]]($SID)
         }
         else {
+            $ScriptSuccess = $false
             Throw ('ERROR: Failed to load registry hive for SID "{0}", NTUSER.DAT location "{1}".' -f ($SID,$PathFileUserRegistry))
         }
     }
@@ -273,6 +307,7 @@ if ($RegistryLoadedProfiles.Where{-not([string]::IsNullOrEmpty($_))}.'Count' -gt
 
             # Check success
             if (Test-Path -Path ('Registry::{0}' -f ($PathUserHive)) -ErrorAction 'SilentlyContinue') {
+                $ScriptSuccess = [bool] $false
                 Write-Output -InputObject ('ERROR: Failed to unload user registry hive "{0}".' -f ($PathUserHive)) -ErrorAction 'Continue'
             }
             else {
@@ -287,5 +322,69 @@ else {
 
 
 
-# Done
-Write-Output -InputObject '# Done'
+#######################
+#######################
+}
+#######################
+#######################
+#endregion Try
+
+
+
+Catch {
+    # Set script success to false
+    $ScriptSuccess = [bool] $false
+    
+    # Construct error message
+    ## Generic content
+    $ErrorMessage = [string]$('{0}Catched error:' -f ([System.Environment]::NewLine))    
+    ## Last exit code if any
+    if (-not[string]::IsNullOrEmpty($LASTEXITCODE)) {
+        $ErrorMessage += ('{0}# Last exit code ($LASTEXITCODE):{0}{1}' -f ([System.Environment]::NewLine,$LASTEXITCODE))
+    }
+    ## Exception
+    $ErrorMessage += [string]$('{0}# Exception:{0}{1}' -f ([System.Environment]::NewLine,$_.'Exception'))
+    ## Dynamically add info to the error message
+    foreach ($ParentProperty in [string[]]$($_.GetType().GetProperties().'Name')) {
+        if ($_.$ParentProperty) {
+            $ErrorMessage += ('{0}# {1}:' -f ([System.Environment]::NewLine,$ParentProperty))
+            foreach ($ChildProperty in [string[]]$($_.$ParentProperty.GetType().GetProperties().'Name')) {
+                ### Build ErrorValue
+                $ErrorValue = [string]::Empty
+                if ($_.$ParentProperty.$ChildProperty -is [System.Collections.IDictionary]) {
+                    foreach ($Name in [string[]]$($_.$ParentProperty.$ChildProperty.GetEnumerator().'Name')) {
+                        if (-not[string]::IsNullOrEmpty([string]$($_.$ParentProperty.$ChildProperty.$Name))) {
+                            $ErrorValue += ('{0} = {1}{2}' -f ($Name,[string]$($_.$ParentProperty.$ChildProperty.$Name),[System.Environment]::NewLine))
+                        }
+                    }
+                }
+                else {
+                    $ErrorValue = [string]$($_.$ParentProperty.$ChildProperty)
+                }
+                if (-not[string]::IsNullOrEmpty($ErrorValue)) {
+                    $ErrorMessage += ('{0}## {1}\{2}:{0}{3}' -f ([System.Environment]::NewLine,$ParentProperty,$ChildProperty,$ErrorValue.Trim()))
+                }
+            }
+        }
+    }
+    # Write Error Message
+    Write-Error -Message $ErrorMessage -ErrorAction 'Continue'
+}
+
+
+
+Finally {
+    $null = Stop-Transcript
+}
+
+
+
+# Exit
+if ($ScriptSuccess) {    
+    Write-Output -InputObject ('{0}# Done' -f ([System.Environment]::NewLine))
+    Exit 0
+}
+else {
+    Throw 'Script did not succeed.'
+    Exit 1
+}
