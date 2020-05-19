@@ -144,7 +144,7 @@ try {
                 Write-Output -InputObject ('ERROR   - Last Exit Code Does Not Smell Like Success: {0}.' -f ($AzCopyExitCode.ToString()))
                 $BoolScriptSuccess = $false
             }
-            elseif (@(Get-ChildItem -Path $PathDirSync -File -Force).Length -le 0) {
+            elseif (@(Get-ChildItem -Path $PathDirSync -File -Force -Recurse).'Length' -le 0) {
                 Write-Output -InputObject ('ERROR   - No files found in directory "{0}" after AzCopy finished.' -f ($PathDirSync))
                 $BoolScriptSuccess = $false
             }
