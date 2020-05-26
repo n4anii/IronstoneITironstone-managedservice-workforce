@@ -29,7 +29,7 @@ It uses SAS Tokens to authenticate against Azure Storage.
 * How: IronSync Win32 installer. Instructions are found inside separate ```Win32 Install Parameters.md```.
 
 ### 4 - Teams Backgrounds (optional)
-* Why: Logic for syncing Teams backgrounds from IronSync folder, in to Teams backgrounds folder inside ```%appdata%\Microsoft\Teams\Backgrounds\Uploads``` folder.
+* Why: Logic for syncing Teams backgrounds from IronSync folder, in to Teams backgrounds folder ```%appdata%\Microsoft\Teams\Backgrounds\Uploads```.
 * How: IronSync Teams Backgrounds Win32 installer. Instructions are found inside separate ```Win32 Install Parameters.md```.
 
 
