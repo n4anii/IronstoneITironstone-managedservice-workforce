@@ -45,10 +45,12 @@ Runs AzCopy.exe with provided parameters, such as URL, SAS Token.
 
 ## Onboard new customer
 ### 1. Azure Storage Account
-Azure \ Storage Account
+Azure Portal
 
 #### Create Storage Account
-(Example from our own tenant)
+Azure Portal \ Create a resource
+
+##### (Example from our own tenant)
 * **Tenant:** ironstoneit.onmicrosoft.com
 * **Subscription:** Ironstone-MPN-SE-Production
 * **Resource group:** IST-P-NOE-BPTW-IronSync-RG
@@ -73,38 +75,33 @@ Azure \ Storage Account
   * **Public access level:** Private (no anonymous access)
 
 #### Upload Files
-Files to sync, must be configured on customer tenant as such
-* Azure Storage Account -> Blog Storage with a Private Blob Container where the files will reside
-  * Storage Account name, blob name and SAS token are input parameter to IronSync installer script/ Win32 package.
+Azure Portal \ Storage Account \ <StorageAccountName> \ Containers \ <ContainerName>
   * Each file should use Access Tier "Hot", Blob Type "Block based".
-  * Copy out storage account name (taken from the storage account), and SAS token for the blob container (creat under "Access policy").
+  * Storage Account name, blob name and SAS token are input parameter to IronSync installer script/ Win32 package.
 
 #### Create SAS (Shared Access Signature) Token
-First create a Access Policy on the Azure Storage Container where the Office365 templates resides
-* Public Access Level: Private.
-* Stored access policies: Create a storage policy named "users", no start or expiry time, permissions Read and List only.
-* Immutable blob storage: No policies configured.
+Azure Portal \ Storage Account \ <StorageAccountName> \ Shared access signature
+* **Allowed services:** Blob
+* **Allowed resource types:** Container
+* **Allowed permissions:** Read, List
+* **Blobl versioning permissions:**
+* **Start:**
+* **End:** +5 years
+* **Timezone:** Current
+* **Allowed IP addresses:**
+* **Allowed protocols:** HTTPS only
+* **Signing key:** Key 1
 
-Then create a SAS token on the Storage Account
-* Go to the Storage Account \ Shared access signature
-  * **Allowed services:** Blob
-  * **Allowed resource types:** Container
-  * **Allowed permissions:** Read, List
-  * **Blobl versioning permissions:**
-  * **Start:**
-  * **End:** +5 years
-  * **Timezone:** Current
-  * **Allowed IP addresses:**
-  * **Allowed protocols:** HTTPS only
-  * **Signing key:** Key 1
 
 ### 2. AzCopy
 Intune \ Client Apps
 * Add Microsoft Azure Storage Tools as Win32 to Intune, set up according to the ```Win32 Install Parameters.md``` file.
 
+
 ### 3. IronSync Installer
 Intune \ Client Apps
 * Upload the Win32 package containing IronSync installer script, set up according to the ```Win32 Install Parameters.md``` file.
+
 
 ### 4. Extension - Teams Backgrounds (optional)
 Intune \ Client Apps
@@ -113,14 +110,28 @@ Intune \ Client Apps
 
 
 ## Resources
-### AzCopy - Microsoft Azure Storage Tools
-* Microsoft Docs: Transfer data with the AzCopy on Windows
-  * [aka.ms/AzCopy](https://aka.ms/AzCopy)
-  * [Full link](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy)
-* [GitHub: Azure Storage Net Data Movement](https://github.com/Azure/azure-storage-net-data-movement)
-  * Used in Microsoft Azure Storage Tools
-* [Download Current Latest Version](http://aka.ms/downloadazcopy)
-  * [Version used when developing this script (v7.1.0)](https://azcopy.azureedge.net/azcopy-7-1-0/MicrosoftAzureStorageTools.msi)
+### Ironstone
+* [Naming Scheme](https://docs.ironstoneit.com/Azure/Governance/EN_Naming-convention.html)
 
-### Microsoft Docs
+
+### Microsoft
+#### AzCopy >= v10
+* Download
+	* [v10 latest x64](https://aka.ms/downloadazcopy-v10-windows)
+* Source Code
+	* [Microsoft \ Azure \ Azure Storage Tools / AzCopy v10](https://github.com/Azure/azure-storage-azcopy)
+	* [Microsoft \ Azure \ Azure Storage Data Movement Library for .Net](https://github.com/Azure/azure-storage-net-data-movement)
+* Guides
+	* [Get started with AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10)
+
+#### AzCopy < v10
+* [Download Current Latest Version](http://aka.ms/downloadazcopy)
+	* [v8.1.0](https://azcopy.azureedge.net/azcopy-8-1-0/MicrosoftAzureStorageAzCopy_netcore_x64.msi)
+	* [v7.1.0](https://azcopy.azureedge.net/azcopy-7-1-0/MicrosoftAzureStorageTools.msi)	
+
+#### Storage Account
 * [Using shared access signatures (SAS)](https://docs.microsoft.com/en-us/azure/storage/common/storage-dotnet-shared-access-signature-part-1)
+
+#### Storage Explorer
+* [Download](https://github.com/microsoft/AzureStorageExplorer/releases)
+* [Release Notes](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-explorer-relnotes)
