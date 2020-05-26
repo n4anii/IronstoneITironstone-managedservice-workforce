@@ -1,74 +1,42 @@
-# Changelog - IronSync Office Edition
+# Changelog - IronSync
 
 
 
 ## Information
-
 Author: 	Olav Rønnestad Birkeland
 Company: 	Ironstone IT
-
-
-
-
-## Todo
-
-### Both
-
-* Make it more generic, so that everything thats needed is 3-4 variables
-* Update to using AzCopy v10, which will also remove files if removed from Storage Account.
-	* Requires writing an installer, v10 is just a zipped folder with exe files.
-	* Requires rewriting installer to Win32.
-		* Will make install more failproof with more logic to check success, reinstall if something gets removed etc.
-
-
-### Install-IronSync(Customer_Application).ps1
-
-Switch for (1) Initial config vs (2) update existing config
-1. Delete all conflicting shit
-	* If templates are in use, schedule script to run on next reboot
-2. Don't touch the templates folder, AzCopy will handle that
-
 
 	
 	
 ## Changelog
-
 ### v3.2.0.0 200520
-
 #### Run-IronSync
-
 * Added
 	* Support for AzCopy v10, fallback to v8.1.0
 	* More tests for failproofing AzCopy, like clean up previous failed attempts
 	
 #### Install-IronSync(Customer).ps1
-
 * Added
 	* Input parameters, can now be used with Win32 package
 	
 	
 
 ### v3.1.0.0 190311
-
 #### Run-IronSync(Application_Customer).ps1
-
 * Added check for internet connectivity.
 
 
 
 ### v3.0.0.0 190308
-
 #### Both
 * Variable type is now specified AFTER the equal, because "[byte] $Var = 16" turns into a freakin Int32
 
 #### Install-IronSync(Application_Customer).ps1
-
 * Newest Ironstone Intune MDM Template, ensures higher success rate when writing to HKCU from System context
 * Will not delete previous folder, AzCopy will simply overwrite the content.
 * All customer variables is only written in top of the install-script, gets "slipstreamed" into the Run-IronSync(Application_Customer).ps1
 
 #### Run-IronSync(Application_Customer).ps1
-
 * All customer variables is only written in top of the install-script, gets "slipstreamed" into the Run-IronSync(Application_Customer).ps1
 * Changed logging filename to use 24 hours instead of 12 hours in log name
 * Changed logic around detection AzCopy success.
@@ -76,13 +44,10 @@ Switch for (1) Initial config vs (2) update existing config
 
 	
 ### v2.0.0.0 181031
-
 #### Both
-
 * Name change, from "IronSync(<Customer>_OfficeTemplates)" to "IronSync(OfficeTemplates_<Customer>)".
 
 #### Install-IronSync(Customer_Application).ps1
-
 * Newest Ironstone Intune MDM Template
 * Now only uses PowerShell to schedule script to run. No more VBS or XML!
 * Better writing to HKCU from System/ Device Context
@@ -90,6 +55,5 @@ Switch for (1) Initial config vs (2) update existing config
 * Better error handling when deleting and creating paths and registry keys
 
 #### Run-IronSync(Customer_Application).ps1
-
 * Minor bug fixes and name changes
 * Tested and works against Microsoft Azure Storage Tools v7.1.0, v7.3.1 and v8.1.0
