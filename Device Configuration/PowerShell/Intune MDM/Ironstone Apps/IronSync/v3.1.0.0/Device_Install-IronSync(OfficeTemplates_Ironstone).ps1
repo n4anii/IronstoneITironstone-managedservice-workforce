@@ -1,23 +1,27 @@
 ﻿<#
+    .SYNOPSIS
+        Syncs Office Templates from Azure Blog Storage, and make them available in Word, PowerPoint and Excel.
 
-.SYNOPSIS
-    Syncs Office Templates from Azure Blog Storage, and make them available in Word, PowerPoint and Excel.
+    .DESCRIPTION
+        Syncs Office Templates from Azure Blog Storage, and make them available in Word, PowerPoint and Excel.
+        You need to run this script in the DEVICE context in Intune.
 
-.DESCRIPTION
-    Syncs Office Templates from Azure Blog Storage, and make them available in Word, PowerPoint and Excel.
-    You need to run this script in the DEVICE context in Intune.
+    .NOTES
+        Author:   Olav Rønnestad Birkeland @ Ironstone IT.
+        Modified: 200520
 
-.NOTES
-    Author: Olav Roennestad Birkeland @ Ironstone IT.
+    .EXAMPLE
+        # From PowerShell ISE
+        & $psISE.'CurrentFile'.'FullPath'
 
 #>
 
 
 # Customer Assets
-$CustomerName                        = [string]$('MetierOEC')
-$CustomerAzureStorageAccountName     = [string]$('metierclientstorage')
-$CustomerAzureStorageAccountBlobName = [string]$('office365-templates')
-$CustomerAzureStorageAccountSASToken = [string]$('?sv=2018-03-28&ss=b&srt=co&sp=rl&se=2029-12-31T23:00:00Z&st=2019-03-07T23:00:00Z&spr=https&sig=R6HGJkbM9QCQ9houMT8fLBB%2FXZuA9pTeDYyfesU7174%3D')
+$CustomerName                        = [string]$('Ironstone')
+$CustomerAzureStorageAccountName     = [string]$('istnoebptwironsync')
+$CustomerAzureStorageAccountBlobName = [string]$('files')
+$CustomerAzureStorageAccountSASToken = [string]$('?sv=2019-10-10&ss=b&srt=co&sp=rl&se=2025-05-19T20:04:21Z&st=2020-05-19T12:04:21Z&spr=https&sig=zwP7mh8YBUvnWq%2FvSQcM3fjD5fALRn4KD2obSE1fm4c%3D')
 
 # Script Specific Variables
 $ReadOnly              = [bool] $false
@@ -49,9 +53,9 @@ $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'StrArchite
 $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'StrArchitectureOS' -Value ([string]$(if([System.Environment]::Is64BitOperatingSystem){'64'}else{'32'}))
 
 # Dynamic Variables - User
-$null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'StrUserNameRunningAs' -Value ([string]$([System.Security.Principal.WindowsIdentity]::GetCurrent().Name))
-$null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'StrSIDRunningAs' -Value ([string]$([System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value))
-$null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolIsAdmin'  -Value ([bool]$([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
+$null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'StrUserNameRunningAs' -Value ([string]$([System.Security.Principal.WindowsIdentity]::GetCurrent().'Name'))
+$null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'StrSIDRunningAs' -Value ([string]$([System.Security.Principal.WindowsIdentity]::GetCurrent().'User'.'Value'))
+$null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolIsAdmin'  -Value ([bool]$(([System.Security.Principal.WindowsPrincipal]$([System.Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)))
 $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolIsSystem' -Value ([bool]$($Script:StrSIDRunningAs -like ([string]$('S-1-5-18'))))
 $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolIsCorrectUser' -Value ([bool]$(if($Script:DeviceContext -and $Script:BoolIsSystem){$true}elseif(((-not($DeviceContext))) -and (-not($Script:BoolIsSystem))){$true}else{$false}))
 $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolWriteToHKCUFromSystem' -Value ([bool]$(if($DeviceContext -and $WriteToHKCUFromSystem){$true}else{$false}))
@@ -60,6 +64,7 @@ $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'BoolWriteT
 $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'Timestamp' -Value ([string]$([datetime]::Now.ToString('yyMMdd-HHmmssffff')))
 $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'PathDirLog' -Value ([string]$('{0}\IronstoneIT\Intune\DeviceConfiguration\' -f ([string]$(if($BoolIsSystem){$env:ProgramW6432}else{[System.Environment]::GetEnvironmentVariable('AppData')}))))
 $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'PathFileLog' -Value ([string]$('{0}{1}-{2}bit-{3}.txt' -f ($Script:PathDirLog,$Script:NameScriptFull,$Script:StrArchitectureProcess,$Script:Timestamp)))
+$null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'ScriptSuccess' -Value ([bool]$($true))
 
 # Start Transcript
 if (-not(Test-Path -Path $Script:PathDirLog)) {$null = New-Item -ItemType 'Directory' -Path $Script:PathDirLog -ErrorAction 'Stop'}
@@ -80,8 +85,8 @@ Try {
     # If OS is 64 bit, and PowerShell got launched as x86, relaunch as x64
     if ([System.Environment]::Is64BitOperatingSystem -and -not [System.Environment]::Is64BitProcess) {
         write-Output -InputObject (' * Will restart this PowerShell session as x64.')
-        if ($myInvocation.Line) {& ('{0}\sysnative\WindowsPowerShell\v1.0\powershell.exe' -f ($env:windir)) -NonInteractive -NoProfile $myInvocation.Line}
-        else {& ('{0}\sysnative\WindowsPowerShell\v1.0\powershell.exe' -f ($env:windir)) -NonInteractive -NoProfile -File ('{0}' -f ($myInvocation.InvocationName)) $args}
+        if (-not([string]::IsNullOrEmpty($MyInvocation.'Line'))) {& ('{0}\sysnative\WindowsPowerShell\v1.0\powershell.exe' -f ($env:windir)) -NonInteractive -NoProfile $MyInvocation.'Line'}
+        else {& ('{0}\sysnative\WindowsPowerShell\v1.0\powershell.exe' -f ($env:windir)) -NonInteractive -NoProfile -File ('{0}' -f ($MyInvocation.'InvocationName')) $args}
         exit $LASTEXITCODE
     }
 
@@ -154,14 +159,14 @@ Try {
                     # If no valid SID yet, try Registry::HKEY_USERS
                     if ([string]::IsNullOrEmpty($Local:SID) -or (-not($Local:LengthInterval.Contains([byte]$Local:SID.Length))) -or (-not(Test-Path -Path ('Registry::HKEY_USERS\{0}' -f ($Local:SID)) -ErrorAction 'SilentlyContinue'))) {
                         # Get all potential SIDs from Registry::HKEY_USERS
-                        $Local:SIDsFromRegistryAll = [string[]]@(Get-ChildItem -Path 'Registry::HKEY_USERS' -Recurse:$false -ErrorAction 'SilentlyContinue' | Select-Object -ExpandProperty 'Name' | ForEach-Object {$_.Split('\')[-1]} | Where-Object {$_ -like 'S-1-12-*' -and $_ -notlike '*_Classes' -and $Local:LengthInterval.Contains([byte]$_.Length)})
+                        $Local:SIDsFromRegistryAll = [string[]]@(Get-ChildItem -Path 'Registry::HKEY_USERS' -Recurse:$false -ErrorAction 'SilentlyContinue' | Select-Object -ExpandProperty 'Name' | ForEach-Object {$_.Split('\')[-1]} | Where-Object {$_ -like 'S-1-12-*' -and $_ -notlike '*_Classes' -and $Local:LengthInterval.Contains([byte]$_.'Length')})
                         $Local:SID = [string]$(
                             # If none where found - Return emtpy string: Finding SID by registry will not be possible
-                            if (@($Local:SIDsFromRegistryAll).Count -le 0) {
+                            if (@($Local:SIDsFromRegistryAll).'Count' -le 0) {
                                 [string]::Empty
                             }
                             # If only one where found - Return it
-                            elseif (@($Local:SIDsFromRegistryAll).Count -eq 1) {
+                            elseif (@($Local:SIDsFromRegistryAll).'Count' -eq 1) {
                                 [string]([string[]]@($Local:SIDsFromRegistryAll | Select-Object -First 1))
                             }
                             # If multiple where found - Try to filter out unwanted SIDs
@@ -169,16 +174,16 @@ Try {
                                 # Try to get all where IronstoneIT folder exist withing HKU (HKCU) registry
                                 $Local:SIDs = [string[]]@([string[]]@($Local:SIDsFromRegistryAll) | Where-Object {Test-Path -Path ('Registry::HKEY_USERS\{0}\Software\IronstoneIT' -f ($_))})
                                 # If none or more than 1 where found - Try getting only SIDs with AAD joined info in HKU (HKCU) registry
-                                if (@($Local:SIDs).Count -le 0 -or @($Local:SIDs).Count -ge 2) {
+                                if (@($Local:SIDs).'Count' -le 0 -or @($Local:SIDs).'Count' -ge 2) {
                                     $Local:SIDs = [string[]]@([string[]]@($Local:SIDsFromRegistryAll) | Where-Object {Test-Path -Path ('Registry::HKEY_USERS\{0}\Software\Microsoft\Windows NT\CurrentVersion\WorkplaceJoin\AADNGC' -f ($_))})
                                 }
                                 # If none or more than 1 where found - Try matching Tenant ID for AAD joined HKLM with Tenant ID for AAD joined HKU (HKCU)
-                                if (@($Local:SIDs).Count -le 0 -or @($Local:SIDs).Count -ge 2) {
+                                if (@($Local:SIDs).'Count' -le 0 -or @($Local:SIDs).'Count' -ge 2) {
                                     if (-not([string]::IsNullOrEmpty(($Local:TenantGUIDFromHKLM = [string]$($x='Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CloudDomainJoin\JoinInfo'; Get-ItemProperty -Path ('{0}\{1}' -f ($x,[string](Get-ChildItem -Path $x -Recurse:$false -ErrorAction 'SilentlyContinue' | Select-Object -ExpandProperty 'Name' | ForEach-Object {$_.Split('\')[-1]}))) -ErrorAction 'SilentlyContinue' | Select-Object -ExpandProperty 'TenantId'))))) {
                                         $Local:SIDs = [string[]]@(@($Local:SIDsFromRegistryAll) | Where-Object {$Local:TenantGUIDFromHKLM -eq ([string]$($x=[string]('Registry::HKEY_USERS\{0}\Software\Microsoft\Windows NT\CurrentVersion\WorkplaceJoin\AADNGC' -f ($_)); Get-ItemProperty -Path ('{0}\{1}' -f ($x,([string](Get-ChildItem -Path $x -Recurse:$false -ErrorAction 'SilentlyContinue' | Select-Object -ExpandProperty 'Name' | ForEach-Object {$_.Split('\')[-1]})))) -ErrorAction 'SilentlyContinue' | Select-Object -ExpandProperty 'TenantDomain'))})
                                     }
                                 }
-                                if(@($Local:SIDs).Count -eq 1){
+                                if(@($Local:SIDs).'Count' -eq 1){
                                     [string]([string[]]@($Local:SIDs | Select-Object -First 1))
                                 }
                                 else{
@@ -189,19 +194,19 @@ Try {
                     }
 
                     # If no valid SID yet, try by running process "Explorer"
-                    if ([string]::IsNullOrEmpty($Local:SID) -or (-not($Local:LengthInterval.Contains([byte]$Local:SID.Length))) -or (-not(Test-Path -Path ('Registry::HKEY_USERS\{0}' -f ($Local:SID)) -ErrorAction 'SilentlyContinue'))) {
+                    if ([string]::IsNullOrEmpty($Local:SID) -or (-not($Local:LengthInterval.Contains([byte]$Local:SID.'Length'))) -or (-not(Test-Path -Path ('Registry::HKEY_USERS\{0}' -f ($Local:SID)) -ErrorAction 'SilentlyContinue'))) {
                         $Local:SID = [string]$(
-                            $Local:UN = [string]([string[]]@(Get-WmiObject -Class 'Win32_Process' -Filter "Name='Explorer.exe'" -ErrorAction 'SilentlyContinue' | ForEach-Object {$($Owner = $_.GetOwner();if($Owner.ReturnValue -eq 0 -and $Owner.Domain -notlike 'nt *' -and $Owner.Domain -notlike 'nt-*'){('{0}\{1}' -f ($Owner.Domain,$Owner.User))})}) | Select-Object -Unique -First 1)
-                            if ([string]::IsNullOrEmpty($Local:UN) -or $Local:UN.Length -lt 3) {
+                            $Local:UN = [string]([string[]]@(Get-WmiObject -Class 'Win32_Process' -Filter "Name='Explorer.exe'" -ErrorAction 'SilentlyContinue' | ForEach-Object {$($Owner = $_.GetOwner();if($Owner.'ReturnValue' -eq 0 -and $Owner.'Domain' -notlike 'nt *' -and $Owner.'Domain' -notlike 'nt-*'){('{0}\{1}' -f ($Owner.'Domain',$Owner.'User'))})}) | Select-Object -Unique -First 1)
+                            if ([string]::IsNullOrEmpty($Local:UN) -or $Local:UN.'Length' -lt 3) {
                                 $Local:UN = [string]([string[]]@(Get-Process -Name 'explorer' -IncludeUserName -ErrorAction 'SilentlyContinue' | Select-Object -ExpandProperty 'UserName' | Where-Object {$_ -notlike 'nt *' -and $_ -notlike 'nt-*'}) | Select-Object -Unique -First 1)
                             }
-                            if ([string]::IsNullOrEmpty($Local:UN) -or $Local:UN.Length -lt 3) {
+                            if ([string]::IsNullOrEmpty($Local:UN) -or $Local:UN.'Length' -lt 3) {
                                 [string]::Empty
                             }
                             else {
                                 Try{
-                                    $Local:SID = [string]([System.Security.Principal.NTAccount]::new($Local:UN).Translate([System.Security.Principal.SecurityIdentifier]).Value)
-                                    if ([string]::IsNullOrEmpty($Local:SID) -or (-not($Local:LengthInterval.Contains([byte]$Local:SID.Length))) -or (-not(Test-Path -Path ('Registry::HKEY_USERS\{0}' -f ($Local:SID)) -ErrorAction 'SilentlyContinue'))) {
+                                    $Local:SID = [string]$([System.Security.Principal.NTAccount]::new($Local:UN).Translate([System.Security.Principal.SecurityIdentifier]).'Value')
+                                    if ([string]::IsNullOrEmpty($Local:SID) -or (-not($Local:LengthInterval.Contains([byte]$Local:SID.'Length'))) -or (-not(Test-Path -Path ('Registry::HKEY_USERS\{0}' -f ($Local:SID)) -ErrorAction 'SilentlyContinue'))) {
                                         [string]::Empty
                                     }
                                     else {
@@ -216,7 +221,7 @@ Try {
                     }
                 
                     # If no valid SID yet, throw error
-                    if ([string]::IsNullOrEmpty($Local:SID) -or (-not($Local:LengthInterval.Contains([byte]$Local:SID.Length))) -or (-not(Test-Path -Path ('Registry::HKEY_USERS\{0}' -f ($Local:SID)) -ErrorAction 'SilentlyContinue'))) {
+                    if ([string]::IsNullOrEmpty($Local:SID) -or (-not($Local:LengthInterval.Contains([byte]$Local:SID.'Length'))) -or (-not(Test-Path -Path ('Registry::HKEY_USERS\{0}' -f ($Local:SID)) -ErrorAction 'SilentlyContinue'))) {
                         Throw 'ERROR: Did not manage to get Intune user SID from SYSTEM context'
                     }
 
@@ -240,27 +245,27 @@ Try {
                     }
                 
                     # If no valid UN yet, try by convertid $Script:StrIntuneUserSID to "Domain\Username"
-                    if ([string]::IsNullOrEmpty($Local:UN) -or $Local:UN.Length -lt 3 -and (-not([string]::IsNullOrEmpty($Script:StrIntuneUserSID)))) {
+                    if ([string]::IsNullOrEmpty($Local:UN) -or $Local:UN.'Length' -lt 3 -and (-not([string]::IsNullOrEmpty($Script:StrIntuneUserSID)))) {
                         $Local:UN = [string]$(Try{[System.Security.Principal.SecurityIdentifier]::new($Script:StrIntuneUserSID).Translate([System.Security.Principal.NTAccount]).Value}Catch{[string]::Empty})
                     }
 
                     # If no valid UN yet, try by Registry::HKEY_USERS\$Script:StrIntuneUserSID\Volatile Environment
-                    if ([string]::IsNullOrEmpty($Local:UN) -or $Local:UN.Length -lt 3-and (-not([string]::IsNullOrEmpty($Script:StrIntuneUserSID)))) {
+                    if ([string]::IsNullOrEmpty($Local:UN) -or $Local:UN.'Length' -lt 3-and (-not([string]::IsNullOrEmpty($Script:StrIntuneUserSID)))) {
                         $Local:UN = [string]$(Try{$Local:x = Get-ItemProperty -Path ('Registry::HKEY_USERS\{0}\Volatile Environment' -f ($Script:StrIntuneUserSID)) -Name 'USERDOMAIN','USERNAME' -ErrorAction 'SilentlyContinue';('{0}\{1}' -f ([string]($Local:x | Select-Object -ExpandProperty 'USERDOMAIN'),[string]($Local:x | Select-Object -ExpandProperty 'USERNAME')))}Catch{[string]::Empty})
                     }
                 
                     # If no valid UN yet, try by running process Explorer.exe - Method 1
-                    if ([string]::IsNullOrEmpty($Local:UN) -or $Local:UN.Length -lt 3) {
-                        $Local:UN = [string]([string[]]@(Get-WmiObject -Class 'Win32_Process' -Filter "Name='Explorer.exe'" -ErrorAction 'SilentlyContinue' | ForEach-Object {$($Owner = $_.GetOwner();if($Owner.ReturnValue -eq 0 -and $Owner.Domain -notlike 'nt *' -and $Owner.Domain -notlike 'nt-*'){('{0}\{1}' -f ($Owner.Domain,$Owner.User))})}) | Select-Object -Unique -First 1)
+                    if ([string]::IsNullOrEmpty($Local:UN) -or $Local:UN.'Length' -lt 3) {
+                        $Local:UN = [string]([string[]]@(Get-WmiObject -Class 'Win32_Process' -Filter "Name='Explorer.exe'" -ErrorAction 'SilentlyContinue' | ForEach-Object {$($Owner = $_.GetOwner();if($Owner.'ReturnValue' -eq 0 -and $Owner.'Domain' -notlike 'nt *' -and $Owner.'Domain' -notlike 'nt-*'){('{0}\{1}' -f ($Owner.'Domain',$Owner.'User'))})}) | Select-Object -Unique -First 1)
                     }
                 
                     # If no valid UN yet, try by running process Explorer.exe - Method 2
-                    if ([string]::IsNullOrEmpty($Local:UN) -or $Local:UN.Length -lt 3) {
+                    if ([string]::IsNullOrEmpty($Local:UN) -or $Local:UN.'Length' -lt 3) {
                         $Local:UN = [string]([string[]]@(Get-Process -Name 'explorer' -IncludeUserName -ErrorAction 'SilentlyContinue' | Select-Object -ExpandProperty 'UserName' | Where-Object {$_ -notlike 'nt *' -and $_ -notlike 'nt-*'}) | Select-Object -Unique -First 1)
                     }                   
 
                     # If no valid UN yet, throw Error
-                    if ([string]::IsNullOrEmpty($Local:UN) -or $Local:UN.Length -lt 3) {
+                    if ([string]::IsNullOrEmpty($Local:UN) -or $Local:UN.'Length' -lt 3) {
                         Throw 'ERROR: Did not manage to get "Domain"\"UserName" for Intune User.'
                     }
 
@@ -275,8 +280,8 @@ Try {
 
         # If running in User Context / Not running as "NT Authority\System"
         elseif ((-not($Script:BoolIsSystem)) -and (-not($DeviceContext))) {
-            $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'StrIntuneUserSID' -Value ([string]([System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value))
-            $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'StrIntuneUserName' -Value ([string]([System.Security.Principal.WindowsIdentity]::GetCurrent().Name))
+            $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'StrIntuneUserSID' -Value ([string]([System.Security.Principal.WindowsIdentity]::GetCurrent().'User'.'Value'))
+            $null = New-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'StrIntuneUserName' -Value ([string]([System.Security.Principal.WindowsIdentity]::GetCurrent().'Name'))
 
             #region    Write SID and UserName to HKCU if running in User Context
                 # Assets
@@ -295,7 +300,7 @@ Try {
                         $null = New-Item -Path $Local:RegPath -Force -ErrorAction 'Stop'
                     }
 
-                    foreach ($x in [byte[]]@(0 .. [byte]($Local:RegNames.Length - 1))) {
+                    foreach ($x in [byte[]]@(0 .. [byte]($Local:RegNames.'Length' - 1))) {
                         $null = Set-ItemProperty -Path $Local:RegPath -Name $Local:RegNames[$x] -Value $Local:RegValues[$x] -Force -ErrorAction 'Stop'
                     }
                 }
@@ -356,8 +361,28 @@ Try {
                     $PathFileAzCopySB       = [System.Management.Automation.ScriptBlock]{[string]$('{0}\Microsoft SDKs\Azure\AzCopy\AzCopy.exe' -f (${env:ProgramFiles(x86)}))}
                     # AzCopy Location - Regular Variables (For use in current script)
                     $PathFileAzCopy         = Invoke-Command -ScriptBlock $PathFileAzCopySB
+                    # AzCopy10 Location - ScriptBlock Variables (For passing into the installed PowerShell script file)
+                    $PathFileAzCopy10SB     = [System.Management.Automation.ScriptBlock]{[string]$('{0}\IronstoneIT\Binaries\AzCopy\azcopy.exe' -f ($env:ProgramData))}
+                    # AzCopy10 Location - Regular Variables (For use in current script)
+                    $PathFileAzCopy10       = Invoke-Command -ScriptBlock $PathFileAzCopy10SB
                 #endregion File Sync Folders
                 
+                #region    Variables replacement table
+                    $VariablesReplacementTable = [ordered]@{
+                        '###VARIABLESTATIC01###'    = $NameFilePS1
+                        '###VARIABLESTATIC02###'    = $CustomerAzureStorageAccountName
+                        '###VARIABLESTATIC03###'    = $CustomerAzureStorageAccountBlobName
+                        '###VARIABLESTATIC04###'    = $CustomerAzureStorageAccountSASToken
+                        '"###VARIABLEDYNAMIC01###"' = $PathDirIronSyncSB.ToString()
+                        '"###VARIABLEDYNAMIC02###"' = $PathDirIronSyncLogsSB.ToString()
+                        '"###VARIABLEDYNAMIC03###"' = $PathDirSyncFilesSB.ToString()
+                        '"###VARIABLEDYNAMIC04###"' = $PathFileAzCopySB.ToString()
+                        '"###VARIABLEDYNAMIC05###"' = $PathDirAzCopyJournalSB.ToString()
+                        '"###VARIABLEDYNAMIC06###"' = $PathFileAzCopy10SB.ToString()
+                    }
+                #endregion Variables replacement table
+
+
                 # Verbose
                 Write-Verbose -Message ('> Done.')
             #endregion     Assets & Variables
@@ -382,7 +407,8 @@ Try {
         This script will sync down a Azure Storage Account Blob Container to specified folder
 
     .NOTES
-        Author: Olav Roennestad Birkeland @ Ironstone IT
+        Author:   Olav Roennestad Birkeland @ Ironstone IT
+        Modified: 200520
 #>
 
 
@@ -410,6 +436,7 @@ Try {
         # AzCopy
         $PathFileAzCopy         = "###VARIABLEDYNAMIC04###"
         $PathDirAzCopyJournal   = "###VARIABLEDYNAMIC05###"
+        $PathFileAzCopy10       = "###VARIABLEDYNAMIC06###"
     #endregion Inserted Dynamic Variables
     
     
@@ -438,109 +465,228 @@ Try {
 #endregion Initialize - Settings and Variables
 
 
-try {
-#region     Main
-    #region    Logging
-        if (-not(Test-Path -Path $PathDirLog)) {New-Item -Path $PathDirLog -ItemType 'Directory' -Force}
-        Start-Transcript -Path $PathFileLog
-    #endregion Logging
+
+#region Try
+#################################
+Try {
+#################################
+
+
+# Logging
+## Create log dir if not exist
+if (-not(Test-Path -Path $PathDirLog)) {
+    New-Item -Path $PathDirLog -ItemType 'Directory' -Force
+}
+## Start logging
+$null = Start-Transcript -Path $PathFileLog -Force
+
     
 
 
-    #region    Prerequisites & Tests
-        #region    Check if neccessary paths exist
-            Write-Output -InputObject ('# Checking for neccessary paths and files')
-            $PathsToCheck = [string[]]@($PathDirSync,$PathFileAzCopy,$PathDirAzCopyJournal)
-            foreach ($Path in $PathsToCheck) {
-                if (Test-Path -Path $Path) {
-                    Write-Output -InputObject ('{0}SUCCESS - {1} does exist.' -f ("`t",$Path))
-                }
-                else {
-                    Write-Output -InputObject ('{0}ERROR   - {1} does NOT exists. Can not continue without it' -f ("`t",$Path))
-                    $BoolScriptSuccess = $false
-                }
-            }
-            if (-not($BoolScriptSuccess)) {Break}
-        #endregion Check if neccessary paths exist
+# Prerequisites & Tests
+## Check what AzCopy version is available - Prefer v10, fallback to v8.1.0
+Write-Output -InputObject ('# Check what AzCopy version is available - Prefer v10, fallback to v8.1.0')
+$UseAzCopy10 = [bool][System.IO.File]::Exists($PathFileAzCopy10)
+if ($UseAzCopy10) {
+    $PathFileAzCopy = $PathFileAzCopy10
+}
 
-
-        #region    Check Internet Connectivity
-            Write-Output -InputObject ('# Checking internet connectivity')
-            if ([bool]$($null = Resolve-DnsName -Name 'blob.core.windows.net' -ErrorAction 'SilentlyContinue';$?)) {
-                Write-Output -InputObject ('{0}SUCCESS - Could resolve "blob.core.windows.net".' -f ("`t"))
-            }
-            else {
-                Write-Output -InputObject ('{0}ERROR   - Could not resolve "blob.core.windows.net".' -f ("`t"))
-                Write-Output -InputObject ('{0}{0}Either no internet connectivity, or Azure Storage is down.' -f ("`t"))
-                $BoolScriptSuccess = $false
-            }
-            if (-not($BoolScriptSuccess)) {Break}
-        #endregion Check Internet Connectivity
-    #endregion Prerequisites & Tests    
-
-
-
-    #region    AzCopy - Sync down using SAS Token
-        #region    AzCopy - Variables
-            <# Switches
-                /Z        = Journal file folder, for AzCopy to resume operation
-                /Y        = Surpress all confirmations
-                /S        = Specifies recursive mode for copy operations. In recursive mode, AzCopy will copy all blobs or files that match the specified file pattern, including those in subfolders.
-                /CheckMD5 = See if destination matches source MD5
-                /L        = Specifies a listing operation only; no data is copied.
-                /MT       = Sets the downloaded file's last-modified time to be the same as the source blob or file's.
-                /XN       = Excludes a newer source resource. The resource will not be copied if the source is the same or newer than destination.
-                /XO       = Excludes an older source resource. The resource will not be copied if the source resource is the same or older than destination.
-            #>
-        #endregion AzCopy - Variables
-        
-            
-        # If Files In Use - Exit and set $BoolScriptSuccess to $false to keep log
-        if (@(Get-ChildItem -Path $PathDirSync -Recurse -Force -File | Where-Object {$_.Name -Like '~$*' -and $_.Mode -eq '-a-h--'}).Count -ge 1) {
-            Write-Output -InputObject ('Files are in use, AzCopy would have failed. Exiting.')
-            $BoolScriptSuccess = $false
-        }
-        else {
-            # Syncronize files down from Azure Storage Account Blob
-            $AzCopyExitCode = [int16]$(0)
-            Try {
-                Write-Output -InputObject ('#### Start AzCopy Output ####')
-                & cmd /c ('"{4}" /Source:{0} /Dest:"{1}" /SourceSAS:"{2}" /Z:"{3}" /Y /S /MT /XO' -f ($StorageAccountBlobURL,$PathDirSync,$StorageAccountSASToken,$PathDirAzCopyJournal,$PathFileAzCopy))
-                $AzCopyExitCode = $LASTEXITCODE
-            }
-            Catch{$AzCopyExitCode=-1}
-            Finally{Write-Output -InputObject ('#### End AzCopy Output ####')}
-            Write-Output -InputObject ('AzCopy Exit Code: {0}.' -f ($AzCopyExitCode))
-
-
-            # If Fail - Write Output and set $BoolScriptSuccess to keep log
-            if ([int16]$($LASTEXITCODE) -eq [int16](-1)) {
-                Write-Output -InputObject ('ERROR   - Last Exit Code Does Not Smell Like Success: {0}.' -f ($AzCopyExitCode.ToString()))
-                $BoolScriptSuccess = $false
-            }
-            elseif (@(Get-ChildItem -Path $PathDirSync -File -Force).Length -le 0) {
-                Write-Output -InputObject ('ERROR   - No files found in directory "{0}" after AzCopy finished.' -f ($PathDirSync))
-                $BoolScriptSuccess = $false
-            }
-            else {
-                Write-Output -InputObject ('SUCCESS - Healthy Exit Code and More Than 1 Files Found In Sync Path.')
-            }
-        }
-    #endregion AzCopy - Sync down using SAS Token
-#endregion Main
+## Check if neccessary paths exist
+Write-Output -InputObject ('# Check if neccessary paths exist')
+$PathsToCheck = [string[]]$($PathDirSync,$PathFileAzCopy,$(if(-not$UseAzCopy10){$PathDirAzCopyJournal}))
+foreach ($Path in $PathsToCheck) {
+    if (Test-Path -Path $Path) {
+        Write-Output -InputObject ('{0}SUCCESS - "{1}" does exist.' -f ("`t",$Path))
+    }
+    else {
+        Write-Output -InputObject ('{0}ERROR   - "{1}" does NOT exists. Can not continue without it' -f ("`t",$Path))
+        $BoolScriptSuccess = $false
+    }
+}
+if (-not($BoolScriptSuccess)) {
+    Break
 }
 
 
-catch {
+## Check if running already
+Write-Output -InputObject ('# Check if running already')
+if (
+    [array](
+        Get-Process -Name 'AzCopy' -ErrorAction 'SilentlyContinue' | Select-Object -ExpandProperty 'Path' | ForEach-Object -Process {
+            $_.Replace(('\{0}' -f ($_.Split('\')[-1]),''))
+        } | Sort-Object -Unique
+    ) -contains [string]$(if($PathFileAzCopy[-1] -eq '\'){$PathFileAzCopy.Substring(0,$PathFileAzCopy.'Length'-1)}else{$PathFileAzCopy})
+) {
+    Write-Output -InputObject ('{0}ERROR   - AzCopy is already running.' -f ("`t",$Path))
+    $BoolScriptSuccess = $false
+}
+if (-not($BoolScriptSuccess)) {
+    Break
+}
+        
+## Check if AzCopy.exe v8.1.0 journal leftovers are left from previous runs
+if (-not $UseAzCopy10) {
+    Write-Output -InputObject ('# Check if AzCopy journal leftovers from previous runs')
+    ### Get AzCopy journal files
+    $JournalFiles = [array](Get-ChildItem -Path $PathDirAzCopyJournal -File -Recurse:$false)
+    ### If any found, delete them if more than 1 day old. Else: Error.
+    if ($JournalFiles.'Count' -ge 1) {
+        Write-Output -InputObject 'Found AzCopy journal files.'
+        if ([bool[]]$($JournalFiles.ForEach{$_.'LastWriteTime' -le [datetime]::Now.AddDays(-1)}) -contains $false) {
+            Write-Output -InputObject 'AzCopy journal files are not older than 24h. Will not delete.'
+            $BoolScriptSuccess = $false
+        }
+        else {
+            # Attempt to delete
+            $DeleteJournalFilesSuccess = [bool[]]$(
+                $JournalFiles.ForEach{
+                    Try{
+                        $null=Remove-Item -Path $_.'FullName' -Recurse:$false -ErrorAction 'SilentlyContinue'
+                        [bool]($? -and -not [bool](Test-Path -Path $_.'FullName'))
+                    }
+                    Catch{
+                        [bool]($false)
+                    }
+                }
+            )
+            if ($DeleteJournalFilesSuccess -contains $false) {
+                Write-Output -InputObject ('{0}ERROR   - Failed to delete some of the journal files.' -f ("`t"))
+                $BoolScriptSuccess = $false
+            }
+        }
+    }
+    if (-not($BoolScriptSuccess)) {
+        Break
+    }
+}
+
+## Check Internet Connectivity
+Write-Output -InputObject ('# Check Internet Connectivity')
+if ([bool]$($null = Resolve-DnsName -Name 'blob.core.windows.net' -ErrorAction 'SilentlyContinue';$?)) {
+    Write-Output -InputObject ('{0}SUCCESS - Could resolve "blob.core.windows.net".' -f ("`t"))
+}
+else {
+    Write-Output -InputObject ('{0}ERROR   - Could not resolve "blob.core.windows.net".' -f ("`t"))
+    Write-Output -InputObject ('{0}{0}Either no internet connectivity, or Azure Storage is down.' -f ("`t"))
+    $BoolScriptSuccess = $false
+}
+if (-not($BoolScriptSuccess)) {
+    Break
+}
+
+
+
+
+# Sync with AzCopy
+<#
+    Switches v10.x.x
+        azcopy sync <source> <destination> [flags]
+        --cap-mbps=<n>            = Cap bandwidth in megabits per second
+        --check-md5=<option>      = How strict to check downloaded content checksum. Default = FailIfDifferent.
+        --recursive=<true/false>  = Recurse
+        --output-type=<json/text> = Whether output from azcopy.exe should be formatted as JSON or string (default)        
+
+    Switches v8.1.0
+        /Z        = Journal file folder, for AzCopy to resume operation
+        /Y        = Surpress all confirmations
+        /S        = Specifies recursive mode for copy operations. In recursive mode, AzCopy will copy all blobs or files that match the specified file pattern, including those in subfolders.
+        /CheckMD5 = See if destination matches source MD5
+        /L        = Specifies a listing operation only; no data is copied.
+        /MT       = Sets the downloaded file's last-modified time to be the same as the source blob or file's.
+        /XN       = Excludes a newer source resource. The resource will not be copied if the source is the same or newer than destination.
+        /XO       = Excludes an older source resource. The resource will not be copied if the source resource is the same or older than destination.
+#>
+
+            
+# If Files In Use - Exit and set $BoolScriptSuccess to $false to keep log
+if (@(Get-ChildItem -Path $PathDirSync -Recurse -Force -File | Where-Object -FilterScript {$_.'Name' -Like '~$*' -and $_.'Mode' -eq '-a-h--'}).'Count' -ge 1) {
+    Write-Output -InputObject ('Files are in use, AzCopy would have failed. Exiting.')
+    $BoolScriptSuccess = $false
+}
+else {
+    # Build argument    
+    $Arguments = [string[]]$(
+        if ($UseAzCopy10) {            
+            ('"{0}"' -f ($PathFileAzCopy10)),                                  # AzCopy.exe v10.x.x path
+            ('sync'),                                                          # Sync flag
+            ('"{0}{1}"' -f ($StorageAccountBlobURL,$StorageAccountSASToken)),  # Source URL with SAS token
+            ('"{0}"' -f ($PathDirSync)),                                       # Destination
+            ('--cap-mbps=0'),                                                  # Do not cap bandwidth (0 = no cap)
+            ('--check-md5=FailIfDifferent'),                                   # Check MD5 sum, fail if different
+            ('--delete-destination=true'),                                     # Delete files from destination not in source anymore
+            ('--output-type=text'),                                            # Output from azcopy.exe
+            ('--recursive=true')                                               # Recurse
+        }
+        else {
+            ('"{0}"' -f ($PathFileAzCopy)),                                    # AzCopy v8.1.0 path
+            ('/Source:"{0}"' -f ($StorageAccountBlobURL)),                     # Source
+            ('/Dest:"{0}"' -f ($PathDirSync)),                                 # Destination
+            ('/SourceSAS:"{0}"' -f ($StorageAccountSASToken)),                 # SAS key
+            ('/Z:"{0}"' -f ($PathDirAzCopyJournal)),                           # AzCopy journal directory
+            ('/Y'),                                                            # Surpress all confirmations
+            ('/S'),                                                            # Specifies recursive mode for copy operations
+            ('/MT'),                                                           # Sets the downloaded file's last-modified time to be the same as the source blob or file's
+            ('/XO')                                                            # Excludes an older source resource
+        }
+    )
+
+    # Syncronize files down from Azure Storage Account Blob
+    $AzCopyExitCode = [byte] 0
+    Try {
+        Write-Output -InputObject ('#### Start AzCopy Output ####')
+        Write-Verbose -Message ('& cmd /c {0}' -f ($Arguments -join ' '))
+        & 'cmd' '/c' ($Arguments -join ' ')
+        $AzCopyExitCode = $LASTEXITCODE
+    }
+    Catch {
+        $AzCopyExitCode    = 1
+        $BoolScriptSuccess = $false
+    }
+    Finally {
+        Write-Output -InputObject ('#### End AzCopy Output ####')
+    }
+    Write-Output -InputObject ('AzCopy Exit Code: {0}.' -f ($AzCopyExitCode))
+
+
+    # If Fail - Write Output and set $BoolScriptSuccess to keep log
+    if ($AzCopyExitCode -ne 0) {
+        Write-Output -InputObject ('ERROR   - Last Exit Code Does Not Smell Like Success: {0}.' -f ($AzCopyExitCode.ToString()))
+        $BoolScriptSuccess = $false
+    }
+    elseif ($([array](Get-ChildItem -Path $PathDirSync -File -Force -Recurse)).'Count' -le 0) {
+        Write-Output -InputObject ('ERROR   - No files found in directory "{0}" after AzCopy finished.' -f ($PathDirSync))
+        $BoolScriptSuccess = $false
+    }
+    else {
+        Write-Output -InputObject ('SUCCESS - Healthy Exit Code and 1 or more files files found in sync path.')
+    }
+}
+
+
+
+
+#################################
+}
+#################################
+#endregion Try
+
+
+
+# Catch
+Catch {
     $BoolScriptSuccess = $false
 }
 
 
-finally {
+
+# Finally
+Finally {
     # Stop Transcript
-    Stop-Transcript
+    $null = Stop-Transcript
     # Don't keep the log file if success
-    if ($BoolScriptSuccess) {Remove-Item -Path $PathFileLog -Force}
+    if ($BoolScriptSuccess) {
+        Remove-Item -Path $PathFileLog -Force
+    }
 }
             }
                 
@@ -729,7 +875,18 @@ finally {
             Write-Verbose -Message ('Installing IronSync file to "{0}"' -f ($PathFilePS1))
             if ($ReadOnly) {Write-ReadOnly}
             else {
-                $null = Out-File -Force -FilePath $PathFilePS1 -Encoding $EncodingFilePS1 -InputObject ([string]$([string]$($ContentFilePS1SB.ToString()).Replace('###VARIABLESTATIC01###',$NameFilePS1).Replace('###VARIABLESTATIC02###',$CustomerAzureStorageAccountName).Replace('###VARIABLESTATIC03###',$CustomerAzureStorageAccountBlobName).Replace('###VARIABLESTATIC04###',$CustomerAzureStorageAccountSASToken).Replace('"###VARIABLEDYNAMIC01###"',$PathDirIronSyncSB.ToString()).Replace('"###VARIABLEDYNAMIC02###"',$PathDirIronSyncLogsSB.ToString()).Replace('"###VARIABLEDYNAMIC03###"',$PathDirSyncFilesSB.ToString()).Replace('"###VARIABLEDYNAMIC04###"',$PathFileAzCopySB.ToString()).Replace('"###VARIABLEDYNAMIC05###"',$PathDirAzCopyJournalSB.ToString())))
+                # Convert scriptblock to string
+                $ContentFilePS1SB = [string] $ContentFilePS1SB.ToString()
+
+                # Replace variables with value                                
+                foreach ($Variable in $VariablesReplacementTable.GetEnumerator()) {
+                    $ContentFilePS1SB = $ContentFilePS1SB.Replace($Variable.'Name',$Variable.'Value')
+                }
+
+                # Output to a file
+                $null = Out-File -Force -FilePath $PathFilePS1 -Encoding $EncodingFilePS1 -InputObject $ContentFilePS1SB
+                
+                # Verbose
                 Write-Verbose -Message ('Success? {0}.' -f ($?.ToString()))
             }
 
@@ -822,23 +979,48 @@ finally {
 #region    Don't touch this
 }
 Catch {
+    # Set ScriptSuccess to false
+    $null = Set-Variable -Option 'ReadOnly' -Scope 'Script' -Force -Name 'ScriptSuccess' -Value ([bool]$($false))
     # Construct Message
-    $ErrorMessage = [string]('{0} finished with errors:' -f ($Script:NameScriptFull))
-    $ErrorMessage += ('{0}{0}Exception:{0}{1}'           -f ("`r`n",$_.Exception))
-    $ErrorMessage += ('{0}{0}Activity:{0}{1}'            -f ("`r`n",$_.CategoryInfo.Activity))
-    $ErrorMessage += ('{0}{0}Error Category:{0}{1}'      -f ("`r`n",$_.CategoryInfo.Category))
-    $ErrorMessage += ('{0}{0}Error Reason:{0}{1}'        -f ("`r`n",$_.CategoryInfo.Reason))
+    ## Generic 
+    $ErrorMessage = [string]$('{0}Finished with errors:' -f ("`r`n"))
+    $ErrorMessage += [string]$('{0}# Exception:{0}{1}' -f ("`r`n",$_.'Exception'))
+    ## Dynamically add info to the error message
+    foreach ($ParentProperty in [string[]]$($_ | Get-Member -MemberType 'Property' | Select-Object -ExpandProperty 'Name')) {
+        if ($_.$ParentProperty) {
+            $ErrorMessage += ('{0}# {1}:' -f ("`r`n",$ParentProperty))
+            foreach ($ChildProperty in [string[]]$($_.$ParentProperty | Get-Member -MemberType 'Property' | Select-Object -ExpandProperty 'Name')) {
+                ### Build ErrorValue
+                $ErrorValue = [string]::Empty
+                if ($_.$ParentProperty.$ChildProperty -is [System.Collections.IDictionary]) {
+                    foreach ($Name in [string[]]$($_.$ParentProperty.$ChildProperty.GetEnumerator().'Name')) {
+                        $ErrorValue += ('{0} = {1}{2}' -f ($Name,[string]$($_.$ParentProperty.$ChildProperty.$Name),"`r`n"))
+                    }
+                }
+                else {
+                    $ErrorValue = [string]$($_.$ParentProperty.$ChildProperty)
+                }
+                if (-not[string]::IsNullOrEmpty($ErrorValue)) {
+                    $ErrorMessage += ('{0}## {1}\{2}:{0}{3}' -f ("`r`n",$ParentProperty,$ChildProperty,$ErrorValue.Trim()))
+                }
+            }
+        }
+    }
+    ## Last exit code
+    if (-not[string]::IsNullOrEmpty($LASTEXITCODE)) {
+        $ErrorMessage += ('{0}# Last exit code:{0}{1}' -f ("`r`n",$LASTEXITCODE))
+    }
     # Write Error Message
-    Write-Error -Message $ErrorMessage
+    Write-Error -Message $ErrorMessage -ErrorAction 'Continue'
 }
 Finally {
     # Unload Users' Registry Profiles (NTUSER.DAT) if any were loaded
-    if ($Script:BoolIsSystem -and $BoolWriteToHKCUFromSystem -and ([string[]]@($RegistryLoadedProfiles | Where-Object -FilterScript {-not([string]::IsNullOrEmpty($_))})).Count -gt 0) {
+    if ($Script:BoolIsSystem -and $BoolWriteToHKCUFromSystem -and ([string[]]@($RegistryLoadedProfiles | Where-Object -FilterScript {-not([string]::IsNullOrEmpty($_))})).'Count' -gt 0) {
         # Close Regedit.exe if running, can't unload hives otherwise
-        $null = Get-Process -Name 'regedit' -ErrorAction 'SilentlyContinue' | ForEach-Object -Process{Stop-Process -InputObject $_ -ErrorAction 'SilentlyContinue'}
-            
+        $null = Get-Process -Name 'regedit' -ErrorAction 'SilentlyContinue' | ForEach-Object -Process {Stop-Process -InputObject $_ -ErrorAction 'SilentlyContinue'}
+
         # Get all logged in users
-        $SIDsLoggedInUsers = [string[]]@(([string[]]@(Get-Process -Name 'explorer' -IncludeUserName | Select-Object -ExpandProperty 'UserName' -Unique | ForEach-Object -Process {Try{[System.Security.Principal.NTAccount]::new(($_)).Translate([System.Security.Principal.SecurityIdentifier]).Value}Catch{}} | Where-Object -FilterScript {-not([string]::IsNullOrEmpty($_))}) + @([string]([System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value))) | Select-Object -Unique)
+        $SIDsLoggedInUsers = [string[]]$(([string[]]@(Get-Process -Name 'explorer' -IncludeUserName | Select-Object -ExpandProperty 'UserName' -Unique | ForEach-Object -Process {Try{[System.Security.Principal.NTAccount]::new(($_)).Translate([System.Security.Principal.SecurityIdentifier]).'Value'}Catch{}} | Where-Object -FilterScript {-not([string]::IsNullOrEmpty($_))}),[string]$([System.Security.Principal.WindowsIdentity]::GetCurrent().'User'.'Value')) | Select-Object -Unique)
 
         foreach ($SID in $RegistryLoadedProfiles) {
             # If SID is found in $SIDsLoggedInUsers - Don't Unload Hive
@@ -848,7 +1030,7 @@ Finally {
             # If SID is not found in $SIDsLoggedInUsers - Unload Hive
             else {
                 $PathUserHive = [string]('Registry::HKEY_USERS\{0}' -f ($SID))
-                $null = Start-Process -FilePath ('{0}\reg.exe' -f ([string]([system.environment]::SystemDirectory))) -ArgumentList ('UNLOAD "{0}"' -f ($PathUserHive)) -WindowStyle 'Hidden' -Wait
+                $null = Start-Process -FilePath ('{0}\reg.exe' -f ([string]$([system.environment]::SystemDirectory))) -ArgumentList ('UNLOAD "{0}"' -f ($PathUserHive)) -WindowStyle 'Hidden' -Wait
 
                 # Check success
                 if (Test-Path -Path ('Registry::{0}' -f ($PathUserHive)) -ErrorAction 'SilentlyContinue') {
@@ -863,5 +1045,12 @@ Finally {
     
     # Stop Transcript
     Stop-Transcript
+}
+# Exit script
+if ($ScriptSuccess) {
+    Exit 0
+}
+else {
+    Exit 1
 }
 #endregion Don't touch this

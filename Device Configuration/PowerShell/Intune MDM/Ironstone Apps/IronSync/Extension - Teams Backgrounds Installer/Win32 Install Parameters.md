@@ -18,12 +18,27 @@ Ironstone
 ### Install & Uninstall
 "%SystemRoot%\sysnative\WindowsPowerShell\v1.0\powershell.exe" -ExecutionPolicy "Bypass" -NoLogo -NonInteractive -NoProfile -WindowStyle "Hidden" -Command "& '.\User_Install-TeamsBackgroundsFromIronSync.ps1'; exit $LASTEXITCODE"
 
-## Install behavior
+### Install behavior
 User
 
-## Device restart behavior
+### Device restart behavior
 No specific action
 
-## Exit codes
+### Exit codes
 0 = Success
 1 = Fail
+
+
+
+## Dependencies
+### 1 - AzCopy
+#### Name
+.Ironstone - Binaries - Microsoft AzCopy v10.4.3 x64
+#### Automatically install
+Yes
+
+### 2 - IronSync
+#### Name
+.Ironstone - Ironsync v<yearmonthday>
+#### Automatically install
+Yes

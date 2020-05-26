@@ -14,18 +14,21 @@ Param ()
 
 
 
-# Settings - PowerShell
-## Output Preferences
-$DebugPreference        = 'SilentlyContinue'
-$VerbosePreference      = 'SilentlyContinue'
-$WarningPreference      = 'Continue'
+# PowerShell Preferences
+## Output encoding
+$OutputEncoding = [System.Text.Encoding]::UTF8
+$PSDefaultParameterValues['*:Encoding'] = 'UTF8'
+## Output streams
+$DebugPreference       = 'SilentlyContinue'
+$InformationPreference = 'Continue'
+$VerbosePreference     = 'SilentlyContinue'
+$WarningPreference     = 'Continue'
 ## Interaction
-$ConfirmPreference      = 'None'
-$InformationPreference  = 'SilentlyContinue'
-$ProgressPreference     = 'SilentlyContinue'
-## Behaviour
-$ErrorActionPreference  = 'Stop'
-$WhatIfPreference       = $false
+$ConfirmPreference     = 'None'
+$ProgressPreference    = 'SilentlyContinue'
+## Behavior
+$ErrorActionPreference = 'Stop'
+$WhatIfPreference      = $false
 
 
 
