@@ -30,6 +30,31 @@ No specific action
 
 
 
+## Requirements
+### Operating system architecture
+64 bit
+
+### Minimum operating system
+Windows 10 1607
+
+### Configure additional requirement script
+#### Script file
+Device_Require-IronSyncTeamsBackgroundsArePresent.ps1
+#### Runs cript as 32-bit process on 64-bit clients
+No
+#### Run this script using the logged on credentials
+No
+#### Enforce script signature check
+No
+#### Select output data type
+Boolean
+#### Operator
+Equals
+#### Value
+Yes
+
+
+
 ## Dependencies
 ### 1 - AzCopy
 #### Name
