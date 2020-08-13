@@ -1,0 +1,2 @@
+﻿# Check what Office applications is installed
+Get-ChildItem -Depth 1 -Filter '*.exe' -Path ('{0}\Microsoft Office\root\Office16' -f ([string]$(if([System.IO.Directory]::Exists('{0}\Microsoft Office' -f ($env:ProgramW6432))){$env:ProgramW6432}else{${env:ProgramFiles(x86)}}))) | Select-Object -ExpandProperty 'Name' | Where-Object -FilterScript {$_ -cmatch '^[A-Z.]*$' -and $_ -notlike '*ico*'} |  Sort-Object
