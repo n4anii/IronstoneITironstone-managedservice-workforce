@@ -84,7 +84,7 @@ Azure Portal \ Storage Account \ <StorageAccountName> \ Shared access signature
 * **Allowed services:** Blob
 * **Allowed resource types:** Container
 * **Allowed permissions:** Read, List
-* **Blobl versioning permissions:**
+* **Blob versioning permissions: "Off"**
 * **Start:**
 * **End:** +5 years
 * **Timezone:** Current
