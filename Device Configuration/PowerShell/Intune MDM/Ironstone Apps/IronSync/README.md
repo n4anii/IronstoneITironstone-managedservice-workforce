@@ -75,17 +75,17 @@ Azure Portal \ Create a resource
   * **Public access level:** Private (no anonymous access)
 
 #### Upload Files
-Azure Portal \ Storage Account \ <StorageAccountName> \ Containers \ <ContainerName>
+Azure Portal \ Storage Account \ ```<StorageAccountName>``` \ Containers \ ```<ContainerName>```
   * Each file should use Access Tier "Hot", Blob Type "Block based".
   * Storage Account name, blob name and SAS token are input parameter to IronSync installer script/ Win32 package.
 
 #### Create SAS (Shared Access Signature) Token
-Azure Portal \ Storage Account \ <StorageAccountName> \ Shared access signature
+Azure Portal \ Storage Account \ ```<StorageAccountName>``` \ Shared access signature
 * **Allowed services:** Blob
-* **Allowed resource types:** Container
+* **Allowed resource types:** Container, Object
 * **Allowed permissions:** Read, List
-* **Blob versioning permissions: "Off"**
-* **Start:**
+* **Blob versioning permissions:** [ ] Enables deletion of version
+* **Start:** Now.
 * **End:** +5 years
 * **Timezone:** Current
 * **Allowed IP addresses:**
