@@ -5,7 +5,8 @@
     .EXAMPLE
         # In standing directory
         Get-AzCopyExeVersion
-        & ('{0}\Get-AzCopyExeVersion.ps1' -f ([System.IO.Directory]::GetParent($psISE.'CurrentFile'.'FullPath').'FullName'))
+        & $psISE.'CurrentFile'.'FullPath'
+        
 
     .EXAMPLE
         # Not in standing directory

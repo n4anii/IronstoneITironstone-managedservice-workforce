@@ -60,19 +60,26 @@ Azure Portal \ Create a resource
     * **Location:** Norway East
     * **Performance:** Standard
     * **Account kind:** BlobStorage
-    * **Replication:** Locally-redundant storage (LRS)
-    * **Access tier:** Hot
+    * **Replication:** Locally-redundant storage (LRS)    
   * Networking
     * **Connectivity method:** Public endpoint (all networks)
+    * ** Routing preference:** Microsoft network routing (default)
+  * Data protection
+    * Keep all disabled.
   * Advanced
     * **Secure transfer required:** Enabled
-	* **Blob soft delete:** Disabled
-	* **Versioning:** Disabled
+	* **Minimum TLS version:** 1.2
+	* **Infrastructure encryption:** Disabled
+	* **Allow blob public access:** Enabled
+	* **Bloc access tier:** Hot
+	* **NFS v3:** Disabled	
 	* **Hierarchical namespace:** Disabled
-	* **NFS v3:** Disabled
+	* **Customer-managed keys support:** Disabled
 * Container
   * **Name:** files
   * **Public access level:** Private (no anonymous access)
+  * Advanced
+    * **Encryption scope:** Disabled.
 
 #### Upload Files
 Azure Portal \ Storage Account \ ```<StorageAccountName>``` \ Containers \ ```<ContainerName>```
