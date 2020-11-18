@@ -1,1 +1,11 @@
-﻿[bool]$([byte]$(([System.Diagnostics.Process[]]$(Get-Process -Name 'chrome' -ErrorAction 'SilentlyContinue')).'Count') -le 0)
+﻿[OutputType([bool])]
+$ErrorActionPreference = 'Continue'
+[bool](
+    [byte](
+        $(
+            [array](
+                Get-Process -Name 'chrome' -ErrorAction 'SilentlyContinue'
+            )
+        ).'Count'
+    ) -le 0
+)

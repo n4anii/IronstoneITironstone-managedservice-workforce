@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1 -RunAsAdmin
+﻿#Requires -Version 5.1 -RunAsAdministrator
 <#
     .NAME
         Device_Install-GoogleChromeBrowser.ps1
@@ -9,11 +9,10 @@
 
 
     .NOTES
-        Author:   Olav Rønnestad Birkeland
-        Version:  1.0.0.0
-        Modified: 191011
+        Author:   Olav Rønnestad Birkeland @ Ironstone IT
         Created:  191011
-
+        Modified: 201118
+        
         Run from Intune
             Install
                 "%SystemRoot%\sysnative\WindowsPowerShell\v1.0\powershell.exe" -ExecutionPolicy "Bypass" -NoLogo -NonInteractive -NoProfile -WindowStyle "Hidden" -Command "& '.\Device_Install-GoogleChromeBrowser.ps1'; exit $LASTEXITCODE"
@@ -29,9 +28,14 @@
             13 = Error - Failed to download installer.
             14 = Error - Installer failed.
             15 = Error - Failed to remove installer after script is done.
+
+    .EXAMPLE
+        # Run from PowerShell ISE
+        & $psISE.'CurrentFile'.'FullPath'
 #>
 
 # Input parameters
+[OutputType($null)]
 [CmdletBinding()]
 Param()
 
@@ -58,20 +62,22 @@ $ScriptRunningAsUserName     = [string]$([System.Security.Principal.WindowsIdent
 
 # Product specific variables
 ## Manual
-$ProductName            = [string]$('Google Chrome Browser')
-$ProcessName            = [string]$('chrome.exe')
-$Uri                    = [string]$('https://dl.google.com/chrome/install/latest/chrome_installer.exe')
-$UriExpectedMinimumSize = [uint32]$(1MB)
-$ArgumentList           = [string]$('/silent /install')
-$InstallDirPath         = [string]$('{0}\Google\Chrome\Application' -f (${env:ProgramFiles(x86)}))
+$ProductName            = [string] 'Google Chrome Browser'
+$ProcessName            = [string] 'chrome.exe'
+$Uri                    = [string] 'https://dl.google.com/chrome/install/latest/chrome_installer.exe'
+$UriExpectedMinimumSize = [uint32] 1MB
+$ArgumentList           = [string] '/silent /install'
 ## Dynamic
-$Destination            = [string]$('{0}\Temp\{1}Setup.exe' -f ($env:SystemRoot,$ProductName.Replace(' ','')))
-$InstallVerifyPath      = [string]$('{0}\{1}' -f ($InstallDirPath,$ProcessName))
+$Destination            = [string] '{0}\Temp\{1}Setup.exe' -f $env:SystemRoot, $ProductName.Replace(' ','')
+$InstallVerifyPaths     = [string[]](
+    ('{0}\Google\Chrome\Application\{1}' -f ${env:ProgramFiles(x86)}, $ProcessName),
+    ('{0}\Google\Chrome\Application\{1}' -f $env:ProgramW6432, $ProcessName) | Sort-Object -Unique
+)
 
 # Logging
 ## Attributes
 $ExitCode    = [byte]$(0)
-$PathDirLog  = [string]$('{0}\IronstoneIT\Intune\ClientApps\Install' -f ($env:ProgramData))
+$PathDirLog  = [string]$('{0}\IronstoneIT\Logs\ClientApps' -f ($env:ProgramData))
 $PathFileLog = [string]$('{0}\{1}-Install-{2}-x{3}.txt' -f ($PathDirLog,$ProductName.Replace(' ','_'),[datetime]::Now.ToString('yyyyMMdd-HHmmssffff'),$ScriptRunningAsArchitecture))
 ## Create log path if not exist
 if (-not(Test-Path -Path $PathDirLog -ErrorAction 'Stop')) {$null = New-Item -Path $PathDirLog -ItemType 'Directory' -ErrorAction 'Stop'}
@@ -106,7 +112,7 @@ Try {
 
 
     # Fail proofing - Already installed
-    if (Test-Path -Path $InstallVerifyPath) {
+    if ($InstallVerifyPaths.ForEach{[System.IO.File]::Exists($_)} -contains $true) {
         $ExitCode = 10
         Throw ('ERROR - Already installed, default install path.')        
     }
@@ -133,7 +139,7 @@ Try {
     # Download - Use System.Net.WebClient
     Write-Output -InputObject ('# Downloading "{0}" ({1}).' -f ($ProductName,$Uri))
     $SuccessDownload = [bool]$(Try{[System.Net.WebClient]::new().DownloadFile($Uri,$Destination);$?}Catch{$false})
-    if ((-not$?) -or (-not($SuccessDownload)) -or (-not(Test-Path -Path $Destination)) -or [bool]$([uint32]$(Get-Item -Path $Destination | Select-Object -ExpandProperty 'Length') -lt $UriExpectedMinimumSize)) {
+    if ((-not$?) -or (-not($SuccessDownload)) -or (-not(Test-Path -Path $Destination)) -or [bool]$([uint32]$((Get-Item -Path $Destination).'Length') -lt $UriExpectedMinimumSize)) {
         $ExitCode = 13
         Throw ('ERROR - Failed to download installer from "{0}".' -f ($Uri))
     }
@@ -148,7 +154,7 @@ Try {
 
 
     # Check install success
-    if ($? -and [bool]$(Test-Path -Path $InstallVerifyPath)) {
+    if ($? -and $InstallVerifyPaths.ForEach{[System.IO.File]::Exists($_)} -contains $true) {
         Write-Output -InputObject 'Success.'
     }
     else {
@@ -158,34 +164,37 @@ Try {
 }
 Catch {
     # Make sure $ExitCode has a non-success value
-    if ($ExitCode -eq 0){$ExitCode = 1}
+    if ($ExitCode -eq 0){
+        $ExitCode = 1
+    }
+    
+    
     # Construct error message
     ## Generic content
-    $ErrorMessage = [string]$('{0}Finished with errors:' -f ("`r`n"))    
-    $ErrorMessage += [string]$('{0}# Script exit code (defined in script):{0}{1}' -f ("`r`n",$ExitCode.ToString()))
-    ## Last exit code
+    $ErrorMessage = [string] '{0}Catched error:' -f [System.Environment]::NewLine
+    ## Last exit code if any
     if (-not[string]::IsNullOrEmpty($LASTEXITCODE)) {
-        $ErrorMessage += ('{0}# Last exit code ($LASTEXITCODE):{0}{1}' -f ("`r`n",$LASTEXITCODE))
+        $ErrorMessage += [string] '{0}# Last exit code ($LASTEXITCODE):{0}{1}' -f [System.Environment]::NewLine, $LASTEXITCODE
     }
-    ## Exception
-    $ErrorMessage += [string]$('{0}# Exception:{0}{1}' -f ("`r`n",$_.'Exception'))
     ## Dynamically add info to the error message
-    foreach ($ParentProperty in [string[]]$($_ | Get-Member -MemberType 'Property' | Select-Object -ExpandProperty 'Name')) {
+    foreach ($ParentProperty in $_.GetType().GetProperties().'Name') {
         if ($_.$ParentProperty) {
-            $ErrorMessage += ('{0}# {1}:' -f ("`r`n",$ParentProperty))
-            foreach ($ChildProperty in [string[]]$($_.$ParentProperty | Get-Member -MemberType 'Property' | Select-Object -ExpandProperty 'Name')) {
+            $ErrorMessage += [string] '{0}# {1}:' -f [System.Environment]::NewLine, $ParentProperty
+            foreach ($ChildProperty in $_.$ParentProperty.GetType().GetProperties().'Name') {
                 ### Build ErrorValue
                 $ErrorValue = [string]::Empty
                 if ($_.$ParentProperty.$ChildProperty -is [System.Collections.IDictionary]) {
                     foreach ($Name in [string[]]$($_.$ParentProperty.$ChildProperty.GetEnumerator().'Name')) {
-                        $ErrorValue += ('{0} = {1}{2}' -f ($Name,[string]$($_.$ParentProperty.$ChildProperty.$Name),"`r`n"))
+                        if (-not[string]::IsNullOrEmpty([string]$($_.$ParentProperty.$ChildProperty.$Name))) {
+                            $ErrorValue += [string] '{0} = {1}{2}' -f $Name, [string]$($_.$ParentProperty.$ChildProperty.$Name), [System.Environment]::NewLine
+                        }
                     }
                 }
                 else {
                     $ErrorValue = [string]$($_.$ParentProperty.$ChildProperty)
                 }
                 if (-not[string]::IsNullOrEmpty($ErrorValue)) {
-                    $ErrorMessage += ('{0}## {1}\{2}:{0}{3}' -f ("`r`n",$ParentProperty,$ChildProperty,$ErrorValue.Trim()))
+                    $ErrorMessage += [string] '{0}## {1}\{2}:{0}{3}' -f [System.Environment]::NewLine, $ParentProperty, $ChildProperty, $ErrorValue.Trim()
                 }
             }
         }
