@@ -8,5 +8,5 @@ $ErrorActionPreference = 'SilentlyContinue'
         )
     ).ForEach{
         [System.IO.File]::Exists($_)
-    } -contains $true
+    } -notcontains $true
 )
