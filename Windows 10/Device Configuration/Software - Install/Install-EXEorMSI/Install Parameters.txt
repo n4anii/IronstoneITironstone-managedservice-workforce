@@ -52,15 +52,15 @@ exe
 https://go.microsoft.com/fwlink/?Linkid=852157
 exe
 "installer.exe" /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /NORESTARTAPPLICATIONS /MERGETASKS=!runcode
-ProgramW6432\Microsoft VS Code\Code.exe
-ProgramW6432\Microsoft VS Code\unins000.exe /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /NORESTARTAPPLICATIONS
+%ProgramW6432%\Microsoft VS Code\Code.exe
+"%ProgramW6432%\Microsoft VS Code\unins000.exe" /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /NORESTARTAPPLICATIONS
 
 #### Visual Studio Code Insiders
 https://go.microsoft.com/fwlink/?Linkid=852155
 exe
 "installer.exe" /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /NORESTARTAPPLICATIONS /MERGETASKS=!runcode
-ProgramW6432\Microsoft VS Code Insiders\Code.exe
-ProgramW6432\Microsoft VS Code Insiders\unins000.exe /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /NORESTARTAPPLICATIONS
+%ProgramW6432%\Microsoft VS Code Insiders\Code.exe
+%ProgramW6432%\Microsoft VS Code Insiders\unins000.exe /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /NORESTARTAPPLICATIONS
 
 #### Yammer
 https://aka.ms/yammer_desktop_msi_x64
