@@ -1,0 +1,32 @@
+	<key>RestoreOnStartup</key>
+	<integer>4</integer>
+	<key>RestoreOnStartupURLs</key>
+	<array>
+  <string>https://ironstoneit.com</string>
+</array>
+	<key>SmartScreenEnabled</key>
+	<true/>
+	<key>SmartScreenPuaEnabled</key>
+	<true/>
+	<key>ShowHomeButton</key>
+	<true/>
+	<key>AlwaysOpenPdfExternally</key>
+	<true/>
+	<key>BingAdsSuppression</key>
+	<true/>
+	<key>CommandLineFlagSecurityWarningsEnabled</key>
+	<true/>
+	<key>ConfigureDoNotTrack</key>
+	<false/>
+	<key>CustomHelpLink</key>
+	<string>https://ironstoneit.com/support</string>
+	<key>HideFirstRunExperience</key>
+	<true/>
+  <key>PersonalizationReportingEnabled</key>
+  <false/>
+  <key>TrackingPrevention</key>
+  <integer>3</integer>
+  <key>ExtensionInstallForcelist</key>
+  <array>
+  <string>bbcinlkgjjkejfdpemiealijmmooekmp;https://edge.microsoft.com/extensionwebstorebase/v1/crx</string>
+</array>
