@@ -12,7 +12,7 @@
 wallpaperdir="/Library/Ironstone/desktop"
 wallpaperfile="Wallpaper.jpg"
 logdir="/Library/Ironstone/log"
-log="/var/log/fetchdesktopwallpaper.log"
+log="/Library/Ironstone/log/fetchdesktopwallpaper.log"
 
 # start logging
 
@@ -55,7 +55,7 @@ fi
 ##
 
 echo "$(date) | Downloading Wallpaper from [$wallpaperurl] to [$wallpaperdir/$wallpaperfile]"
-curl -L "https://azstorageaccounts.blob.core.windows.net/wallpaper/Knug.jpg?sp=racwdl&st=2020-08-12T11:05:51Z&se=2021-04-27T11:05:00Z&sv=2019-12-12&sr=b&sig=0LVchCKsPqRhnTtpJE7Av%2Fvp9JQjkS8AC6CC7%2BP4RGo%3D" -o $wallpaperdir/$wallpaperfile
+curl -L "https://azstorageaccounts.blob.core.windows.net/wallpaper/PMA.jpg?sp=racwdl&st=2020-08-17T05:20:50Z&se=2022-09-18T05:20:00Z&sv=2019-12-12&sr=b&sig=gh3aY2kbyGqDRl64Y1rx%2BNSl8gnKcImctNZUVX9%2BNNQ%3D" -o $wallpaperdir/$wallpaperfile
 if [ "$?" = "0" ]; then
    echo "$(date) | Wallpaper [$wallpaperurl] downloaded to [$wallpaperdir/$wallpaperfile]"
    #killall Dock
