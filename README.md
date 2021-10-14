@@ -1,5 +1,5 @@
-# Ironstone Intune development
-This is Ironstones internal codebase for Intune. As an Ironstone consultant you are free to use any code and documentation published in this repo.
+# Ironstone Workforce development
+This is Ironstones internal codebase for Workforce. As an Ironstone consultant you are free to use any code and documentation published in this repo.
 
 Remember to follow the basic rules!
 
