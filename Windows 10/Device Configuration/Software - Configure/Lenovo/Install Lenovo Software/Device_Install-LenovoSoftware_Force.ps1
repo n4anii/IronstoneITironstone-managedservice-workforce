@@ -297,7 +297,7 @@ Try {
                 [string] $NameProgLSU          = 'Lenovo System Update'
                 [string] $NameFileLSUInstaller = 'LenovoSystemUpdate.exe'
                 [string] $PathFileLSUInstaller = ('{0}\{1}' -f ($PathDirDownload,$NameFileLSUInstaller))
-                [string] $URLFileLSUInstaller  = (Invoke-WebRequest -Uri 'https://support.lenovo.com/no/en/downloads/ds012808' -Verbose:$false).Content.Split('"') | Where-Object {$_ -like 'https://download.lenovo.com/pccbbs/thinkvantage_en/systemupdate*.exe'}
+                [string] $URLFileLSUInstaller  = (Invoke-WebRequest -Uri 'https://support.lenovo.com/no/en/downloads/ds012808' -Verbose:$false).Content.Split('"') | Where-Object {$_ -like 'https://download.lenovo.com/pccbbs/thinkvantage_en/system_update_*.exe'}
                 [string] $ArgFileLSUInstaller  = '/SP- /VERYSILENT'
                 # Lenovo System Update - Versions
                 [string] $VersionLSUAvailableString     = $URLFileLSUInstaller.Split('/')[-1].Replace('systemupdate','').Replace('.exe','')
