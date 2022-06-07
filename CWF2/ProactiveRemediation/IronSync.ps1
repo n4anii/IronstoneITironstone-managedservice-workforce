@@ -22,7 +22,7 @@
 #region    Initialize - Settings and Variables
 #region    Inserted Static Variables
 # IronSync
-$NameScript = [string]$('Run-IronSync.ps1')
+$NameScript = [string]$('IronSync.ps1')
 # Azure Storage Account Connection Info
 $StorageAccountName = [string]$('ispstoragetest')
 $StorageAccountSASToken = [string]$('?sv=2020-08-04&ss=bfqt&srt=sco&sp=rwdlacupitfx&se=2032-02-02T17:35:16Z&st=2022-02-02T09:35:16Z&spr=https&sig=FpuvmFmA8%2B3xB7l6llj%2BcnL5qqR7PAgZeVfisQLqQ3k%3D')
