@@ -3,8 +3,10 @@ $disc = Get-CimInstance -ClassName Win32_LogicalDisk | Where-Object DeviceID -EQ
 $freespace = 1 - ($disc.FreeSpace / $disc.Size)
 
 if($freespace -le 0.60){
-    Exit 0
+    Write-Output -InputObject "Discspace below threshold, remediate problem"
+    Exit 1
 }
 else{
-    Exit 1
+    Write-Output -InputObject "Discspace ok"
+    Exit 0
 }
