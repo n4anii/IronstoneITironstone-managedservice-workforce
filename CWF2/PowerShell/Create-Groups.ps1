@@ -3,11 +3,13 @@
 
 #Create default groups used in Cloud Workforce 2.0
 
+$customer = "XXX"
+
 $groupnames = @(
-    "CW2.0 - Device - Prod - Windows"
-    "CW2.0 - Device - Test - Windows"
-    "CW2.0 - User - Prod"
-    "CW2.0 - User - Test"
+    "IST-$customer-CW2-Prod-Windows"
+    "IST-$customer-CW2-Pilot-Windows"
+    "IST-$customer-CW2-Prod"
+    "IST-$customer-CW2-Pilot"
 )
 
 foreach ($group in $groupnames) {
@@ -21,7 +23,7 @@ foreach ($group in $groupnames) {
 #Dynamic group for devices bought through Komplett
 $rule = '(device.devicePhysicalIds -any _ -eq "[OrderID]:CW2") -or (device.devicePhysicalIds -any _ -eq "[OrderID]:Komplett")'
 New-AzureADMSGroup `
-    -DisplayName "CW2.0 - Device - Prod - Windows - Komplett" `
+    -DisplayName "IST-$customer-CW2-Prod-Windows-Komplett" `
     -MailEnabled $false `
     -MailNickname "none" `
     -SecurityEnabled $true `
@@ -31,5 +33,5 @@ New-AzureADMSGroup `
 
 
 Add-AzureADGroupMember `
-    -ObjectId (Get-AzureADMSGroup -Filter "DisplayName eq 'CW2.0 - Device - Prod - Windows'").Id `
-    -RefObjectId (Get-AzureADMSGroup -Filter "DisplayName eq 'CW2.0 - Device - Prod - Windows - Komplett'").Id
+    -ObjectId (Get-AzureADMSGroup -Filter "DisplayName eq 'IST-$customer-CW2-Prod-Windows'").Id `
+    -RefObjectId (Get-AzureADMSGroup -Filter "DisplayName eq 'IST-$customer-CW2-Prod-Windows-Komplett'").Id
