@@ -6,10 +6,10 @@
 $customer = "XXX"
 
 $groupnames = @(
-    "IST-$customer-CW2-Prod-Windows"
-    "IST-$customer-CW2-Pilot-Windows"
-    "IST-$customer-CW2-Prod"
-    "IST-$customer-CW2-Pilot"
+    "IST-$customer-CWO-Prod-Windows"
+    "IST-$customer-CWO-Pilot-Windows"
+    "IST-$customer-CWO-Prod-User"
+    "IST-$customer-CWO-Pilot-User"
 )
 
 foreach ($group in $groupnames) {
@@ -23,7 +23,7 @@ foreach ($group in $groupnames) {
 #Dynamic group for devices bought through Komplett
 $rule = '(device.devicePhysicalIds -any _ -eq "[OrderID]:CW2") -or (device.devicePhysicalIds -any _ -eq "[OrderID]:Komplett")'
 New-AzureADMSGroup `
-    -DisplayName "IST-$customer-CW2-Prod-Windows-Komplett" `
+    -DisplayName "IST-$customer-CWO-Prod-Windows-Komplett" `
     -MailEnabled $false `
     -MailNickname "none" `
     -SecurityEnabled $true `
@@ -31,7 +31,22 @@ New-AzureADMSGroup `
     -MembershipRule $rule `
     -MembershipRuleProcessingState "On"
 
-
 Add-AzureADGroupMember `
-    -ObjectId (Get-AzureADMSGroup -Filter "DisplayName eq 'IST-$customer-CW2-Prod-Windows'").Id `
-    -RefObjectId (Get-AzureADMSGroup -Filter "DisplayName eq 'IST-$customer-CW2-Prod-Windows-Komplett'").Id
+    -ObjectId (Get-AzureADMSGroup -Filter "DisplayName eq 'IST-$customer-CWO-Prod-Windows'").Id `
+    -RefObjectId (Get-AzureADMSGroup -Filter "DisplayName eq 'IST-$customer-CWO-Prod-Windows-Komplett'").Id
+
+
+#Dynamic group to add devices to autopilot if they are enrolled manually
+$rule = '(device.accountEnabled -eq true) -and (device.managementType -eq "MDM") -and (device.deviceOwnership -eq "Company") -and (device.deviceOSType -eq "Windows") '
+New-AzureADMSGroup `
+    -DisplayName "IST-$customer-CWO-Prod-Autopilot-Convert" `
+    -MailEnabled $false `
+    -MailNickname "none" `
+    -SecurityEnabled $true `
+    -GroupTypes "DynamicMembership" `
+    -MembershipRule $rule `
+    -MembershipRuleProcessingState "On"
+
+    Add-AzureADGroupMember `
+    -ObjectId (Get-AzureADMSGroup -Filter "DisplayName eq 'IST-$customer-CWO-Prod-Windows'").Id `
+    -RefObjectId (Get-AzureADMSGroup -Filter "DisplayName eq 'IST-$customer-CWO-Prod-Autopilot-Convert'").Id
