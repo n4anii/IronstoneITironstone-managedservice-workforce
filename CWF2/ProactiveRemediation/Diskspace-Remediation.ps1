@@ -22,11 +22,11 @@ if ($freespace -le 0.1) {
 
     <# Base 64 encoding
 
-# Convert from file to Base64
-$Filepath = 'C:\temp\IRONSTONE_RGB-white-logoonly.png'
-$Base64_Code = [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($Filepath));
-$Base64_Code | out-file c:\temp\string2.txt #Stringy thingy
-#>
+    # Convert from file to Base64
+    $Filepath = 'C:\temp\IRONSTONE_RGB-white-logoonly.png'
+    $Base64_Code = [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($Filepath));
+    $Base64_Code | out-file c:\temp\string2.txt #Stringy thingy
+    #>
 
     #Get fullname of logged in user
     $DisplayNAme = (Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\ -name LastLoggedOnDisplayName).LastLoggedOnDisplayName
@@ -87,5 +87,5 @@ $Base64_Code | out-file c:\temp\string2.txt #Stringy thingy
     #$LauncherID = "Microsoft.SoftwareCenter.DesktopToasts"
     #$LauncherID = "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\powershell.exe"
     [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($LauncherID).Show($ToastXml)
-
+    Exit 0
 }
