@@ -1,7 +1,7 @@
 
 $disc = Get-CimInstance -ClassName Win32_LogicalDisk | Where-Object DeviceID -EQ "C:"
 
-$freespace = 1 - ($disc.FreeSpace / $disc.Size)
+$freespace = ($disc.FreeSpace / $disc.Size)
 
 #Try to fix the problem automatically
 if ($freespace -le 0.1) {
@@ -12,7 +12,7 @@ if ($freespace -le 0.1) {
 
 $disc = Get-CimInstance -ClassName Win32_LogicalDisk | Where-Object DeviceID -EQ "C:"
 
-$freespace = 1 - ($disc.FreeSpace / $disc.Size)
+$freespace = ($disc.FreeSpace / $disc.Size)
 
 if ($freespace -le 0.1) {
     #make sure assemblies are loaded
