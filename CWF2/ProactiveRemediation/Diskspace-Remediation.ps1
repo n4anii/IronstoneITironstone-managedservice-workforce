@@ -1,20 +1,16 @@
 
-$disc = Get-CimInstance -ClassName Win32_LogicalDisk | Where-Object DeviceID -EQ "C:"
+$disk = Get-CimInstance -ClassName Win32_LogicalDisk | Where-Object DeviceID -EQ "C:"
 
-$freespace = 1 - ($disc.FreeSpace / $disc.Size)
-
-#Try to fix the problem automatically
-if ($freespace -le 0.1) {
+#Do a backgroud clean first to see if that clears enough diskspace
+if ($disk.FreeSpace -le 20000000000) {
     & 'cmd' '/c' 'cleanmgr.exe /autoclean'
-    & 'cmd' '/c' 'cleanmgr.exe /verylowdisk'
-    #Start-Process -FilePath CleanMgr.exe -ArgumentList '/verylowdisk' -WindowStyle Hidden -Wait -NoNewWindow
 }
 
-$disc = Get-CimInstance -ClassName Win32_LogicalDisk | Where-Object DeviceID -EQ "C:"
+$disk = Get-CimInstance -ClassName Win32_LogicalDisk | Where-Object DeviceID -EQ "C:"
 
-$freespace = 1 - ($disc.FreeSpace / $disc.Size)
+#Warn the user that they are low on diskspace and then try a deeper more in depth clearing of diskspace that requires manually closing cleanmgr
+if ($disk.FreeSpace -le 20000000000) {
 
-if ($freespace -le 0.1) {
     #make sure assemblies are loaded
     $null = [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime]
     $null = [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime]
@@ -87,5 +83,15 @@ if ($freespace -le 0.1) {
     #$LauncherID = "Microsoft.SoftwareCenter.DesktopToasts"
     #$LauncherID = "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\powershell.exe"
     [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($LauncherID).Show($ToastXml)
+    
+    & 'cmd' '/c' 'cleanmgr.exe /verylowdisk'
+}
+
+$disk = Get-CimInstance -ClassName Win32_LogicalDisk | Where-Object DeviceID -EQ "C:"
+
+if ($disk.FreeSpace -le 20000000000) {
+    Exit 1
+}
+else {
     Exit 0
 }
