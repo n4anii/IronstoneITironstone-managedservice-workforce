@@ -14,7 +14,7 @@
         Teams backgrounds/*,env:APPDATA\Microsoft\Teams\Backgrounds\Uploads
 
     .NOTES
-        Author:   Olav Roennestad Birkeland @ Ironstone IT
+        Author:   Peter Korsmo @ Ironstone IT
         Modified: 200520
 #>
 
@@ -24,8 +24,8 @@
 # IronSync
 $NameScript = [string]$('IronSync.ps1')
 # Azure Storage Account Connection Info
-$StorageAccountName = [string]$('ispstoragetest')
-$StorageAccountSASToken = [string]$('?sv=2020-08-04&ss=bfqt&srt=sco&sp=rwdlacupitfx&se=2032-02-02T17:35:16Z&st=2022-02-02T09:35:16Z&spr=https&sig=FpuvmFmA8%2B3xB7l6llj%2BcnL5qqR7PAgZeVfisQLqQ3k%3D')
+$StorageAccountName = [string]$('STORAGEACCOUNTNAME')
+$StorageAccountSASToken = [string]$('SASTOKEN')
 #endregion Inserted Static Variables
 
 #region    Dynamic Variables 1
@@ -247,6 +247,8 @@ Finally {
     # Don't keep the log file if success
     if ($BoolScriptSuccess) {
         Remove-Item -Path $PathFileLog -Force
+        Exit 0
     }
+    Exit 1
 }
     
