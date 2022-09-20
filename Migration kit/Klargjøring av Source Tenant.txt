@@ -1,0 +1,76 @@
+﻿1. Add GA to Organization Management Group in Exchange Admin Center
+
+2. Add E5 trial if GA dosn't hav Teams/SharePoint License.
+
+3. Create new Security Group named "MigrationWiz"
+
+4. Add GA to Security Group named "MigrationWiz"
+
+5. Authorize App-based Authentication (Delegate Permissions)
+
+		MigrationWiz-Teams-Delegated
+		https://login.microsoftonline.com/common/adminconsent?client_id=e541adb0-93aa-4053-a1e3-04692035881d&state=12345
+
+		MigrationWiz-SharePoint-Delegated
+		https://login.microsoftonline.com/common/adminconsent?client_id=e7c20566-14a7-4722-acd1-396f7268ea1a&state=12345
+
+		MigrationWiz-Teams-FullControl
+		https://login.microsoftonline.com/common/adminconsent?client_id=e15e924b-85af-4797-9ec2-f785401e91f1&state=12345
+
+		MigrationWiz-SharePoint-FullControl
+		https://login.microsoftonline.com/common/adminconsent?client_id=0173390d-c130-431b-bd6b-f096a2ccad4e&state=12345
+
+6. Add first.last@<Tenant ID>.onmicrosoft.com to all mail addresses.
+
+7. Remove any onmicrosoft.com alias that have the same befor @maindomain.com
+
+8. 	Enabling Modern Authentication in source teneat
+		Log in to the Azure AD admin console with a Global Administrator login.
+		Select Azure Active Directory in the Azure Active Directory Admin Center.
+		Select App Registrations, which is found under Manage.
+		Select New Registration at the top of the screen.
+		Give the app a distinct name. You can change this later if necessary.
+		Select the Accounts in any organizational directory button.
+		Under Redirect Uri, select Public Client (mobile & desktop) and set it to urn:ietf:wg:oauth:2.0:oob
+		Click Register.
+		Go back to App registrations.
+		Select the App you just created.
+		In the Overview, you will find a ClientId (aka Application) and Directory (Tenant) ID.
+		Copy both of these to another application, such as Notepad, for use later in this process.
+		Under the Manage menu, select Authentication.
+		Set the option Allow public client flows to Yes.
+		Click Save.
+		From the Manage menu, select API permissions.
+		Select Add a Permission.
+		Select APIs my organization uses
+
+		Scroll down and select Office 365 Exchange Online
+
+		Then select Delegated Permissions
+
+		Select EWS
+
+		Check the box under EWS for EWS.AccessAsUser.All.
+		Click Add permissions. This permission only allows the OAuth application (MigrationWiz) to be associated with EWS.
+		Important: This does not grant access to all mailbox data.
+		Click Grant admin consent.
+		Click Yes to confirm the settings.
+		In MigrationWiz, select the project that needs to be configured for Modern Authentication.
+		Click the Edit Project menu.
+		Select Advanced Options.
+		Under Support Options enter the ClientID and TenantID information you saved earlier in the following format:
+		If enabling Modern Authentication for the Source:
+		ModernAuthClientIdExport=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+		ModernAuthTenantIdExport=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+		If enabling Modern Authentication for the Destination:
+		ModernAuthClientIdImport=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+		ModernAuthTenantIdImport=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+		Enter the specific ClientID and TenantID for your tenant in place of the xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.
+		These options can be entered for either the Source or the Destination, or both, depending on the settings on the tenants.
+		These options need to be configured for each MigrationWiz project that needs to have Modern Authentication enabled.
+
+		Run a Verify Credentials to confirm that MigrationWiz can connect using Modern Authentication.
+		Click on the item that was verified.
+		There will be a message in the MigrationWiz Migration Information page that Modern Authentication is being used.
+		This message will show in the “Migration Errors” box; however, it is not an error.
+		This is just a message confirming that Modern Authentication is now active and being used for connection.

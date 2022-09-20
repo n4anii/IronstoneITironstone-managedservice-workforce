@@ -1,0 +1,9 @@
+﻿Husk å legge til domener i Threat Policies.
+
+Anti-Phishing Policy: Security (Microsoft 365 Defender) -> Policy & Rules -> Threat Policies -> Anti-phishing
+
+Standard Safe Links policy: Security (Microsoft 365 Defender) -> Policy & Rules -> Threat Policies -> Safe links
+
+Standard Safe Attachments: Security (Microsoft 365 Defender) -> Policy & Rules -> Threat Policies -> Safe attachments
+
+Allow Email Outbound Forwarding: Security (Microsoft 365 Defender) -> Policy & Rules -> Threat Policies -> Anti-spam

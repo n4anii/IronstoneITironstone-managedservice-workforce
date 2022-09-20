@@ -1,0 +1,59 @@
+﻿Firma:
+
+Kontaktpersoner:
+
+
+
+
+Cuttover:
+
+Source: 
+
+Source Tenant Licensing:
+
+Source Tenant  ID:
+.onmicrosoft.com
+
+Source Tenant GA:
+
+MigrationWiz-App:
+ModernAuthClientIdExport=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+ModernAuthTenantIdExport=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
+
+DNS:
+
+
+Domains:
+
+
+Destination Tenant ID:
+
+
+BitTitan Destination GA:
+
+
+Azure Storage Account:
+
+
+
+SMTP relay:
+Her har du en SMTP relay du kan benytte på skrivere eller andre fagapplikasjoner som trenger å sende mail.
+Den gamle skanner brukeren vil ikke fungere i Håndverksgruppen.
+
+Username:
+Password:
+Host: mail-eu.smtp2go.com
+Port: 2525
+Alternative ports: 8025, 587, 80 or 25. TLS is available on the same ports. SSL is available on ports 465, 8465 and 443
+Avsender må være under <domain> domenet.
+
+Records:
+
+Type: CNAME
+Host:
+Value: return.smtp2go.net
+
+Type: CNAME
+Host:
+Value: dkim.smtp2go.net
