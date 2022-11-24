@@ -12,6 +12,7 @@
         PowerPoint templates,env:APPDATA\Microsoft\Templates
         Word templates,env:APPDATA\Microsoft\Templates
         Teams backgrounds/*,env:APPDATA\Microsoft\Teams\Backgrounds\Uploads
+        Appfolder,C:\Appfolder
 
     .NOTES
         Author:   Peter Korsmo @ Ironstone IT
@@ -101,7 +102,7 @@ Try {
 
         #get directory since it changes with the version that's downloaded and copy binary to Ironstone folder
         $azdir = Get-Item -Path $DLPath* | Where-Object -Property Name -Like azcopy_*
-        if(-not(Test-Path -Path "C:\ProgramData\IronstoneIT\Binaries\AzCopy\")){
+        if (-not(Test-Path -Path "C:\ProgramData\IronstoneIT\Binaries\AzCopy\")) {
             New-Item -Path "C:\ProgramData\IronstoneIT\Binaries\AzCopy\" -ItemType Directory
         }
         Copy-Item -Path "$azdir\azcopy.exe" -Destination "C:\ProgramData\IronstoneIT\Binaries\AzCopy\"
