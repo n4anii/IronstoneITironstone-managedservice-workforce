@@ -10,7 +10,7 @@ LOGO: C:\Git\Ironstone-ManagedService-Workforce\Client Apps\Logos\Windows 10
 Install command: 
 7z2107-x64.exe /s
 Uninstall command:
-"%ProgramFiles%\7-Zip\Uninstall.exe" /S
+"%ProgramFiles%\7-Zip\Uninstall.exe" /s
 
 
 Detection:
