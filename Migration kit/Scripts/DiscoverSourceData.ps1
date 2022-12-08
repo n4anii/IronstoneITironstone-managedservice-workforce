@@ -54,6 +54,7 @@ foreach ($user in $users) {
         $mailboxMoveTime = "{0} Hours" -f ($mailboxSize.TotalItemSize.Value.ToGB() / 1.5)
     }
     else {
+        $primarySMTP = ""
         $mailboxSize = ""
         $mailboxMoveTime = ""
     }
