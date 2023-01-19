@@ -1,7 +1,7 @@
 # Connect and change schema 
-#Connect-MSGraph -ForceInteractive
-#Update-MSGraphEnvironment -SchemaVersion beta
-#Connect-MSGraph
+Connect-MSGraph -ForceInteractive
+Update-MSGraphEnvironment -SchemaVersion beta
+Connect-MSGraph
  
 $Groups = Get-AADGroup | Get-MSGraphAllPages
  

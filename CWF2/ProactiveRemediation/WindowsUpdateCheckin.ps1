@@ -1,0 +1,1 @@
+(New-Object -com "Microsoft.Update.AutoUpdate").Results

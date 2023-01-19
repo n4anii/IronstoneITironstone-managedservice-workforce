@@ -37,7 +37,7 @@ Add-AzureADGroupMember `
 
 
 #Dynamic group to add devices to autopilot if they are enrolled manually
-$rule = '(device.accountEnabled -eq true) -and (device.managementType -eq "MDM") -and (device.deviceOwnership -eq "Company") -and (device.deviceOSType -eq "Windows") '
+$rule = '(device.accountEnabled -eq true) -and (device.managementType -eq "MDM") -and (device.deviceOwnership -eq "Company") -and (device.deviceOSType -eq "Windows")'
 New-AzureADMSGroup `
     -DisplayName "IST-$customer-CWO-Prod-Autopilot-Convert" `
     -MailEnabled $false `
@@ -47,6 +47,6 @@ New-AzureADMSGroup `
     -MembershipRule $rule `
     -MembershipRuleProcessingState "On"
 
-    Add-AzureADGroupMember `
+Add-AzureADGroupMember `
     -ObjectId (Get-AzureADMSGroup -Filter "DisplayName eq 'IST-$customer-CWO-Prod-Windows'").Id `
     -RefObjectId (Get-AzureADMSGroup -Filter "DisplayName eq 'IST-$customer-CWO-Prod-Autopilot-Convert'").Id
