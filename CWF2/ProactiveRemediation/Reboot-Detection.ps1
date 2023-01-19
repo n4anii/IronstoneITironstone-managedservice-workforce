@@ -54,7 +54,7 @@ if ($uptime -gt 7) {
             </group>
             <group>
                 <subgroup>
-                    <text hint-style="body" hint-wrap="true">We recomend rebooting the computer at least once a week</text>
+                    <text hint-style="body" hint-wrap="true">We recommend rebooting the computer at least once a week</text>
                 </subgroup>
             </group>
 
