@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>PayloadContent</key>
+    <array>
+      <dict>
+        <key>PayloadDisplayName</key>
+        <string>Mapped Network Drive</string>
+        <key>PayloadIdentifier</key>
+        <string>com.voice.mappednetworkdrive</string>
+        <key>PayloadType</key>
+        <string>com.apple.dock</string>
+        <key>PayloadUUID</key>
+        <string>7B3C3D51-6E1E-45F6-A8C6-9F7D9E9A24A7</string>
+        <key>PayloadVersion</key>
+        <integer>1</integer>
+        <key>static-others</key>
+          <array>
+            <dict>
+              <key>tile-data</key>
+              <dict>
+                <key>label</key>
+                <string>Voice Data</string>
+                <key>url</key>
+                <dict>
+                  <key>_CFURLString</key>
+                  <string>cifs://vohv-fil-01.voicenorge.no/voice-data$</string>
+                  <key>_CFURLStringType</key>
+                  <integer>15</integer>
+                </dict>
+              </dict>
+              <key>tile-type</key>
+              <string>url-tile</string>
+            </dict>
+          </array>
+      </dict>
+    </array>
+    <key>PayloadDisplayName</key>
+    <string>Mapped Network Drive Profile</string>
+    <key>PayloadIdentifier</key>
+    <string>com.example.mappednetworkdriveprofile</string>
+    <key>PayloadOrganization</key>
+    <string>Voice Norge AS</string>
+    <key>PayloadRemovalDisallowed</key>
+    <false/>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>5A5B5C5D-6E6F-7071-8283-939495999999</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+  </dict>
+</plist>
