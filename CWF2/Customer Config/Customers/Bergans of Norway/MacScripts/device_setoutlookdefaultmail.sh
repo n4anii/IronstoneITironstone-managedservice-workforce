@@ -22,7 +22,7 @@
 
 tempdir="/tmp"
 tempfile="/tmp/MailToOutlook.pkg"
-weburl="https://macadmins.software/tools/MailToOutlook_2.0.pkg"
+weburl="https://macadmins.software/tools/MailToOutlook.pkg"
 appname="MailToOutlook"
 logdir="/Library/Ironstone/log"
 log="/Library/Ironstone/log/SetOutlookDefault.log"
