@@ -46,6 +46,11 @@ function Sync-SharepointLocation {
 }
 #endregion
 #region Main Process
+
+if(!(cmd /c "whoami/upn").Contains('@') -or (((Get-Process OneDrive).count) -eq 0)){
+    Exit 1
+}
+
 try {
     #region Sharepoint Sync
     [mailaddress]$userUpn = cmd /c "whoami/upn"
