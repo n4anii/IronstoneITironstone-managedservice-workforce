@@ -27,10 +27,14 @@
 ## Lines 94 onwards confiure Dock look and feel, uncomment as necessary
 ##
 
+
+
 # Define variables
-log="/Library/Ironstone/logs/addAppstoDock.log"
-appname="Ironstone dock"
+log="/Library/Ironstone/log/ConfigureDock.log"
+appname="Dock Script"
 exec 1>> $log 2>&1
+
+# Defin applications. 
 
 dockitems=( "/Applications/Microsoft Edge.app"
             "/Applications/Microsoft Outlook.app"
@@ -40,6 +44,7 @@ dockitems=( "/Applications/Microsoft Edge.app"
             "/Applications/Microsoft OneNote.app"
             "/Applications/Microsoft Teams.app"
 			"/Applications/Company Portal.app"
+            "/System/Applications/App Store.app"
             "/System/Applications/System Preferences.app")
 
 echo ""
