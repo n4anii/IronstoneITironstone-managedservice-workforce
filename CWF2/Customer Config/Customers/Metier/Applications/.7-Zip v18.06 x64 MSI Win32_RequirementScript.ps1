@@ -1,1 +1,0 @@
-﻿[bool]$([byte]$(([System.Diagnostics.Process[]]$(Get-Process -Name '7z*' -ErrorAction 'SilentlyContinue')).'Count') -le 0)
