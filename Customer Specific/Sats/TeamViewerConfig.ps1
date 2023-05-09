@@ -1,9 +1,8 @@
 $Arguments = [string[]]$(          
-            ('"C:\Program Files\TeamViewer (x86)\Teamviewer.exe"'),
+            ('"C:\Program Files (x86)\TeamViewer\Teamviewer.exe"'),
             ('assign'),
-            ('--api-token=6389008-92GBDLzaTrTqBjgQUMNP')
-            ('--grant-easy-access')
-            
+            ('--api-token=6389008-92GBDLzaTrTqBjgQUMNP'),
+            ('--grant-easy-access')           
 )
 
 
