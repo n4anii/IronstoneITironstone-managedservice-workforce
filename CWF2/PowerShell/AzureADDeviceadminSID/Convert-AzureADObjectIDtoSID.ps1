@@ -23,7 +23,7 @@ function Convert-AzureAdObjectIdToSid {
         return $sid
     }
     
-    $objectId = "73d664e4-0886-4a73-b745-c694da45ddb4"
+    $objectId = "a9850477-5a3c-4227-a510-6f65b2379bb5"
     $sid = Convert-AzureAdObjectIdToSid -ObjectId $objectId
     Write-Output $sid
     
