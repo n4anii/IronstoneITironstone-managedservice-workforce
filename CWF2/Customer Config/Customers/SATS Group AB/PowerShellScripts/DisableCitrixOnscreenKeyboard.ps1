@@ -5,3 +5,10 @@ if ((Test-Path -LiteralPath "HKLM:\SOFTWARE\Wow6432Node\Citrix\ICA Client\Engine
 }
 New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Wow6432Node\Citrix\ICA Client\Engine\Configuration\Advanced\Modules\MobileReceiver' -Name 'DisableKeyboardPopup' -Value '1' -PropertyType DWord -Force -ea SilentlyContinue
 New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Wow6432Node\Citrix\ICA Client\Engine\Configuration\Advanced\Modules\MobileReceiver' -Name 'AlwaysKeyboardPopup' -Value '0' -PropertyType DWord -Force -ea SilentlyContinue
+
+if ((Test-Path -LiteralPath "HKCU:\SOFTWARE\Citrix\ICA Client\Engine\Configuration\Advanced\Modules\MobileReceiver") -ne $true) {
+    New-Item "HKCU:\SOFTWARE\Citrix\ICA Client\Engine\Configuration\Advanced\Modules\MobileReceiver" -Force -ErrorAction SilentlyContinue
+}
+
+New-ItemProperty -LiteralPath 'HKCU:\SOFTWARE\Citrix\ICA Client\Engine\Configuration\Advanced\Modules\MobileReceiver' -Name 'DisableKeyboardPopup' -Value '1' -PropertyType DWord -Force -ea SilentlyContinue
+New-ItemProperty -LiteralPath 'HKCU:\SOFTWARE\Citrix\ICA Client\Engine\Configuration\Advanced\Modules\MobileReceiver' -Name 'AlwaysKeyboardPopup' -Value '0' -PropertyType DWord -Force -ea SilentlyContinue
