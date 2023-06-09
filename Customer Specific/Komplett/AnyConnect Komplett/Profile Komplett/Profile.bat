@@ -1,0 +1,1 @@
+xcopy /E /I "c20-client-profile.xml" "C:\ProgramData\Cisco\Cisco AnyConnect Secure Mobility Client\Profile\" /Y
