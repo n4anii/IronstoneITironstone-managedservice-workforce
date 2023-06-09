@@ -44,9 +44,7 @@ dockitems=( "/Applications/Launchpad.app"
             "/Applications/Microsoft PowerPoint.app"
             "/Applications/Microsoft OneNote.app"
             "/Applications/Microsoft Teams.app"
-            "/Applications/GoogleChrome.app"
-			"/Applications/CompanyPortal.app"
-            "/System/Applications/App Store.app"
+      		"/Applications/Company Portal.app"
             "/System/Applications/System Preferences.app")
 
 echo ""
