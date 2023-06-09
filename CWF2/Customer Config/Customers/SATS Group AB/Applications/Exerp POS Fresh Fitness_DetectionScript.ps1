@@ -1,8 +1,8 @@
-if(Test-Path -Path "$env:ProgramFiles\Exerp\Client"){
+if(Test-Path -Path "$env:ProgramFiles\Exerp\Client\FRESH"){
     Write-Host "64 bit version Exerp client found"
     Exit 0
 }
-elseif (Test-Path -Path "${env:ProgramFiles(x86)}\Exerp\Client") {
+elseif (Test-Path -Path "${env:ProgramFiles(x86)}\Exerp\Client\FRESH") {
     Write-Host "32 bit version Exerp client found"
     Exit 0
 }
