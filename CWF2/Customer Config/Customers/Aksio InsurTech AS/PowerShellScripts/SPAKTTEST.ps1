@@ -37,7 +37,8 @@ function Sync-SharepointLocation {
     }
     else {
         Write-Host "Sync completed."
-        while (!(Get-ChildItem -Path $syncPath -ErrorAction SilentlyContinue)) {
+        while (!(Get-ChildItem -Path $syncPath -ErrorAction SilentlyContinue) -and !(Get-ChildItem -Path $syncPath.Replace("Dokumenter", "Documents") -ErrorAction SilentlyContinue)) {
+            Write-Host "Waiting for folder creation"
             Start-Sleep -Seconds 2
         }
         return $true
@@ -45,6 +46,11 @@ function Sync-SharepointLocation {
 }
 #endregion
 #region Main Process
+
+if(!(cmd /c "whoami/upn").Contains('@') -or (((Get-Process OneDrive).count) -eq 0)){
+    Exit 1
+}
+
 try {
     #region Sharepoint Sync
     [mailaddress]$userUpn = cmd /c "whoami/upn"
@@ -93,9 +99,11 @@ if ($false -eq (Test-Path -Path "C:\jottacloud")) {
 
 if($false -eq (Test-Path -Path "C:\jottacloud\analysetjenester")){
     if (Test-Path -Path "$home\Aksio InsurTech AS\Prosjekter - Dokumenter") {
+        Write-Host "Dokumenter funnet"
         New-Item -ItemType SymbolicLink -Path "C:\jottacloud\analysetjenester" -Value "$home\Aksio InsurTech AS\Prosjekter - Dokumenter" -Force
     }
     elseif (Test-Path -Path "$home\Aksio InsurTech AS\Prosjekter - Documents") {
+        Write-Host "Documents found"
         New-Item -ItemType SymbolicLink -Path "C:\jottacloud\analysetjenester" -Value "$home\Aksio InsurTech AS\Prosjekter - Documents" -Force
     }
 }
