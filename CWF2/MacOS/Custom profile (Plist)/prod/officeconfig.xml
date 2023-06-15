@@ -30,7 +30,7 @@
 			<key>DisableTutorial</key>
 			<true/>
 			<key>KFMSilentOptIn</key>
-			<string>3eaaf1d3-6f9e-40fd-b7e9-60b45e55e125</string>
+			<string>CUSTOMERTENANTIDHERE</string>
 			<key>OpenAtLogin</key>
 			<true/>
 			<key>PayloadDescription</key>
