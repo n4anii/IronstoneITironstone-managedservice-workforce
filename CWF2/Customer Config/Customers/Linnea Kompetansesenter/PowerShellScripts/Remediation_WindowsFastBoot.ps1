@@ -1,4 +1,4 @@
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power"
+﻿$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power"
 $Name = "HiberbootEnabled"
 $Type = "DWORD"
 $Value = "0"

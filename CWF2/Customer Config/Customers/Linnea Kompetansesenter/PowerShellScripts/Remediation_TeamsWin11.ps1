@@ -1,4 +1,4 @@
-Try{
+﻿Try{
  
     Get-AppxPackage -Name "MicrosoftTeams" -AllUsers | Remove-AppxPackage
     Get-AppXProvisionedPackage -Online | Where {$_.DisplayName -eq "MicrosoftTeams"} | Remove-AppxProvisionedPackage -Online
