@@ -1,11 +1,16 @@
-﻿try {
-    $service = Get-Service -Name "LenovoEllipticVirtualLock" -ErrorAction Stop
-    if ($null -ne $service) {
-        Write-Host "Service exists"
+﻿$service = Get-Service -Name "Virtual Lock Sensor" -ErrorAction 
+if ($null -ne $service) {
+    Write-Host "Service exists"
+    $serviceStartType = (Get-WmiObject -Query "Select * From Win32_Service Where Name='Virtual Lock Sensor'").StartMode
+    if ($serviceStartType -ne 'Disabled') {
         exit 1
     }
+    else {
+        Write-Host "Service is disabled"
+        exit 0
+    }
 }
-catch {
+else {
     Write-Host "Service does not exist"
-    exit 0
+    exit 1
 }
