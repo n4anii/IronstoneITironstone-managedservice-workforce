@@ -1,1 +1,0 @@
-Set-DnsClientGlobalSetting -SuffixSearchList @("sats.local")

@@ -1,1 +1,0 @@
-add-content -path $env:PUBLIC\desktop\IntuneManaged.txt -Value "True"
