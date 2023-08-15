@@ -1,18 +1,13 @@
-﻿try {
-    $service = Get-Service -Name "Virtual Lock Sensor" -ErrorAction Stop
-    $serviceStartType = (Get-WmiObject -Query "Select * From Win32_Service Where Name='Virtual Lock Sensor'").StartMode
+﻿# Will Stop And Disable Services Specified. 
+# Remediation Script
 
-    if ($service.Status -eq 'Running') {
-        Stop-Service -Name "Virtual Lock Sensor" -Force
-        Write-Host "Service stopped"
-    }
+$Services = 'Virtual Lock Sensor'
+foreach ($Service in $Services) {
+    if ((Get-Service -Name $Service).StartType -ne "Disabled") {
+        Set-Service -Name $Service -StartupType Disabled
 
-    if ($serviceStartType -ne 'Disabled') {
-        Set-Service -Name "Virtual Lock Sensor" -StartupType Disabled
-        Write-Host "Service startup type set to Disabled"
     }
-}
-catch {
-    Write-Host "Service does not exist or failed to modify. Error: $_"
-    exit 1
+    if ((Get-Service -Name $Service).Status -ne "Stopped") {
+        Stop-Service -Name $Service -Force
+    }
 }
