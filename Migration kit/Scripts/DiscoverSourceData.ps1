@@ -28,7 +28,7 @@ Connect-MicrosoftTeams
 $sourceTmpDomain = (Get-AzureADDomain | Where-Object -Property Name -Like *onmicrosoft.com).Name
 
 #Get all users in tenant
-$users = Get-AzureADUser -All $true | Where-Object -Property UserType -ne Guest
+$users = Get-AzureADUser -All $true | Where-Object {$_.UserType -ne 'Guest' -and $_.UserPrincipalName -notlike '*#EXT#*'}
 
 #Get all OneDrive Sites
 $ODFBSites = Get-SPOSite -IncludePersonalSite $True -Limit All -Filter "Url -like '-my.sharepoint.com/personal/'" | Select-Object Owner, Title, URL, StorageUsageCurrent | Sort-Object Owner -Desc
@@ -42,7 +42,7 @@ ForEach ($Site in $ODFBSites) {
         URL    = $Site.URL
         UsedGB = [Math]::Round($Site.StorageUsageCurrent / 1024, 4)
     }
-    $ODFBReport.Add($ReportLine) 
+    $ODFBReport.Add($ReportLine)
 }
 
 $userList = [System.Collections.Generic.List[Object]]::new()
@@ -51,7 +51,11 @@ foreach ($user in $users) {
     if ($null -ne ($user | Select-Object -ExpandProperty ProxyAddresses)) {
         $primarySMTP = ($user | Select-Object -ExpandProperty ProxyAddresses | Where-Object { $_ -clike "SMTP:*" }).split(':')[1]
         $mailboxSize = Get-EXOMailboxStatistics -Identity $primarySMTP
-        $mailboxMoveTime = "{0} Hours" -f ($mailboxSize.TotalItemSize.Value.ToGB() / 1.5)
+        if($null -eq $mailboxSize.TotalItemSize.Value.ToGB()){
+            $mailboxMoveTime = "NA"
+        } else {
+            $mailboxMoveTime = "{0} Hours" -f ($mailboxSize.TotalItemSize.Value.ToGB() / 1.5)
+        }
     }
     else {
         $primarySMTP = ""
@@ -61,7 +65,7 @@ foreach ($user in $users) {
 
     #Get oneDriveSize
     $oneDrive = ""
-    $oneDrive = $ODFBReport | Where-Object -Property Email -EQ $user.UserPrincipalName 
+    $oneDrive = $ODFBReport | Where-Object -Property Email -EQ $user.UserPrincipalName
 
 
     #if a user has no GivenName or Surname it raises a null-value exception so setting them here in case they are missing
