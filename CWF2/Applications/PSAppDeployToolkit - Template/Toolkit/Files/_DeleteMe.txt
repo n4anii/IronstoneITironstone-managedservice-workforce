@@ -1,0 +1,1 @@
+I'm only a simple placeholder file, so that this emtpy folder does not get deleted by Git

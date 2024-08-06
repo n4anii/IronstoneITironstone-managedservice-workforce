@@ -1,0 +1,25 @@
+27/06-2024
+Version Ironstone PSADT 1.0.0.0
+
+Added files: 
+CHANGELOG_Ironstone.txt
+_Install.bat
+CMtrace.exe
+CreateIntuneWin.bat
+IntuneWinAppUtil.exe
+PsExec64.exe
+Toolkit\ServiceUI_x86.exe
+Toolkit\ServiceUI_x64.exe
+Toolkit\Invoke-ServiceUI.ps1
+Toolkit\Logs.lnk
+Examples\Ironstone
+
+Changed:
+Toolkit\Deploy-Application.ps1 
+Added: 
+$CloseApps
+Cleaned up script and removed "bloat"
+AppDeployToolkitExtensions.ps1
+Uninstall-Apps
+Get-WingetPath
+Remove-Leftovers
