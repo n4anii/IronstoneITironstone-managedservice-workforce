@@ -1,11 +1,28 @@
 @ECHO OFF
-:: Version 1.3.1.0
-SETLOCAL
+:: Version 1.4.0.0
+SETLOCAL ENABLEDELAYEDEXPANSION
 IF "%USERNAME%"=="WDAGUtilityAccount" (
 	SET _SANDBOX=Yes
 ) ELSE (
 	SET _SANDBOX=No
 )
+
+SET "RequiredFiles=Toolkit\Deploy-Application.exe PsExec64.exe Toolkit\Invoke-ServiceUI.ps1"
+SET "MissingFiles="
+FOR %%F IN (%RequiredFiles%) DO (
+    IF NOT EXIST "%~dp0%%F" (
+        SET "MissingFiles=!MissingFiles!%%F "
+    )
+)
+IF NOT "!MissingFiles!"=="" (
+    ECHO Unable to find the following required files:
+    FOR %%F IN (!MissingFiles!) DO (
+        ECHO %~dp0%%F
+    )
+    PAUSE
+    EXIT /B
+)
+
 :MENU
 CLS
 ECHO.
