@@ -2,7 +2,9 @@
      .SYNOPSIS
         https://learn.microsoft.com/en-us/microsoftteams/rooms/bookable-desks
         Create Bookable desks and Meeting Rooms for Teams. 
-
+        Make sure your account has the following permissions:
+            - Exchange admin
+            - Teams Rooms Pro Manager
     .NOTES
         Version: 1.0.0.0
         Author: Herman Bergsløkken /IronstoneIT
@@ -17,6 +19,7 @@ $UserPrincipalName = "adm-herman.bergslokken@ironstoneit.com"
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
 # Applocker Check
+# VSCode requires the following parameters to run as administrator --disable-chromium-sandbox
 if ($ExecutionContext.SessionState.LanguageMode -eq "ConstrainedLanguage") {
     throw "This script must be run with administrative privileges"
 }
