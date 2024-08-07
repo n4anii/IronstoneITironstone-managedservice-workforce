@@ -14,7 +14,7 @@ $DetectionDetails2 = @{
     Type = "AppX"
 }
 
-function Check-EXEInstalled {
+function Test-EXEInstalled {
         param ([Hashtable]$DetectionDetails)
         $package = Get-Package -Name $DetectionDetails["DisplayName"] -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
         if ($package) {
@@ -23,7 +23,7 @@ function Check-EXEInstalled {
             return $installedVersion -ge $desiredVersion
         }
     }
-function Check-AppXInstalled {
+function Test-AppXInstalled {
         param ([Hashtable]$DetectionDetails)
         $isSystemContext = $env:USERNAME -like "$env:COMPUTERNAME*"
         if ($isSystemContext -eq $true) {
@@ -37,7 +37,7 @@ function Check-AppXInstalled {
             return $installedVersion -ge $desiredVersion
         }
     }
-function Check-AppsInstalled {
+function Test-AppsInstalled {
     # Find all $DetectionDetails variables
     $DetectionDetailsVariables = Get-Variable | Where-Object { $_.Name -match 'DetectionDetails[0-9]' }
     $result = $true
@@ -45,9 +45,9 @@ function Check-AppsInstalled {
     foreach ($appVar in $DetectionDetailsVariables) {
         $DetectionDetails = $appVar.Value
         if ($DetectionDetails["Type"] -eq "EXE") {
-            $result = $result -and (Check-EXEInstalled -DetectionDetails $DetectionDetails)
+            $result = $result -and (Test-EXEInstalled -DetectionDetails $DetectionDetails)
         } elseif ($DetectionDetails["Type"] -eq "AppX") {
-            $result = $result -and (Check-AppXInstalled -DetectionDetails $DetectionDetails)
+            $result = $result -and (Test-AppXInstalled -DetectionDetails $DetectionDetails)
         }
     }
 
@@ -55,5 +55,5 @@ function Check-AppsInstalled {
     return $result
 }
 
-# Invoke the function to check all applications
-if (Check-AppsInstalled) { return $true }
+# Invoke the function to Test all applications
+if (Test-AppsInstalled) { return $true }
