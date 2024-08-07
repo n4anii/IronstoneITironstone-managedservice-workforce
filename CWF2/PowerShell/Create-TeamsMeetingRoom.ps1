@@ -46,9 +46,6 @@ catch [System.Management.Automation.CommandNotFoundException] {
 # Define the required parameters for workspaces and meeting rooms
 $Rooms = @(
     #[PSCustomObject]@{ Name = "Arbeidsrom Stingray";   Alias = "Stingray";   Type = "Workspace"; MinimumDurationInMinutes = 60; MaxDurationInMinutes = 480; Capacity = 2; Floor = 4; Building = "Øvre Vollgate"; City = "Oslo"; CountryOrRegion = "Norway"; FloorLabel = "4. Etasje"}
-    #[PSCustomObject]@{ Name = "Arbeidsrom SmartCraft"; Alias = "SmartCraft"; Type = "Workspace"; MinimumDurationInMinutes = 60; MaxDurationInMinutes = 480; Capacity = 1; Floor = 4; Building = "Øvre Vollgate"; City = "Oslo"; CountryOrRegion = "Norway"; FloorLabel = "4. Etasje"}
-    #[PSCustomObject]@{ Name = "Arbeidsrom Eltek";      Alias = "Eltek";      Type = "Workspace"; MinimumDurationInMinutes = 60; MaxDurationInMinutes = 480; Capacity = 1; Floor = 4; Building = "Øvre Vollgate"; City = "Oslo"; CountryOrRegion = "Norway"; FloorLabel = "4. Etasje"}
-    #[PSCustomObject]@{ Name = "Arbeidsrom Møller";     Alias = "Moller";     Type = "Workspace"; MinimumDurationInMinutes = 60; MaxDurationInMinutes = 480; Capacity = 1; Floor = 4; Building = "Øvre Vollgate"; City = "Oslo"; CountryOrRegion = "Norway"; FloorLabel = "4. Etasje"}
     #[PSCustomObject]@{ Name = "Møterom Bergans";       Alias = "Bergans";    Type = "Room";      MinimumDurationInMinutes = 60; MaxDurationInMinutes = 480; Capacity = 8; Floor = 4; Building = "Øvre Vollgate"; City = "Oslo"; CountryOrRegion = "Norway"; FloorLabel = "4. Etasje"}
 )
 
