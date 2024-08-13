@@ -23,6 +23,7 @@ IF NOT "!MissingFiles!"=="" (
 SET _Setup_Folder=%~dp0Toolkit
 SET _Source_Setup_File=Deploy-Application.exe
 SET _Output_Folder=%~dp0Output
+SET _IntuneWinAppUtil=%~dp0IntuneWinAppUtil.exe
 
 IF NOT EXIST "%_Setup_Folder%" (
     ECHO The setup folder "%_Setup_Folder%" does not exist.
@@ -44,7 +45,6 @@ IF NOT EXIST "%_Output_Folder%" (
 ECHO ******************************************************************
 ECHO * Creating IntuneWin from PSADT content found in Toolkit folder! *
 ECHO ******************************************************************
-TIMEOUT 5 >NUL
 "%_IntuneWinAppUtil%" -c "%_Setup_Folder%" -s "%_Source_Setup_File%" -o "%_Output_Folder%" -q
 IF %ERRORLEVEL% GTR 0 ECHO Something went wrong! ERRORLEVEL=%ERRORLEVEL%
 
