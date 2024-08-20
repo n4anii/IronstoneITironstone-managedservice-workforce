@@ -30,6 +30,68 @@ $WingetInstall = @(
         Scope = "Machine"; #User/Machine
     }
 )
+#Example on how to properly check for prereqs.This is to prevent the accidental downgrading of already installed software.
+#region Prereqs
+$RequiredPrereqs = [PSCustomObject]@{
+    "Microsoft Visual C++ 2015-2022 Redistributable (x64)" = @{
+        Version = "14.40.33810.0"
+        InstallationFile = "vc_redist2022_x64.exe"
+        Parameters = "/install /passive /norestart"
+    }
+    "Microsoft Visual C++ 2015-2022 Redistributable (x86)" = @{
+        Version = "14.40.33810.0"
+        InstallationFile = "vc_redist2022_x86.exe"
+        Parameters = "/install /passive /norestart"
+    }
+    "Microsoft Edge WebView2 Runtime" = @{
+        Version = "127.0.0.0"
+        InstallationFile = "MicrosoftEdgeWebView2RuntimeInstallerX64.exe"
+        Parameters = "/silent /install"
+    }
+    "Microsoft SQL Server 2012 Native Client" = @{
+        Version = "11.4.7001.0"
+        InstallationFile = "sqlncli_x64.msi"
+        Parameters = "IACCEPTSQLNCLILICENSETERMS=YES"
+    }
+    "Microsoft OLE DB Driver for SQL Server" = @{
+        Version = "18.3.0.0"
+        InstallationFile = "msoledbsql_18.3.0.0_x64.msi"
+        Parameters = "IACCEPTMSOLEDBSQLLICENSETERMS=YES"
+    }
+}
+
+# Check if the Prereqs is installed and if the version is up-to-date
+foreach ($Software in $RequiredPrereqs.PSObject.Properties) {
+    $Name = $Software.Name
+    $RequiredVersion = $Software.Value.Version
+
+    $InstalledPackage = $InstalledPackages | Where-Object { $_.Name -like "*$Name*" }
+
+    if ($InstalledPackage) {
+        $InstalledVersion = $InstalledPackage.Version
+        if (Compare-Version -InstalledVersion $InstalledVersion -RequiredVersion $RequiredVersion) {
+            Write-Log -Message "$Name is installed and up-to-date (Version: $InstalledVersion)"
+        } else {
+            Write-Log -Message "$Name is installed but not up-to-date (Installed Version: $InstalledVersion, Required Version: $RequiredVersion)"
+        }
+    } else {
+        Write-Log -Message "$Name is not installed"
+
+        # Determine the installation file type and install
+        $InstallationFile = Get-ChildItem -Path "$DirFiles\PreRequisites\$($Software.Value.InstallationFile)"
+        if ($InstallationFile -like "*.exe") {
+            Show-InstallationProgress "Installing $Name"
+            Execute-Process -Path $InstallationFile.FullName -Parameters $Software.Value.Parameters
+        } elseif ($InstallationFile -like "*.msi") {
+            Show-InstallationProgress "Installing $Name"
+            Execute-MSI -Action Install -Path $InstallationFile.FullName -AddParameters $Software.Value.Parameters
+        } else {
+            Write-Log -Message "Installation file for $Name not found."
+        }
+    }
+}
+
+#endregion
 
 $winget_exe = Get-WingetPath
 foreach ($App in $WingetInstall) {
