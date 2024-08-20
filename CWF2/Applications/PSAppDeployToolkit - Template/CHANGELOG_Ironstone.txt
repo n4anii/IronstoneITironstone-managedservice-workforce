@@ -1,3 +1,7 @@
+20/8-2024
+Bumped PSADT Version from 3.10.1 to 3.10.2
+Added Migrate_PSADT_ToNewVersion.bat
+
 27/06-2024
 Version Ironstone PSADT 1.0.0.0
 
