@@ -103,11 +103,11 @@ Function Uninstall-Apps {
         Call from Deploy-Application.ps1 like this Uninstall-Apps -AppsToRemove $AppsToRemove
  
     .NOTES
-        Version: 1.2.0.1
+        Version: 1.2.2.0
         Author: Herman Bergsløkken / IronstoneIT
         Creation Date: 2024.06.04
-        Edited Date: 2024.06.25
-        Purpose/Change: Foreach logic for exe
+        Edited Date: 2024.08.20
+        Purpose/Change: Added custom parameters for MSI.
     #>
     param(
         [Parameter(Mandatory=$true)]
@@ -118,7 +118,12 @@ Function Uninstall-Apps {
     foreach ($App in $AppsToRemove) {
             Write-Log -Message "Application is type $($App.Type). Uninstalling $(if ($App.Name) {"application name $($App.Name)"} else {"application path $($App.Path)"})"
             if ($App.Type -eq "msi") {
-                Remove-MSIApplications -Name $App.Name -WildCard
+                if ($App.Parameters) {
+                    Write-Log -Message "Uninstalling MSI with custom parameters"
+                    Remove-MSIApplications -Name $App.Name -WildCard -AddParameters $App.Parameters
+                } else {
+                    Remove-MSIApplications -Name $App.Name -WildCard
+                }
             } elseif ($App.Type -eq "exe" -and (Test-Path -Path $App.Path)) {
                 $ExeFullName = Get-ChildItem -Path "$($App.Path)" | Select-Object -ExpandProperty FUllName
                 foreach ($EXEPath in $ExeFullName) {
