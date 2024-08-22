@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>PayloadType</key>
+            <string>com.apple.ManagedClient.preferences</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+            <key>PayloadIdentifier</key>
+            <string>com.example.managedfavorites</string>
+            <key>PayloadUUID</key>
+            <string>12345678-1234-1234-1234-1234567890ab</string>
+            <key>PayloadDisplayName</key>
+            <string>Managed Favorites</string>
+            <key>PayloadDescription</key>
+            <string>Configuration for managed favorites</string>
+            <key>PayloadOrganization</key>
+            <string>Ironstone</string>
+            <key>PayloadScope</key>
+            <string>User</string>
+            <key>PayloadContent</key>
+            <dict>
+                <key>ManagedFavorites</key>
+                <array>
+                    <dict>
+                        <key>Name</key>
+                        <string>Ironstone shortcuts</string>
+                        <key>Children</key>
+                        <array>
+                            <dict>
+                                <key>Name</key>
+                                <string>Confluence</string>
+                                <key>Children</key>
+                                <array>
+                                    <dict>
+                                        <key>Name</key>
+                                        <string>Confluence Home</string>
+                                        <key>URL</key>
+                                        <string>https://ironstone.atlassian.net/wiki/spaces/IHP/overview?mode=global</string>
+                                    </dict>
+                                    <dict>
+                                        <key>Name</key>
+                                        <string>Ironstone IT</string>
+                                        <key>URL</key>
+                                        <string>https://ironstone.atlassian.net/wiki/spaces/IronstoneIT</string>
+                                    </dict>
+                                    <dict>
+                                        <key>Name</key>
+                                        <string>Cloud Success</string>
+                                        <key>URL</key>
+                                        <string>https://ironstone.atlassian.net/wiki/spaces/IGCS</string>
+                                    </dict>
+                                    <dict>
+                                        <key>Name</key>
+                                        <string>Commercials</string>
+                                        <key>URL</key>
+                                        <string>https://ironstone.atlassian.net/wiki/spaces/ISTMAR</string>
+                                    </dict>
+                                    <dict>
+                                        <key>Name</key>
+                                        <string>Cloud Partners</string>
+                                        <key>URL</key>
+                                        <string>https://ironstone.atlassian.net/wiki/spaces/ICP</string>
+                                    </dict>
+                                </array>
+                            </dict>
+                            <dict>
+                                <key>Name</key>
+                                <string>CSP</string>
+                                <key>Children</key>
+                                <array>
+                                    <dict>
+                                        <key>Name</key>
+                                        <string>CSP Home</string>
+                                        <key>URL</key>
+                                        <string>https://partner.microsoft.com/en-us/dashboard/home</string>
+                                    </dict>
+                                    <dict>
+                                        <key>Name</key>
+                                        <string>CSP Customers</string>
+                                        <key>URL</key>
+                                        <string>https://partner.microsoft.com/en-us/dashboard/commerce2/customers/list</string>
+                                    </dict>
+                                </array>
+                            </dict>
+                            <dict>
+                                <key>Name</key>
+                                <string>Internal Systems</string>
+                                <key>Children</key>
+                                <array>
+                                    <dict>
+                                        <key>Name</key>
+                                        <string>HR</string>
+                                        <key>Children</key>
+                                        <array>
+                                            <dict>
+                                                <key>Name</key>
+                                                <string>HR Portal</string>
+                                                <key>URL</key>
+                                                <string>https://komplettgroup.catalystone.com/portals/sso</string>
+                                            </dict>
+                                            <dict>
+                                                <key>Name</key>
+                                                <string>Forsikring</string>
+                                                <key>URL</key>
+                                                <string>https://ep.if.no/my-insurances</string>
+                                            </dict>
+                                            <dict>
+                                                <key>Name</key>
+                                                <string>Visma</string>
+                                                <key>URL</key>
+                                                <string>https://ironstone.my.connect.visma.com/</string>
+                                            </dict>
+                                            <dict>
+                                                <key>Name</key>
+                                                <string>Timely</string>
+                                                <key>URL</key>
+                                                <string>https://app.timelyapp.com/</string>
+                                            </dict>
+                                        </array>
+                                    </dict>
+                                </array>
+                            </dict>
+                            <dict>
+                                <key>Name</key>
+                                <string>URL With a name 12</string>
+                                <key>URL</key>
+                                <string>https://www.example12.com</string>
+                            </dict>
+                            <dict>
+                                <key>Name</key>
+                                <string>AvePoint</string>
+                                <key>URL</key>
+                                <string>https://partner.avepointonlineservices.com/</string>
+                            </dict>
+                            <dict>
+                                <key>Name</key>
+                                <string>FreshService</string>
+                                <key>URL</key>
+                                <string>https://support.ironstoneit.com/</string>
+                            </dict>
+                            <dict>
+                                <key>Name</key>
+                                <string>Site24x7</string>
+                                <key>URL</key>
+                                <string>https://www.site24x7.eu/app/client#/home-msp/customers</string>
+                            </dict>
+                            <dict>
+                                <key>Name</key>
+                                <string>Printix Partner</string>
+                                <key>URL</key>
+                                <string>https://partners.printix.net/</string>
+                            </dict>
+                            <dict>
+                                <key>Name</key>
+                                <string>URL With a name 17</string>
+                                <key>URL</key>
+                                <string>https://www.example17.com</string>
+                            </dict>
+                            <dict>
+                                <key>Name</key>
+                                <string>Path Manager Plus</string>
+                                <key>URL</key>
+                                <string>https://patch.manageengine.eu/</string>
+                            </dict>
+                            <dict>
+                                <key>Name</key>
+                                <string>Keeper</string>
+                                <key>URL</key>
+                                <string>https://keepersecurity.eu/vault/</string>
+                            </dict>
+                            <dict>
+                                <key>Name</key>
+                                <string>Userback Roadmap</string>
+                                <key>URL</key>
+                                <string>https://ironstoneit.ideas.userback.io/p/REu0O0p3qT</string>
+                            </dict>
+                            <dict>
+                                <key>Name</key>
+                                <string>DevOps</string>
+                                <key>URL</key>
+                                <string>https://dev.azure.com/IronstoneDevOps/Product%20Engineering</string>
+                            </dict>
+                            <dict>
+                                <key>Name</key>
+                                <string>Hubspot</string>
+                                <key>URL</key>
+                                <string>https://app.hubspot.com/</string>
+                            </dict>
+                            <dict>
+                                <key>Name</key>
+                                <string>Ironstone portal</string>
+                                <key>URL</key>
+                                <string>https://portal.ironstoneit.com/</string>
+                            </dict>
+                            <dict>
+                                <key>Name</key>
+                                <string>Send SMS</string>
+                                <key>URL</key>
+                                <string>https://apps.powerapps.com/play/e/d8b467a1-ff26-4986-a3c8-87ce4589c03e/a/80d57024-532c-492d-81da-de3ba01ecbb6?tenantId=3eaaf1d3-6f9e-40fd-b7e9-60b45e55e125&source=portal&screenColor=rgba(0%2C%20176%2C%20240%2C%201)</string>
+                            </dict>
+                            <dict>
+                                <key>Name</key>
+                                <string>Microsoft Portals</string>
+                                <key>Children</key>
+                                <array>
+                                    <dict>
+                                        <key>Name</key>
+                                        <string>Entra ID</string>
+                                        <key>URL</key>
+                                        <string>https://entra.microsoft.com/</string>
+                                    </dict>
+                                    <dict>
+                                        <key>Name</key>
+                                        <string>Admin Portal</string>
+                                        <key>URL</key>
+                                        <string>https://admin.microsoft.com/</string>
+                                    </dict>
+                                    <dict>
+                                        <key>Name</key>
+                                        <string>Security</string>
+                                        <key>URL</key>
+                                        <string>https://security.microsoft.com/</string>
+                                    </dict>
+                                    <dict>
+                                        <key>Name</key>
+                                        <string>Intune</string>
+                                        <key>URL</key>
+                                        <string>https://intune.microsoft.com/</string>
+                                    </dict>
+                                    <dict>
+                                        <key>Name</key>
+                                        <string>Azure</string>
+                                        <key>URL</key>
+                                        <string>https://portal.azure.com</string>
+                                    </dict>
+                                    </dict>
+                                        <key>name</key>
+                                        <string>Azure</string>
+                                        <key>URL</key>
+                                        <string>https://admin.exchange.microsoft.com/</string>
+                                        </dict>
+                                    </dict>
+                                </array>
+                            </dict>
+                        </plist>
