@@ -68,15 +68,20 @@ function Get-WingetPath {
         Call from Deploy-Application.ps1 like this $WingetPath = Get-WingetPath
  
     .NOTES
-        Version: 1.1.0.0
+        Version: 1.2.0.0
         Author: Herman Bergsløkken / IronstoneIT
-        Creation Date: 2024.06.04
+        Creation Date: 2024.08.27
         Purpose/Change: Returns Path (directory) and not fullpath to winget.exe
     #>
 
     # Determine the context in which the script is running
     $isSystemContext = $env:USERNAME -like "$env:COMPUTERNAME*"
     Write-Log -Message "Script is running in $(if ($isSystemContext) {'system'} else {'user'}) context."
+
+    $Global:WingetLogFilePath = "$Env:TEMP\Winget"
+    if (-Not (Test-Path -Path $Global:WingetLogFilePath)) {
+        New-Item -ItemType Directory -Path $Global:WingetLogFilePath -Force
+    }
     
     # If running in system context, resolve the path where winget.exe is found
     if ($isSystemContext) {
@@ -85,13 +90,15 @@ function Get-WingetPath {
             Write-Log -Message "[ERROR] Winget not installed"
             return $null
         } else {
-            # Write-Log -Message "Logs can be found C:\Windows\System32\config\systemprofile\AppData\Local\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\DiagOutputDir"
+            Write-Log -Message "Logs can be found $env:TEMP\Winget"
+            Write-Log -Message "Found path to winget directory $($WingetPath)"
             return $WingetPath
         }
     } else {
         # If running in user context, winget can be called directly
-        Write-Log -Message "Logs can be found %LOCALAPPDATA%\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\DiagOutputDir"
-        return "winget"
+        $WingetPath = Resolve-Path -Path "$env:LOCALAPPDATA\Microsoft\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path
+        Write-Log -Message "Logs can be found $env:TEMP\Winget"
+        return $WingetPath
     }
 }
 Function Uninstall-Apps {
@@ -142,12 +149,12 @@ Function Uninstall-Apps {
                     if (($env:USERNAME -like "$env:COMPUTERNAME*") -and ($App.Scope -eq "Machine")) {
                         Write-Log -Message "Uninstalling $($App.Name) with Winget as System"
                         Push-Location -Path $WingetPath
-                        & .\Winget.exe uninstall --id $App.ID --scope Machine --silent --force
+                        .\Winget.exe uninstall --id $App.ID --scope Machine --silent --force
                         Pop-Location
                     } elseif (($env:USERNAME -ne "$env:COMPUTERNAME*") -and ($App.Scope -eq "User")) {
                         Push-Location -Path $WingetPath
                         Write-Log -Message "Uninstalling $($App.Name) with Winget as User"
-                         & .\Winget.exe uninstall --id $App.ID --scope User --silent --force
+                        .\Winget.exe uninstall --id $App.ID --scope User --silent --force
                         Pop-Location
                     }
                 }
