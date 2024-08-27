@@ -93,19 +93,22 @@ foreach ($Software in $RequiredPrereqs.PSObject.Properties) {
 
 #endregion
 
-$winget_exe = Get-WingetPath
+$WingetPath = Get-WingetPath
+$WingetLogFilePath = "$Env:TEMP\Winget"
 foreach ($App in $WingetInstall) {
-    if ($winget_exe) {
+    if ($WingetPath) {
         Show-InstallationProgress "Installing $($App.Name)"
         $Scope = if ($env:USERNAME -like "$env:COMPUTERNAME*") { "Machine" } else { "User" }
         $VersionParam = if ($App.Version) { "--version $($App.Version)" } else { "" }
-        $CommandLineArgs = "Install --id $($App.ID) --scope $($App.Scope) --silent --force --accept-package-agreements --accept-source-agreements"
+        $CommandLineArgs = "install --id $($App.ID) --exact --scope $($App.Scope) --silent --force --accept-package-agreements --accept-source-agreements --disable-interactivity --log $WingetLogFilePath"
 
         if ($Scope -eq $App.Scope) {
             Write-Log -Message "Installing $($App.Name) with Winget as $Scope"
-            Write-Log -Message "Executing this command line: `"$winget_exe`" $CommandLineArgs"
-            CMD /C "`"$winget_exe`" $CommandLineArgs"
-            # Execute-Process -FilePath `"$winget_exe`" -Parameters "$CommandLineArgs"
+            Write-Log -Message "Executing this command line: `"$WingetPath`" $CommandLineArgs"
+            Set-Location -Path $WingetPath
+            & .\Winget.exe $CommandLineArgs
+            Pop-Location
+            # Execute-Process -FilePath `"$WingetPath\Winget.exe`" -Parameters "$CommandLineArgs"
         } else {
             Write-Log -Message "Installing $($App.Name) with Winget as $($App.Scope) is not possible in current scope $Scope. App will not be installed!" -Severity "2"
         }
