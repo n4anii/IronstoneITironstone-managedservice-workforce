@@ -70,8 +70,9 @@ function Get-WingetPath {
     .NOTES
         Version: 1.2.0.0
         Author: Herman Bergsløkken / IronstoneIT
-        Creation Date: 2024.08.27
+        Creation Date: 2024.08.28
         Purpose/Change: Returns Path (directory) and not fullpath to winget.exe
+                        Added version check of Winget
     #>
 
     # Determine the context in which the script is running
@@ -84,12 +85,16 @@ function Get-WingetPath {
     }
     
     # If running in system context, resolve the path where winget.exe is found
+    # ((Get-ChildItem -Path "$PSScriptRoot\Files\LenovoCommercialVantage_*.zip").Name | Select-String -Pattern "\d+\.\d+\.\d+\.0").Matches.Value; if (-not $appVersion) { $appVersion = '0.0.0.0' }
     if ($isSystemContext) {
-        $WingetPath = Resolve-Path -Path "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_*__8wekyb3d8bbwe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path
-        if (-not $WingetPath) {
-            Write-Log -Message "[ERROR] Winget not installed"
+        $WingetPath = Resolve-Path -Path "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_*__8wekyb3d8bbwe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path 
+        [version]$WingetVersion = ($WingetPath | Select-String -Pattern "\d+\.\d+\.\d+\.0").Matches.Value
+        [Version]$MinimumVersion = "1.23.1911.0"
+        if ((-not($WingetPath)) -or (-not($WingetVersion -ge $MinimumVersion))) {
+            Write-Log -Message "[ERROR] Winget not installed or Winget version $WingetVersion is not acceptable"
             return $null
         } else {
+            Write-Log -Message "Winget is running an acceptable version $($WingetVersion)"
             Write-Log -Message "Logs can be found $env:TEMP\Winget"
             Write-Log -Message "Found path to winget directory $($WingetPath)"
             return $WingetPath
