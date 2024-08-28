@@ -55,8 +55,15 @@ function Test-RegistryKey {
 
     try {
         $key = Get-ItemProperty -Path $RegistryPath -ErrorAction SilentlyContinue
-        if ($key -and $key.$ValueName -eq $ExpectedValue) {
-            return $true
+        if ($key) {
+            $installedValue = $key.$ValueName
+            if ([version]::TryParse($installedValue, [ref]$null) -and [version]::TryParse($ExpectedValue, [ref]$null)) {
+                return [version]$installedValue -ge [version]$ExpectedValue
+            } elseif ([int]::TryParse($installedValue, [ref]$null) -and [int]::TryParse($ExpectedValue, [ref]$null)) {
+                return [int]$installedValue -ge [int]$ExpectedValue
+            } else {
+                return $installedValue -eq $ExpectedValue
+            }
         } else {
             return $false
         }
