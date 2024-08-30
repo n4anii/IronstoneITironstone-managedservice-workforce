@@ -5,7 +5,7 @@ Author: Stefan Petrovic / Ironstone
 ---------------------------------------------------------------------------
 HOW TO USE 
 1. Use PowerShell App deployment tool kit to copy the image to C:\Windows\Logs\Software
-call the png "lockscreen"
+call the png "lockscreen then run the scipt below:". Easy peasy.
 
 #>
 
