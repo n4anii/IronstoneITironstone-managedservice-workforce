@@ -105,8 +105,8 @@ if ($WingetPath) {
     Set-Location -Path $WingetPath
     foreach ($App in $WingetInstall) {
         Show-InstallationProgress "Installing $($App.Name)"
-        $Scope = if ($env:USERNAME -like "$env:COMPUTERNAME*") { "Machine" } else { "User" }
-        $VersionParam = if ($App.Version) { "--version $($App.Version)" } else { "" }
+        $Scope = if ($env:USERNAME -like "$env:COMPUTERNAME*") {"Machine"} else {"User"}
+        $VersionParam = if ($App.Version) {"--version $($App.Version)"} else {""}
         $CommandLineArgs = "install --id $($App.ID) $($VersionParam) --exact --scope $($App.Scope) --accept-package-agreements --accept-source-agreements --silent --disable-interactivity --log $Global:WingetLogFilePath"
         if ($Scope -eq $App.Scope) {
             Write-Log -Message "Installing $($App.Name) with Winget as $Scope"
