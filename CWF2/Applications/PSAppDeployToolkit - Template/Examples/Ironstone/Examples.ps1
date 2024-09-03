@@ -112,6 +112,7 @@ if ($WingetDirectory) {
             Write-Log -Message "Installing $($App.Name) with Winget as $Scope"
             Write-Log -Message "Executing this command line: .\Winget.exe $CommandLineArgs"
             .\Winget.exe $CommandLineArgs
+            Start-Sleep -Seconds 10
         } else {
             Write-Log -Message "Installing $($App.Name) with Winget as $($App.Scope) is not possible in current scope $Scope. App will not be installed!" -Severity "2"
         }
