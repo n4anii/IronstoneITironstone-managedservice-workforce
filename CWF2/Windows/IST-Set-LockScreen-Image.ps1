@@ -7,10 +7,17 @@ HOW TO USE
 1. Use PowerShell App deployment tool kit to copy the image to C:\Windows\Logs\Software
 call the png "lockscreen then run the scipt below:". Easy peasy.
 
+2. INTUNE
+
+* Use the Detection rule that is added in the same repo
+* If u want to change the lock screen, replace the C:\Windows\Logs\Software\lockscreen.png with a new .PNG file
+
+
 #>
 
-#Set logging
-Start-Transcript -Path "C:\Windows\Logs\Software\logscreen.log"
+#Set logging (Use if you dont use PSDAT)
+
+# Start-Transcript -Path "C:\Windows\Logs\Software\lockscreen.log"
 
 # Define the parent registry path 
 $parentRegistryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\PersonalizationCSP" 
@@ -26,4 +33,4 @@ New-Item -Path $parentRegistryPath -Name $keyName -Force
 Set-ItemProperty -Path "$parentRegistryPath" -Name $keyName -Value $imagePath 
 
 # Stop Transcript
-Stop-Transcript
+# Stop-Transcript
