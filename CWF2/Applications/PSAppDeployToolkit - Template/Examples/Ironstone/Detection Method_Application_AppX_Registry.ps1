@@ -48,21 +48,19 @@ function Test-AppXInstalled {
 
 function Test-RegistryKey {
     param (
-        [string]$RegistryPath,
-        [string]$ValueName,
-        [string]$ExpectedValue
+        [Hashtable]$DetectionDetails
     )
 
     try {
-        $key = Get-ItemProperty -Path $RegistryPath -ErrorAction SilentlyContinue
+        $key = Get-ItemProperty -Path $DetectionDetails["RegistryPath"] -ErrorAction SilentlyContinue
         if ($key) {
-            $installedValue = $key.$ValueName
-            if ([version]::TryParse($installedValue, [ref]$null) -and [version]::TryParse($ExpectedValue, [ref]$null)) {
-                return [version]$installedValue -ge [version]$ExpectedValue
-            } elseif ([int]::TryParse($installedValue, [ref]$null) -and [int]::TryParse($ExpectedValue, [ref]$null)) {
-                return [int]$installedValue -ge [int]$ExpectedValue
+            $installedValue = $key.$DetectionDetails["ValueName"]
+            if ([version]::TryParse($installedValue, [ref]$null) -and [version]::TryParse($DetectionDetails["ExpectedValue"], [ref]$null)) {
+                return [version]$installedValue -ge [version]$DetectionDetails["ExpectedValue"]
+            } elseif ([int]::TryParse($installedValue, [ref]$null) -and [int]::TryParse($DetectionDetails["ExpectedValue"], [ref]$null)) {
+                return [int]$installedValue -ge [int]$DetectionDetails["ExpectedValue"]
             } else {
-                return $installedValue -eq $ExpectedValue
+                return $installedValue -eq $DetectionDetails["ExpectedValue"]
             }
         } else {
             return $false
@@ -71,12 +69,6 @@ function Test-RegistryKey {
         return $false
     }
 }
-
-function Test-RegistryInstalled {
-    param ([Hashtable]$DetectionDetails)
-    return Test-RegistryKey -RegistryPath $DetectionDetails["RegistryPath"] -ValueName $DetectionDetails["ValueName"] -ExpectedValue $DetectionDetails["ExpectedValue"]
-}
-
 function Test-AppsInstalled {
     # Find all $DetectionDetails variables
     $DetectionDetailsVariables = Get-Variable | Where-Object { $_.Name -match 'DetectionDetails[0-9]' }
@@ -89,7 +81,7 @@ function Test-AppsInstalled {
         } elseif ($DetectionDetails["Type"] -eq "AppX") {
             $result = $result -and (Test-AppXInstalled -DetectionDetails $DetectionDetails)
         } elseif ($DetectionDetails["Type"] -eq "Registry") {
-            $result = $result -and (Test-RegistryInstalled -DetectionDetails $DetectionDetails)
+            $result = $result -and (Test-RegistryKey -DetectionDetails $DetectionDetails)
         }
     }
 
