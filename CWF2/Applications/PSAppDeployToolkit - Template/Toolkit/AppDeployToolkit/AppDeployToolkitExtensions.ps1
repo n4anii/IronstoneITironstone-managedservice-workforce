@@ -97,13 +97,13 @@ function Get-WingetPath {
             Write-Log -Message "Winget is running an acceptable version $($WingetVersion)"
             Write-Log -Message "Logs can be found $env:TEMP\Winget"
             Write-Log -Message "Found path to winget directory $($WingetPath)"
-            return $WingetPath
+            return $WingetPath | Where-Object {$_ -like "*Microsoft.DesktopAppInstaller*"}
         }
     } else {
         # If running in user context, winget can be called directly
         $WingetPath = Resolve-Path -Path "$env:LOCALAPPDATA\Microsoft\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path
         Write-Log -Message "Logs can be found $env:TEMP\Winget"
-        return $WingetPath
+        return $WingetPath | Where-Object {$_ -like "*Microsoft.DesktopAppInstaller*"}
     }
 }
 Function Uninstall-Apps {
