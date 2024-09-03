@@ -100,9 +100,9 @@ $WingetInstall = @(
     }
 )
 
-$WingetPath = Get-WingetPath
-if ($WingetPath) {
-    Set-Location -Path $WingetPath
+$WingetDirectory = Get-WingetPath
+if ($WingetDirectory) {
+    Set-Location -Path $WingetDirectory
     foreach ($App in $WingetInstall) {
         Show-InstallationProgress "Installing $($App.Name)"
         $Scope = if ($env:USERNAME -like "$env:COMPUTERNAME*") {"Machine"} else {"User"}
