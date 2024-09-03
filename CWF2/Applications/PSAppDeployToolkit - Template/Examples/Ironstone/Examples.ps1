@@ -105,13 +105,13 @@ if ($WingetDirectory) {
     Set-Location -Path $WingetDirectory
     foreach ($App in $WingetInstall) {
         Show-InstallationProgress "Installing $($App.Name)"
-        $Scope = if ($env:USERNAME -like "$env:COMPUTERNAME*") {"Machine"} else {"User"}
+        $Scope = if ($env:USERNAME -like "$env:COMPUTERNAME*") {"machine"} else {"user"}
         $VersionParam = if ($App.Version) {"--version $($App.Version)"} else {""}
-        $CommandLineArgs = "install --id $($App.ID) $($VersionParam) --exact --scope $($App.Scope) --accept-package-agreements --accept-source-agreements --silent --disable-interactivity --log $Global:WingetLogFilePath"  -replace "\s{2,}", " "
+        $CommandLineArgs = "install --id $($App.ID) --exact --scope $Scope --accept-package-agreements --accept-source-agreements --silent --disable-interactivity --log $Global:WingetLogFilePath"  -replace "\s{2,}", " "
         if ($Scope -eq $App.Scope) {
             Write-Log -Message "Installing $($App.Name) with Winget as $Scope"
             Write-Log -Message "Executing this command line: .\Winget.exe $CommandLineArgs"
-            .\Winget.exe $CommandLineArgs
+            .\Winget.exe install --id $($App.ID) --exact --scope $Scope --accept-package-agreements --accept-source-agreements --silent --disable-interactivity --log $Global:WingetLogFilePath
             Start-Sleep -Seconds 10
         } else {
             Write-Log -Message "Installing $($App.Name) with Winget as $($App.Scope) is not possible in current scope $Scope. App will not be installed!" -Severity "2"
