@@ -81,33 +81,37 @@ $WingetInstall = @(
         Scope = "User"; #User/Machine
     },
     [PSCustomObject]@{
-        Name = "Microsoft Visual C++ 2015-2022 Redistributable (x86)"; #Run Winget list on target machine to get ID and Name
+        Name = "Microsoft Visual C++ 2015-2022 Redistributable (x86)"; 
         ID = "Microsoft.VCRedist.2015+.x86"; 
-        Version = $null; #Only include version if absolutely necessary. If not supplied Winget will install newest version
-        Scope = "Machine"; #User/Machine
+        Version = $null; 
+        Scope = "Machine"; 
     },
     [PSCustomObject]@{
-        Name = "Microsoft Visual C++ 2015-2022 Redistributable (x64)"; #Run Winget list on target machine to get ID and Name
+        Name = "Microsoft Visual C++ 2015-2022 Redistributable (x64)"; 
         ID = "Microsoft.VCRedist.2015+.x64"; 
-        Version = $null; #Only include version if absolutely necessary. If not supplied Winget will install newest version
-        Scope = "Machine"; #User/Machine
+        Version = $null; 
+        Scope = "Machine"; 
+    },
+    [PSCustomObject]@{
+        Name = "7-Zip"; 
+        ID = "7zip.7zip"; 
+        Version = $null; 
+        Scope = "Machine"; 
     }
 )
 
 $WingetPath = Get-WingetPath
-foreach ($App in $WingetInstall) {
-    if ($WingetPath) {
+if ($WingetPath) {
+    Set-Location -Path $WingetPath
+    foreach ($App in $WingetInstall) {
         Show-InstallationProgress "Installing $($App.Name)"
         $Scope = if ($env:USERNAME -like "$env:COMPUTERNAME*") { "Machine" } else { "User" }
         $VersionParam = if ($App.Version) { "--version $($App.Version)" } else { "" }
-        $CommandLineArgs = "install --id $($App.ID) $($VersionParam) --exact --scope $($App.Scope) --silent --force --accept-package-agreements --accept-source-agreements --disable-interactivity --log $Global:WingetLogFilePath"
-
+        $CommandLineArgs = "install --id $($App.ID) $($VersionParam) --exact --scope $($App.Scope) --accept-package-agreements --accept-source-agreements --silent --disable-interactivity --log $Global:WingetLogFilePath"
         if ($Scope -eq $App.Scope) {
             Write-Log -Message "Installing $($App.Name) with Winget as $Scope"
-            Write-Log -Message "Executing this command line: `"$WingetPath`" \Winget.exe $CommandLineArgs"
-            Set-Location -Path $WingetPath
+            Write-Log -Message "Executing this command line: .\Winget.exe $CommandLineArgs"
             .\Winget.exe $CommandLineArgs
-            Pop-Location
         } else {
             Write-Log -Message "Installing $($App.Name) with Winget as $($App.Scope) is not possible in current scope $Scope. App will not be installed!" -Severity "2"
         }
