@@ -42,6 +42,23 @@ $RequiredPrereqs = [PSCustomObject]@{
     }
 }
 
+# Declare supportive functions
+function Compare-Version {
+    param (
+        [string]$InstalledVersion,
+        [string]$RequiredVersion
+    )
+
+    $installed = [version]$InstalledVersion
+    $required = [version]$RequiredVersion
+
+    if ($installed -ge $required) {
+        return $true
+    } else {
+        return $false
+    }
+}
+
 # Ensure $InstalledPackages is defined
 $InstalledPackages = Get-Package
 
