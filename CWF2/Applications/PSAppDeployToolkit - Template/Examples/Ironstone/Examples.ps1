@@ -100,7 +100,7 @@ $WingetInstall = @(
     }
 )
 
-$WingetDirectory = Get-WingetPath
+[string]$WingetDirectory = Get-WingetPath
 if ($WingetDirectory) {
     Set-Location -Path $WingetDirectory
     foreach ($App in $WingetInstall) {
