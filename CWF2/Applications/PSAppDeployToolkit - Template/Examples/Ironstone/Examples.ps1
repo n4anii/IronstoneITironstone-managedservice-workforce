@@ -42,74 +42,7 @@ $RequiredPrereqs = [PSCustomObject]@{
     }
 }
 
-# Declare supportive functions
-function Compare-Version {
-    param (
-        [string]$InstalledVersion,
-        [string]$RequiredVersion
-    )
-
-    $installed = [version]$InstalledVersion
-    $required = [version]$RequiredVersion
-
-    if ($installed -ge $required) {
-        return $true
-    } else {
-        return $false
-    }
-}
-
-# Ensure $InstalledPackages is defined
-$InstalledPackages = Get-Package
-
-# Check if the Prereqs is installed and if the version is up-to-date
-foreach ($Software in $RequiredPrereqs.PSObject.Properties) {
-    $Name = $Software.Name
-    $RequiredVersion = $Software.Value.Version
-
-    $InstalledPackage = $InstalledPackages | Where-Object { $_.Name -like "*$Name*" }
-
-    if ($InstalledPackage) {
-        $InstalledVersion = $InstalledPackage.Version
-        if (Compare-Version -InstalledVersion $InstalledVersion -RequiredVersion $RequiredVersion) {
-            Write-Log -Message "$Name is installed and up-to-date (Version: $InstalledVersion)"
-        } else {
-            Write-Log -Message "$Name is installed but not up-to-date (Installed Version: $InstalledVersion, Required Version: $RequiredVersion)"
-        }
-    } else {
-        Write-Log -Message "$Name is not installed"
-
-        if ($Software.Value.URL) {
-            Show-InstallationProgress "Downloading $Name"
-            $DownloadFolder = "$dirFiles\PreRequisites"
-            if (-not (Test-Path -Path $DownloadFolder)) {
-                Write-Log -Message "Creating $DownloadFolder"
-                New-Item -Path $DownloadFolder -ItemType Directory -Force | Out-Null
-            }
-            try {
-                [string]$PathFileOut = "$DownloadFolder\$($Software.Value.InstallationFile)"
-                Start-BitsTransfer -Source $($Software.Value.URL) -Destination $PathFileOut -ErrorAction Stop
-                Write-Log -Message "All files downloaded successfully to $PathFileOut"
-            } catch {
-                Write-Log -Message "An error occurred while downloading $Name : $_"
-            }
-        }
-
-        # Determine the installation file type and install
-        $InstallationFile = Get-ChildItem -Path "$dirFiles\PreRequisites\$($Software.Value.InstallationFile)"
-        if ($InstallationFile -like "*.exe") {
-            Show-InstallationProgress "Installing $Name"
-            Execute-Process -Path $InstallationFile.FullName -Parameters $Software.Value.Parameters
-        } elseif ($InstallationFile -like "*.msi") {
-            Show-InstallationProgress "Installing $Name"
-            Execute-MSI -Action Install -Path $InstallationFile.FullName -AddParameters $Software.Value.Parameters
-        } elseif ($InstallationFile -like "Winget") {
-            Show-InstallationProgress "Installing $Name"
-        } else {
-            Write-Log -Message "Installation file for $Name not found."
-        }
-    }
-}
+Test-InstallPrereqs -RequiredPrereqs $RequiredPrereqs
 
 #endregion
 
