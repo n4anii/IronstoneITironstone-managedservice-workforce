@@ -10,18 +10,20 @@ Execute-Process -FilePath $env:windir\System32\reg.exe -Parameters "IMPORT `"$di
 # Import HKCU settings from reg-file found in \Files Directory. (Will use a scheduled task to run the commandline as the logged on user) This will run with the users privilege level
 Execute-ProcessAsUser -Path $env:windir\System32\reg.exe -Parameters "IMPORT `"$dirFiles\HKCU.reg`""
 
-#Example on how to properly check for prereqs.This is to prevent the accidental downgrading of already installed software.
+# Example on how to properly check for prereqs. This is to prevent the accidental downgrading of already installed software.
 #region Prereqs
 $RequiredPrereqs = [PSCustomObject]@{
     "Microsoft Visual C++ 2015-2022 Redistributable (x64)" = @{
         Version = "14.40.33810.0"
-        InstallationFile = "vc_redist2022_x64.exe"
+        InstallationFile = "vc_redist.x64.exe"
         Parameters = "/install /passive /norestart"
+        URL = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
     }
     "Microsoft Visual C++ 2015-2022 Redistributable (x86)" = @{
         Version = "14.40.33810.0"
-        InstallationFile = "vc_redist2022_x86.exe"
+        InstallationFile = "vc_redist.x86.exe"
         Parameters = "/install /passive /norestart"
+        URL = "https://aka.ms/vs/17/release/vc_redist.x86.exe"
     }
     "Microsoft Edge WebView2 Runtime" = @{
         Version = "127.0.0.0"
@@ -40,6 +42,9 @@ $RequiredPrereqs = [PSCustomObject]@{
     }
 }
 
+# Ensure $InstalledPackages is defined
+$InstalledPackages = Get-Package
+
 # Check if the Prereqs is installed and if the version is up-to-date
 foreach ($Software in $RequiredPrereqs.PSObject.Properties) {
     $Name = $Software.Name
@@ -57,14 +62,32 @@ foreach ($Software in $RequiredPrereqs.PSObject.Properties) {
     } else {
         Write-Log -Message "$Name is not installed"
 
+        if ($Software.Value.URL) {
+            Show-InstallationProgress "Downloading $Name"
+            $DownloadFolder = "$dirFiles\PreRequisites"
+            if (-not (Test-Path -Path $DownloadFolder)) {
+                Write-Log -Message "Creating $DownloadFolder"
+                New-Item -Path $DownloadFolder -ItemType Directory -Force | Out-Null
+            }
+            try {
+                [string]$PathFileOut = "$DownloadFolder\$($Software.Value.InstallationFile)"
+                Start-BitsTransfer -Source $($Software.Value.URL) -Destination $PathFileOut -ErrorAction Stop
+                Write-Log -Message "All files downloaded successfully to $PathFileOut"
+            } catch {
+                Write-Log -Message "An error occurred while downloading $Name : $_"
+            }
+        }
+
         # Determine the installation file type and install
-        $InstallationFile = Get-ChildItem -Path "$DirFiles\PreRequisites\$($Software.Value.InstallationFile)"
+        $InstallationFile = Get-ChildItem -Path "$dirFiles\PreRequisites\$($Software.Value.InstallationFile)"
         if ($InstallationFile -like "*.exe") {
             Show-InstallationProgress "Installing $Name"
             Execute-Process -Path $InstallationFile.FullName -Parameters $Software.Value.Parameters
         } elseif ($InstallationFile -like "*.msi") {
             Show-InstallationProgress "Installing $Name"
             Execute-MSI -Action Install -Path $InstallationFile.FullName -AddParameters $Software.Value.Parameters
+        } elseif ($InstallationFile -like "Winget") {
+            Show-InstallationProgress "Installing $Name"
         } else {
             Write-Log -Message "Installation file for $Name not found."
         }
