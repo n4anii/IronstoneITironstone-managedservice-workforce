@@ -10,8 +10,10 @@ Execute-Process -FilePath $env:windir\System32\reg.exe -Parameters "IMPORT `"$di
 # Import HKCU settings from reg-file found in \Files Directory. (Will use a scheduled task to run the commandline as the logged on user) This will run with the users privilege level
 Execute-ProcessAsUser -Path $env:windir\System32\reg.exe -Parameters "IMPORT `"$dirFiles\HKCU.reg`""
 
-# Example on how to properly check for prereqs. This is to prevent the accidental downgrading of already installed software.
 #region Prereqs
+# Example on how to properly check for prereqs. This is to prevent the accidental downgrading of already installed software.
+# Will automatically download if "URL" is present. 
+# For other Prereqs they must be in the Prereqs folder in $dirFiles\PreRequisites
 $RequiredPrereqs = [PSCustomObject]@{
     "Microsoft Visual C++ 2015-2022 Redistributable (x64)" = @{
         Version = "14.40.33810.0"
@@ -46,6 +48,43 @@ Test-InstallPrereqs -RequiredPrereqs $RequiredPrereqs
 
 #endregion
 
+#region Apps to Remove
+# Example on how to uninstall applications
+$AppsToRemove = @(
+    @{
+        Name = "Example_*7-Zip*" #Check Appwiz.cpl for correct name. Wildcards are supporterd.
+        Type = "msi"
+    },
+    @{
+        Path = "Example_C:\Program Files\7-Zip\Uninstall.exe" #Supports wildcards
+        Parameters = "/S"
+        Type = "exe"
+        IgnoreExitCodes = "$false" # Add ExitCodes to ignore when uninstalling. IgnoreExitCodes = "1,2,3"
+    },
+    @{
+        Name = "Example_E046963F.LenovoSettingsforEnterprise" # Run Get-AppxPackage | Select-Object Name, version
+        Type = "AppX"
+    },
+    @{
+        Name = "Example_Notepad++ (64-bit x64)" # Run Winget list on target machine to get ID and Name
+        ID = "Example_Notepad++.Notepad++"
+        Scope = "User" # User/Machine
+        Type = "Winget"
+    }
+)
+Uninstall-Apps -AppsToRemove $AppsToRemove
+#endregion
+
+#region Cleanups
+$Cleanups = @(
+    "Example_C:\Programdata\AdobeR",
+    "Example_HKLM:\Software\Adobe\AcrobatR",
+    "Example_C:\Users\*\AppData\Local\AcrobatR"
+)
+Remove-Leftovers -Cleanups $Cleanups
+#endregion
+
+#region Winget
 $WingetInstall = @(
     [PSCustomObject]@{
         Name = "Microsoft Visual Studio Code (User)"; #Run Winget list on target machine to get ID and Name
@@ -91,3 +130,4 @@ if ($WingetDirectory) {
         }
     }
 }
+#endregion

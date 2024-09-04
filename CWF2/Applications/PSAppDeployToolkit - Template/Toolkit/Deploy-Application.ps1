@@ -113,43 +113,16 @@ Try {
     Write-Log -Message "=============================================== Ironstone code starts here ===============================================" -Severity "2"
 
     $CloseApps = "CloseMe,CloseMeToo" #Apps that must be closed before installing application. 
-    $AppsToRemove = @(
-        @{
-            Name = "Example_*7-Zip*" #Check Appwiz.cpl for correct name. Wildcards are supporterd.
-            Type = "msi"
-        },
-        @{
-            Path = "Example_C:\Program Files\7-Zip\Uninstall.exe" #Supports wildcards
-            Parameters = "/S"
-            Type = "exe"
-            IgnoreExitCodes = "$false" # Add ExitCodes to ignore when uninstalling. IgnoreExitCodes = "1,2,3"
-        },
-        @{
-            Name = "Example_E046963F.LenovoSettingsforEnterprise" # Run Get-AppxPackage | Select-Object Name, version
-            Type = "AppX"
-        },
-        @{
-            Name = "Example_Notepad++ (64-bit x64)" # Run Winget list on target machine to get ID and Name
-            ID = "Example_Notepad++.Notepad++"
-            Scope = "User" # User/Machine
-            Type = "Winget"
-        }
-    )
-
-    $Cleanups = @(
-        "Example_C:\Programdata\AdobeR",
-        "Example_HKLM:\Software\Adobe\AcrobatR",
-        "Example_C:\Users\*\AppData\Local\AcrobatR"
-    )
 
     If ($deploymentType -ine 'Uninstall' -and $deploymentType -ine 'Repair') {
 
         ## Show Welcome Message, close apps if required, allow up to 3 deferrals, verify there is enough disk space to complete the install, and persist the prompt
         Show-InstallationWelcome -CloseApps $CloseApps -AllowDefer -DeferTimes 3 -CheckDiskSpace -PersistPrompt
 
-        ## Comment out Uninstall-Apps/Remove-Leftovers function if uninstalling is required before installation of new version
+        ## See Examples.ps1 for information on how to use these functions
         # Uninstall-Apps -AppsToRemove $AppsToRemove
         # Remove-Leftovers -Cleanups $Cleanups
+        # Test-InstallPrereqs -RequiredPrereqs $RequiredPrereqs
 
         ## Show Progress Message (with the default message)
         Show-InstallationProgress
