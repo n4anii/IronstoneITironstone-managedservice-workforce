@@ -325,6 +325,83 @@ function Test-InstallPrereqs {
         }
     }
 }
+function Invoke-Winget {
+    <#
+    .SYNOPSIS
+        This script installs or uninstalls an application using Winget.
+
+    .DESCRIPTION
+        This script uses Winget to install or uninstall an application based on the provided parameters. 
+        It supports specifying the application name, Winget ID, version, scope, and log location.
+
+    .EXAMPLE
+        Manage-WingetApp -Action Install -Name "7-Zip" -WingetID "7zip.7zip"
+
+    .NOTES
+        Version: 1.0.0.0
+        Author: Herman Bergsløkken / IronstoneIT
+        Creation Date: 2024-09-05
+        Purpose Change: Initial release
+    #>
+    [CmdletBinding()]
+    param (
+
+        [Parameter(Mandatory=$true)]
+        [ValidateSet("Install", "Uninstall")]
+        [string]$Action,
+
+        # Friendly Name (Make it identical to the appwiz entry)
+        [Parameter(Mandatory=$true)]
+        [string]$Name,
+
+        #  The ID used by Winget to identify the application
+        [Parameter(Mandatory=$true)]
+        [string]$AppID,
+
+        # The specific version of the application to install, should only be used if absolutely necessary. If not set will install newest
+        [Parameter(Mandatory=$false)]
+        [string]$Version,
+
+        # Some applications must be installed as user. This might required administrative rights
+        [Parameter(Mandatory=$false)]
+        [ValidateSet("User", "Machine")]
+        [string]$Scope = $(if ($env:USERNAME -like "$env:COMPUTERNAME*") {"Machine"} else {"User"}),
+
+        # Folder to where logs are stored
+        [Parameter(Mandatory=$false)]
+        [ValidateScript({ Test-Path $_ -PathType Container })]
+        [string]$Log = "C:\Windows\Logs\Software"
+    )
+    
+        $CommonArgs = "--exact --scope $Scope --accept-package-agreements --accept-source-agreements --silent --disable-interactivity"
+        if ($Log) {
+            $CommonArgs += " --log $Log"
+        }
+        
+        switch ($Action) {
+            "Install" {
+                Write-Log -Message "Installing $Name with ID: $AppID"
+                $CommandLineArgs = "install --id $AppID $CommonArgs"
+                if ($Version) {
+                    $CommandLineArgs += " --version $Version"
+                }
+            }
+            "Uninstall" {
+                Write-Log -Message "Uninstalling $Name with ID: $AppID"
+                $CommandLineArgs = "uninstall --id $AppID $CommonArgs"
+            }
+        }
+        [string]$WingetDirectory = Get-WingetPath
+        if ($WingetDirectory) {
+            Write-Log -Message "Setting $WingetDirectory as working directory!"
+            Set-Location -Path $WingetDirectory
+            Write-Log -Message "Executing: winget $CommandLineArgs"
+            .\Winget.exe $CommandLineArgs
+            Start-Sleep -Seconds 3
+            Write-Log -Message "Reverting working directory!"
+            Pop-Location -Path $WingetDirectory
+        }
+}
 
 ##*===============================================
 ##* END FUNCTION LISTINGS
