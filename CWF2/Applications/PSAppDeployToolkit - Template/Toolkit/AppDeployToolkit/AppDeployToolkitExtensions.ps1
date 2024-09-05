@@ -378,7 +378,7 @@ function Invoke-Winget {
             Write-Log -Message "Setting $WingetDirectory as working directory!"
             Set-Location -Path $WingetDirectory
             if ($Action -like "Install") {
-                 Write-Log -Message "Executing: $((Get-Location).Path) Install --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log"
+                 Write-Log -Message "Executing: $((Get-Location).Path) .\Winget.exe Install --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log"
                 .\Winget.exe Install --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log
             } elseif ($Action -like "Uninstall") {
                  Write-Log -Message "Executing: $((Get-Location).Path) .\Winget.exe Uninstall --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log"
