@@ -357,7 +357,7 @@ function Invoke-Winget {
 
         #  The ID used by Winget to identify the application
         [Parameter(Mandatory=$true)]
-        [string]$AppID,
+        [string]$ID,
 
         # The specific version of the application to install, should only be used if absolutely necessary. If not set will install newest
         [Parameter(Mandatory=$false)]
@@ -381,15 +381,15 @@ function Invoke-Winget {
         
         switch ($Action) {
             "Install" {
-                Write-Log -Message "Installing $Name with ID: $AppID"
-                $CommandLineArgs = "install --id $AppID $CommonArgs"
+                Write-Log -Message "Installing $Name with ID: $ID"
+                $CommandLineArgs = "install --id $ID $CommonArgs"
                 if ($Version) {
                     $CommandLineArgs += " --version $Version"
                 }
             }
             "Uninstall" {
-                Write-Log -Message "Uninstalling $Name with ID: $AppID"
-                $CommandLineArgs = "uninstall --id $AppID $CommonArgs"
+                Write-Log -Message "Uninstalling $Name with ID: $ID"
+                $CommandLineArgs = "uninstall --id $ID $CommonArgs"
             }
         }
         [string]$WingetDirectory = Get-WingetPath
