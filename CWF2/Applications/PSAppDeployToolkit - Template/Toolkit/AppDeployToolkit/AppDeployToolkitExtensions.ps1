@@ -79,9 +79,9 @@ function Get-WingetPath {
     $isSystemContext = $env:USERNAME -like "$env:COMPUTERNAME*"
     Write-Log -Message "Script is running in $(if ($isSystemContext) {'system'} else {'user'}) context."
 
-    $Global:WingetLogFilePath = "$Env:TEMP\Winget"
-    if (-Not (Test-Path -Path $Global:WingetLogFilePath)) {
-        New-Item -ItemType Directory -Path $Global:WingetLogFilePath -Force
+    $WingetLogFilePath = "$Env:TEMP\Winget"
+    if (-Not (Test-Path -Path $WingetLogFilePath)) {
+        New-Item -ItemType Directory -Path $WingetLogFilePath -Force
     }
     
     # If running in system context, resolve the path where winget.exe is found
@@ -371,7 +371,7 @@ function Invoke-Winget {
         # Folder to where logs are stored
         [Parameter(Mandatory=$false)]
         [ValidateScript({ Test-Path $_ -PathType Container })]
-        [string]$Log = "C:\Windows\Logs\Software"
+        [string]$Log = "$Env:TEMP\Winget"
     )
     
         $CommonArgs = "--exact --scope $Scope --accept-package-agreements --accept-source-agreements --silent --disable-interactivity"
@@ -392,11 +392,13 @@ function Invoke-Winget {
                 $CommandLineArgs = "uninstall --id $ID $CommonArgs"
             }
         }
-        [string]$WingetDirectory = Get-WingetPath
+       [string]$WingetDirectory = Get-WingetPath
         if ($WingetDirectory) {
             Write-Log -Message "Setting $WingetDirectory as working directory!"
             Set-Location -Path $WingetDirectory
-            Write-Log -Message "Executing: winget $CommandLineArgs"
+            $CurrentDirectory = (Get-Location).Path
+            Write-Output "The current working directory is: $CurrentDirectory"
+            Write-Log -Message "Executing: .\winget.exe $CommandLineArgs"
             .\Winget.exe $CommandLineArgs
             Start-Sleep -Seconds 3
             Write-Log -Message "Reverting working directory!"
