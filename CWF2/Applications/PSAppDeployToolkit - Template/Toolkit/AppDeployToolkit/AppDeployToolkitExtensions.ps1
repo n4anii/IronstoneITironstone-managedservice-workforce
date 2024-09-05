@@ -365,8 +365,8 @@ function Invoke-Winget {
 
         # Some applications must be installed as user. This might required administrative rights
         [Parameter(Mandatory=$false)]
-        [ValidateSet("User", "Machine")]
-        [string]$Scope = $(if ($env:USERNAME -like "$env:COMPUTERNAME*") {"Machine"} else {"User"}),
+        [ValidateSet("user", "machine")]
+        [string]$Scope = $(if ($env:USERNAME -like "$env:COMPUTERNAME*") {"machine"} else {"user"}),
 
         # Folder to where logs are stored
         [Parameter(Mandatory=$false)]
@@ -374,7 +374,7 @@ function Invoke-Winget {
         [string]$Log = "$Env:TEMP\Winget"
     )
     
-        $CommonArgs = "--exact --scope $Scope --accept-package-agreements --accept-source-agreements --silent --disable-interactivity"
+        $CommonArgs = "--exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity"
         if ($Log) {
             $CommonArgs += " --log $Log"
         }
