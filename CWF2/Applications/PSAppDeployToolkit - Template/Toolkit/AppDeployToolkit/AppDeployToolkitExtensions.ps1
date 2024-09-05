@@ -373,31 +373,17 @@ function Invoke-Winget {
         [ValidateScript({ Test-Path $_ -PathType Container })]
         [string]$Log = "$Env:TEMP\Winget"
     )
-    
-        $CommonArgs = "--exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity"
-        if ($Log) {
-            $CommonArgs += " --log $Log"
-        }
-        
-        switch ($Action) {
-            "Install" {
-                Write-Log -Message "Installing $Name with ID: $ID"
-                $CommandLineArgs = "install --id $ID $CommonArgs"
-                if ($Version) {
-                    $CommandLineArgs += " --version $Version"
-                }
-            }
-            "Uninstall" {
-                Write-Log -Message "Uninstalling $Name with ID: $ID"
-                $CommandLineArgs = "uninstall --id $ID $CommonArgs"
-            }
-        }
         [string]$WingetDirectory = Get-WingetPath
         if ($WingetDirectory) {
             Write-Log -Message "Setting $WingetDirectory as working directory!"
             Set-Location -Path $WingetDirectory
-            Write-Log -Message "Executing: $((Get-Location).Path) .\winget.exe $CommandLineArgs"
-            .\Winget.exe $CommandLineArgs
+            if ($Action -like "Install") {
+                 Write-Log -Message "Executing: $((Get-Location).Path) Install --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log"
+                .\Winget.exe Install --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log
+            } elseif ($Action -like "Uninstall") {
+                 Write-Log -Message "Executing: $((Get-Location).Path) .\Winget.exe Uninstall --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log"
+                .\Winget.exe Uninstall --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log
+            }
             Start-Sleep -Seconds 3
             Write-Log -Message "Reverting working directory!"
             Pop-Location
