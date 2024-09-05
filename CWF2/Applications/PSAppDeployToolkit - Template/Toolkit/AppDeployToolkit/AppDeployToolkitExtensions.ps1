@@ -392,13 +392,11 @@ function Invoke-Winget {
                 $CommandLineArgs = "uninstall --id $ID $CommonArgs"
             }
         }
-       [string]$WingetDirectory = Get-WingetPath
+        [string]$WingetDirectory = Get-WingetPath
         if ($WingetDirectory) {
             Write-Log -Message "Setting $WingetDirectory as working directory!"
             Set-Location -Path $WingetDirectory
-            $CurrentDirectory = (Get-Location).Path
-            Write-Output "The current working directory is: $CurrentDirectory"
-            Write-Log -Message "Executing: .\winget.exe $CommandLineArgs"
+            Write-Log -Message "Executing: $((Get-Location).Path) .\winget.exe $CommandLineArgs"
             .\Winget.exe $CommandLineArgs
             Start-Sleep -Seconds 3
             Write-Log -Message "Reverting working directory!"
