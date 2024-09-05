@@ -402,7 +402,7 @@ function Invoke-Winget {
             .\Winget.exe $CommandLineArgs
             Start-Sleep -Seconds 3
             Write-Log -Message "Reverting working directory!"
-            Pop-Location -Path $WingetDirectory
+            Pop-Location
         }
 }
 
