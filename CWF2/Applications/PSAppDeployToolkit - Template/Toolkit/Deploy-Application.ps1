@@ -117,7 +117,7 @@ Try {
     If ($deploymentType -ine 'Uninstall' -and $deploymentType -ine 'Repair') {
 
         ## Show Welcome Message, close apps if required, allow up to 3 deferrals, verify there is enough disk space to complete the install, and persist the prompt
-        Show-InstallationWelcome -CloseApps $CloseApps -AllowDefer -DeferTimes 3 -CheckDiskSpace -PersistPrompt
+        ## Show-InstallationWelcome -CloseApps $CloseApps -AllowDefer -DeferTimes 3 -CheckDiskSpace -PersistPrompt
 
         ## See Examples.ps1 for information on how to use these functions
         # Uninstall-Apps -AppsToRemove $AppsToRemove
