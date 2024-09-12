@@ -81,7 +81,7 @@ function Get-WingetPath {
 
     $WingetLogFilePath = "$Env:TEMP\Winget"
     if (-Not (Test-Path -Path $WingetLogFilePath)) {
-        New-Item -ItemType Directory -Path $WingetLogFilePath -Force
+        $Null = New-Item -ItemType Directory -Path $WingetLogFilePath -Force
     }
     
     # If running in system context, resolve the path where winget.exe is found
