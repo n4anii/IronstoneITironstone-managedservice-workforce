@@ -335,8 +335,8 @@ function Invoke-Winget {
         It supports specifying the application name, Winget ID, version, scope, and log location.
 
     .EXAMPLE
-        Invoke-Winget -Action Install -Name "7-Zip" -WingetID "7zip.7zip"
-        Invoke-Winget -Action Uninstall -Name "7-Zip" -WingetID "7zip.7zip"
+        Invoke-Winget -Action Install -Name "7-Zip" -ID "7zip.7zip"
+        Invoke-Winget -Action Uninstall -Name "7-Zip" -ID "7zip.7zip"
 
     .NOTES
         Version: 1.0.0.0
