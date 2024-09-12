@@ -333,8 +333,8 @@ function Test-InstallPrereqs {
 
     .NOTES
         Author: Herman Bergsløkken / IronstoneIT
-        Date: 2024-09-04
-        Winget as prereqs is WIP
+        Date: 2024-09-12
+        Winget as prereqs is WIP. But should work
     #>
     param (
         [PSCustomObject]$RequiredPrereqs
@@ -403,6 +403,7 @@ function Test-InstallPrereqs {
                 Execute-MSI -Action Install -Path $InstallationFile.FullName -AddParameters $Software.Value.Parameters
             } elseif ($InstallationFile -like "Winget") {
                 Show-InstallationProgress "Installing $Name"
+                Invoke-Winget -Action Install -Name "$($Name)" -ID "$($InstallationFile.WingetID)"
             } else {
                 Write-Log -Message "Installation file for $Name not found." -Severity 3
             }

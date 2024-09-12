@@ -42,6 +42,11 @@ $RequiredPrereqs = [PSCustomObject]@{
         InstallationFile = "msoledbsql_18.3.0.0_x64.msi"
         Parameters = "IACCEPTMSOLEDBSQLLICENSETERMS=YES"
     }
+    "7-Zip" = @{
+        Version = "24.0.0.0"
+        InstallationFile = "Winget"
+        WingetID = "7zip.7.zip"
+    }
 }
 
 Test-InstallPrereqs -RequiredPrereqs $RequiredPrereqs
