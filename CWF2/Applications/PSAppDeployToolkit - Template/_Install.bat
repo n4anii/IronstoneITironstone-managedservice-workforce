@@ -31,18 +31,20 @@ ECHO  2. Install Interactive (With PsExec as NT AUTHORITY\SYSTEM)
 ECHO  3. Install Force Interactive (With ServiceUI)
 ECHO  4. Install Silent
 ECHO  5. Install Silent (With PsExec as NT AUTHORITY\SYSTEM)
-ECHO  6. Repair Interactive
-ECHO  7. Repair Interactive (With PsExec as NT AUTHORITY\SYSTEM)
-ECHO  8. Repair Force Interactive (With ServiceUI)
-ECHO  9. Repair Silent
-ECHO 10. Repair Silent (With PsExec as NT AUTHORITY\SYSTEM)
-ECHO 11. Uninstall Interactive
-ECHO 12. Uninstall Interactive (With PsExec as NT AUTHORITY\SYSTEM)
-ECHO 13. Uninstall Force Interactive (With ServiceUI)
-ECHO 14. Uninstall Silent
-ECHO 15. Uninstall Silent (With PsExec as NT AUTHORITY\SYSTEM)
-ECHO 16. Launch CMD (With PsExec as NT AUTHORITY\SYSTEM)
-ECHO 17. Exit
+ECHO  6. Install Silent Winget (With PsExec as NT AUTHORITY\SYSTEM)
+ECHO  7. Repair Interactive
+ECHO  8. Repair Interactive (With PsExec as NT AUTHORITY\SYSTEM)
+ECHO  9. Repair Force Interactive (With ServiceUI)
+ECHO 10. Repair Silent
+ECHO 11. Repair Silent (With PsExec as NT AUTHORITY\SYSTEM)
+ECHO 12. Uninstall Interactive
+ECHO 13. Uninstall Interactive (With PsExec as NT AUTHORITY\SYSTEM)
+ECHO 14. Uninstall Force Interactive (With ServiceUI)
+ECHO 15. Uninstall Silent
+ECHO 16. Uninstall Silent (With PsExec as NT AUTHORITY\SYSTEM)
+ECHO 17. Uninstall Silent Winget (With PsExec as NT AUTHORITY\SYSTEM)
+ECHO 18. Launch CMD (With PsExec as NT AUTHORITY\SYSTEM)
+ECHO 19. Exit
 ECHO.
 
 SET /P CHOICE=Enter your choice: 
@@ -52,18 +54,20 @@ IF "%CHOICE%"=="2" CALL :Install_interactive_psexec
 IF "%CHOICE%"=="3" CALL :Install_force_interactive_ServiceUI
 IF "%CHOICE%"=="4" CALL :Install_silent
 IF "%CHOICE%"=="5" CALL :Install_silent_psexec
-IF "%CHOICE%"=="6" CALL :Repair_interactive
-IF "%CHOICE%"=="7" CALL :Repair_interactive_psexec
-IF "%CHOICE%"=="8" CALL :Repair_force_interactive_ServiceUI
-IF "%CHOICE%"=="9" CALL :Repair_silent
-IF "%CHOICE%"=="10" CALL :Repair_silent_psexec
-IF "%CHOICE%"=="11" CALL :Uninstall_interactive
-IF "%CHOICE%"=="12" CALL :Uninstall_interactive_psexec
-IF "%CHOICE%"=="13" CALL :Uninstall_force_interactive_ServiceUI
-IF "%CHOICE%"=="14" CALL :Uninstall_silent
-IF "%CHOICE%"=="15" CALL :Uninstall_silent_psexec
-IF "%CHOICE%"=="16" CALL :Launch_CMD_psexec
-IF "%CHOICE%"=="17" GOTO :EOF 
+IF "%CHOICE%"=="6" CALL :Install_silent_winget_psexec
+IF "%CHOICE%"=="7" CALL :Repair_interactive
+IF "%CHOICE%"=="8" CALL :Repair_interactive_psexec
+IF "%CHOICE%"=="9" CALL :Repair_force_interactive_ServiceUI
+IF "%CHOICE%"=="10" CALL :Repair_silent
+IF "%CHOICE%"=="11" CALL :Repair_silent_psexec
+IF "%CHOICE%"=="12" CALL :Uninstall_interactive
+IF "%CHOICE%"=="13" CALL :Uninstall_interactive_psexec
+IF "%CHOICE%"=="14" CALL :Uninstall_force_interactive_ServiceUI
+IF "%CHOICE%"=="15" CALL :Uninstall_silent
+IF "%CHOICE%"=="16" CALL :Uninstall_silent_psexec
+IF "%CHOICE%"=="17" CALL :Uninstall_silent_winget_psexec
+IF "%CHOICE%"=="18" CALL :Launch_CMD_psexec
+IF "%CHOICE%"=="19" GOTO :EOF 
 GOTO :MENU
 
 :Install_interactive
@@ -96,6 +100,19 @@ ECHO Machine is detected as Sandbox
 "%~dp0PsExec64.exe" \\localhost /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru
 ) ELSE (
 "%~dp0PsExec64.exe" /accepteula /s /i "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru
+)
+TIMEOUT 10 >NUL
+GOTO :MENU
+
+:Install_silent_winget_psexec
+SET /P WingetFriendlyName=Enter Winget Friendly Name: 
+SET /P WingetID=Enter Winget ID: 
+ECHO install_silent_winget_psexec
+IF "%_SANDBOX%"=="Yes" (
+    ECHO Machine is detected as Sandbox
+    "%~dp0PsExec64.exe" \\localhost /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru -WingetFriendlyName %WingetFriendlyName% -WingetID %WingetID%
+) ELSE (
+    "%~dp0PsExec64.exe" /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru -WingetFriendlyName %WingetFriendlyName% -WingetID %WingetID%
 )
 TIMEOUT 10 >NUL
 GOTO :MENU
@@ -177,6 +194,19 @@ ECHO Machine is detected as Sandbox
 "%~dp0PsExec64.exe" \\localhost /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Uninstall -DeployMode Silent -AllowRebootPassThru
 ) ELSE (
 "%~dp0PsExec64.exe" /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Uninstall -DeployMode Silent -AllowRebootPassThru
+)
+TIMEOUT 10 >NUL
+GOTO :MENU
+
+:Uninstall_silent_winget_psexec
+SET /P WingetFriendlyName=Enter Winget Friendly Name: 
+SET /P WingetID=Enter Winget ID: 
+ECHO uninstall_silent_winget_psexec
+IF "%_SANDBOX%"=="Yes" (
+    ECHO Machine is detected as Sandbox
+    "%~dp0PsExec64.exe" \\localhost /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Uninstall -DeployMode Silent -AllowRebootPassThru -WingetFriendlyName %WingetFriendlyName% -WingetID %WingetID%
+) ELSE (
+    "%~dp0PsExec64.exe" /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Uninstall -DeployMode Silent -AllowRebootPassThru -WingetFriendlyName %WingetFriendlyName% -WingetID %WingetID%
 )
 TIMEOUT 10 >NUL
 GOTO :MENU
