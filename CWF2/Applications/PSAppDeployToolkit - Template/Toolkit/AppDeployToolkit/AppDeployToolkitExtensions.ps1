@@ -203,11 +203,11 @@ Function Uninstall-Apps {
         Call from Deploy-Application.ps1 like this Uninstall-Apps -AppsToRemove $AppsToRemove
  
     .NOTES
-        Version: 1.2.2.0
+        Version: 1.3.0.0
         Author: Herman Bergsløkken / IronstoneIT
         Creation Date: 2024.06.04
-        Edited Date: 2024.08.20
-        Purpose/Change: Added custom parameters for MSI.
+        Edited Date: 2024.09.12
+        Purpose/Change: Added Winget support with the correct function
     #>
     param(
         [Parameter(Mandatory=$true)]
@@ -238,19 +238,12 @@ Function Uninstall-Apps {
                     }
                 }
             } elseif ($App.Type -eq "Winget") {
-                $WingetPath = Get-WingetPath
-                if ($WingetPath) {
-                    if (($env:USERNAME -like "$env:COMPUTERNAME*") -and ($App.Scope -eq "Machine")) {
-                        Write-Log -Message "Uninstalling $($App.Name) with Winget as System"
-                        Push-Location -Path $WingetPath
-                        .\Winget.exe uninstall --id $App.ID --scope Machine --silent --force
-                        Pop-Location
-                    } elseif (($env:USERNAME -ne "$env:COMPUTERNAME*") -and ($App.Scope -eq "User")) {
-                        Push-Location -Path $WingetPath
-                        Write-Log -Message "Uninstalling $($App.Name) with Winget as User"
-                        .\Winget.exe uninstall --id $App.ID --scope User --silent --force
-                        Pop-Location
-                    }
+                if (($env:USERNAME -like "$env:COMPUTERNAME*") -and ($App.Scope -eq "Machine")) {
+                    Write-Log -Message "Uninstalling $($App.Name) with Winget as System"
+                    Invoke-Winget -Action Uninstall -Name "$($App.Name)" -ID "$App.ID" -Scope Machine
+                } elseif (($env:USERNAME -ne "$env:COMPUTERNAME*") -and ($App.Scope -eq "User")) {
+                    Write-Log -Message "Uninstalling $($App.Name) with Winget as User"
+                    Invoke-Winget -Action Uninstall -Name "$($App.Name)" -ID "$App.ID" -Scope User
                 }
             } elseif ($App.Type -eq "AppX") {
                 if ($env:USERNAME -like "$env:COMPUTERNAME*") { #If user is System you can uninstall for AllUsers and ProvisionedPackages
