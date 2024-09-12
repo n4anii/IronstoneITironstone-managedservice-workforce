@@ -284,7 +284,7 @@ function Test-InstallPrereqs {
         $InstalledPackage = $InstalledPackages | Where-Object { $_.Name -like "*$Name*" }
 
         if ($InstalledPackage) {
-            $InstalledVersion = $InstalledPackage.Version
+            $InstalledVersion = $InstalledPackage.Version | Sort-Object | Select-Object -First 1 # Some products might be both MSI and EXE with multiple versions. Example: Vstor_2010
             if (Compare-Version -InstalledVersion $InstalledVersion -RequiredVersion $RequiredVersion) {
                 Write-Log -Message "$Name is installed and up-to-date (Version: $InstalledVersion)"
             } else {
