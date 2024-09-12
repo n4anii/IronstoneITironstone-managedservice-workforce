@@ -374,7 +374,7 @@ function Invoke-Winget {
         [string]$Log = "$Env:TEMP\Winget"
     )
         [string]$WingetDirectory = Get-WingetPath
-        if ($WingetDirectory) {
+        if ($Null -ne $WingetDirectory) {
             Write-Log -Message "Setting $WingetDirectory as working directory!"
             Set-Location -Path $WingetDirectory
             if ($Action -like "Install") {
@@ -387,6 +387,8 @@ function Invoke-Winget {
             Start-Sleep -Seconds 3
             Write-Log -Message "Reverting working directory!"
             Pop-Location
+        } else {
+            Write-Log -Message "No Winget directory was found. Unable to continue." -Severity 2
         }
 }
 
