@@ -91,7 +91,7 @@ function Get-WingetPath {
         [version]$WingetVersion = ($WingetPath | Select-String -Pattern "\d+\.\d+\.\d+\.0").Matches.Value
         [Version]$MinimumVersion = "1.23.1911.0"
         if ((-not($WingetPath)) -or (-not($WingetVersion -ge $MinimumVersion))) {
-            Write-Log -Message "[ERROR] Winget not installed or Winget version $WingetVersion is not acceptable"
+            Write-Log -Message "[ERROR] Winget not installed or Winget version $WingetVersion is not acceptable" -Severity 3
             return $null
         } else {
             Write-Log -Message "Winget is running an acceptable version $($WingetVersion)"
