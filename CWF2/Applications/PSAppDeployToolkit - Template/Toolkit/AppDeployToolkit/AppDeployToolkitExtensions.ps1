@@ -106,6 +106,93 @@ function Get-WingetPath {
         return $WingetPath | Where-Object {$_ -like "*Microsoft.DesktopAppInstaller*"}
     }
 }
+function Invoke-Winget {
+    <#
+    .SYNOPSIS
+        This script installs or uninstalls an application using Winget.
+
+    .DESCRIPTION
+        This script uses Winget to install or uninstall an application based on the provided parameters. 
+        It supports specifying the application name, Winget ID, version, scope, and log location.
+
+    .EXAMPLE
+        Invoke-Winget -Action Install -Name "7-Zip" -ID "7zip.7zip"
+        Invoke-Winget -Action Uninstall -Name "7-Zip" -ID "7zip.7zip"
+
+    .NOTES
+        Version: 1.1.0.0
+        Author: Herman Bergsløkken / IronstoneIT
+        Creation Date: 2024-09-12
+        Purpose Change: Added required prereqs to make Winget run in System Context
+    #>
+    [CmdletBinding()]
+    param (
+
+        [Parameter(Mandatory=$true)]
+        [ValidateSet("Install", "Uninstall")]
+        [string]$Action,
+
+        # Friendly Name (Make it identical to the appwiz entry)
+        [Parameter(Mandatory=$true)]
+        [string]$Name,
+
+        #  The ID used by Winget to identify the application
+        [Parameter(Mandatory=$true)]
+        [string]$ID,
+
+        # The specific version of the application to install, should only be used if absolutely necessary. If not set will install newest
+        [Parameter(Mandatory=$false)]
+        [string]$Version,
+
+        # Some applications must be installed as user. This might required administrative rights
+        [Parameter(Mandatory=$false)]
+        [ValidateSet("user", "machine")]
+        [string]$Scope = $(if ($env:USERNAME -like "$env:COMPUTERNAME*") {"machine"} else {"user"}),
+
+        # Folder to where logs are stored
+        [Parameter(Mandatory=$false)]
+        [ValidateScript({ Test-Path $_ -PathType Container })]
+        [string]$Log = "$Env:TEMP\Winget"
+    )
+
+    Begin {
+        # Is required to run Winget in System-Context
+        $RequiredPrereqs = [PSCustomObject]@{
+            "Microsoft Visual C++ 2015-2022 Redistributable (x64)" = @{
+            Version = "14.40.33810.0"
+            InstallationFile = "vc_redist.x64.exe"
+            Parameters = "/install /passive /norestart"
+            URL = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+            }
+        }
+        Test-InstallPrereqs -RequiredPrereqs $RequiredPrereqs
+        Write-Log -Message "Starting Invoke-Winget function."
+        [string]$WingetDirectory = Get-WingetPath
+    }
+
+    Process {
+        if (-not [string]::IsNullOrEmpty($WingetDirectory)) {
+            Write-Log -Message "Setting $WingetDirectory as working directory!"
+            Set-Location -Path $WingetDirectory
+            if ($Action -like "Install") {
+                Write-Log -Message "Executing: $((Get-Location).Path) .\Winget.exe Install --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log"
+                .\Winget.exe Install --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log
+            } elseif ($Action -like "Uninstall") {
+                Write-Log -Message "Executing: $((Get-Location).Path) .\Winget.exe Uninstall --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log"
+                .\Winget.exe Uninstall --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log
+            }
+            Start-Sleep -Seconds 3
+            Write-Log -Message "Reverting working directory!"
+            Pop-Location
+        } else {
+            Write-Log -Message "No Winget directory was found. Unable to continue." -Severity 3
+        }
+    }
+
+    End {
+        Write-Log -Message "Ending Invoke-Winget function."
+    }
+}
 Function Uninstall-Apps {
     <#
     .SYNOPSIS
@@ -324,72 +411,6 @@ function Test-InstallPrereqs {
             }
         }
     }
-}
-function Invoke-Winget {
-    <#
-    .SYNOPSIS
-        This script installs or uninstalls an application using Winget.
-
-    .DESCRIPTION
-        This script uses Winget to install or uninstall an application based on the provided parameters. 
-        It supports specifying the application name, Winget ID, version, scope, and log location.
-
-    .EXAMPLE
-        Invoke-Winget -Action Install -Name "7-Zip" -ID "7zip.7zip"
-        Invoke-Winget -Action Uninstall -Name "7-Zip" -ID "7zip.7zip"
-
-    .NOTES
-        Version: 1.0.0.0
-        Author: Herman Bergsløkken / IronstoneIT
-        Creation Date: 2024-09-05
-        Purpose Change: Initial release
-    #>
-    [CmdletBinding()]
-    param (
-
-        [Parameter(Mandatory=$true)]
-        [ValidateSet("Install", "Uninstall")]
-        [string]$Action,
-
-        # Friendly Name (Make it identical to the appwiz entry)
-        [Parameter(Mandatory=$true)]
-        [string]$Name,
-
-        #  The ID used by Winget to identify the application
-        [Parameter(Mandatory=$true)]
-        [string]$ID,
-
-        # The specific version of the application to install, should only be used if absolutely necessary. If not set will install newest
-        [Parameter(Mandatory=$false)]
-        [string]$Version,
-
-        # Some applications must be installed as user. This might required administrative rights
-        [Parameter(Mandatory=$false)]
-        [ValidateSet("user", "machine")]
-        [string]$Scope = $(if ($env:USERNAME -like "$env:COMPUTERNAME*") {"machine"} else {"user"}),
-
-        # Folder to where logs are stored
-        [Parameter(Mandatory=$false)]
-        [ValidateScript({ Test-Path $_ -PathType Container })]
-        [string]$Log = "$Env:TEMP\Winget"
-    )
-        [string]$WingetDirectory = Get-WingetPath
-        if (-not [string]::IsNullOrEmpty($WingetDirectory)) {
-            Write-Log -Message "Setting $WingetDirectory as working directory!"
-            Set-Location -Path $WingetDirectory
-            if ($Action -like "Install") {
-                 Write-Log -Message "Executing: $((Get-Location).Path) .\Winget.exe Install --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log"
-                .\Winget.exe Install --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log
-            } elseif ($Action -like "Uninstall") {
-                 Write-Log -Message "Executing: $((Get-Location).Path) .\Winget.exe Uninstall --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log"
-                .\Winget.exe Uninstall --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log
-            }
-            Start-Sleep -Seconds 3
-            Write-Log -Message "Reverting working directory!"
-            Pop-Location
-        } else {
-            Write-Log -Message "No Winget directory was found. Unable to continue." -Severity 3
-        }
 }
 
 ##*===============================================
