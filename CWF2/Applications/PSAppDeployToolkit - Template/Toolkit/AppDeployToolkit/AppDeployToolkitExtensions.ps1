@@ -320,7 +320,7 @@ function Test-InstallPrereqs {
             } elseif ($InstallationFile -like "Winget") {
                 Show-InstallationProgress "Installing $Name"
             } else {
-                Write-Log -Message "Installation file for $Name not found."
+                Write-Log -Message "Installation file for $Name not found." -Severity 2
             }
         }
     }
