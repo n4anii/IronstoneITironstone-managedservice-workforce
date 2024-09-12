@@ -320,7 +320,7 @@ function Test-InstallPrereqs {
             } elseif ($InstallationFile -like "Winget") {
                 Show-InstallationProgress "Installing $Name"
             } else {
-                Write-Log -Message "Installation file for $Name not found." -Severity 2
+                Write-Log -Message "Installation file for $Name not found." -Severity 3
             }
         }
     }
@@ -388,7 +388,7 @@ function Invoke-Winget {
             Write-Log -Message "Reverting working directory!"
             Pop-Location
         } else {
-            Write-Log -Message "No Winget directory was found. Unable to continue." -Severity 2
+            Write-Log -Message "No Winget directory was found. Unable to continue." -Severity 3
         }
 }
 
