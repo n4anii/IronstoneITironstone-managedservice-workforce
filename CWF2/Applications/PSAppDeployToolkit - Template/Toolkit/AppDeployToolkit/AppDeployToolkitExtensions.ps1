@@ -75,6 +75,7 @@ function Get-WingetPath {
                         Added version check of Winget
     #>
 
+    Write-Log -Message "Starting Get-WingetPath function."
     # Determine the context in which the script is running
     $isSystemContext = $env:USERNAME -like "$env:COMPUTERNAME*"
     Write-Log -Message "Script is running in $(if ($isSystemContext) {'system'} else {'user'}) context."
@@ -212,6 +213,7 @@ Function Uninstall-Apps {
         [Parameter(Mandatory=$true)]
         [array]$AppsToRemove
     )
+    Write-Log -Message "Starting Uninstall-Apps function."
     Show-InstallationProgress "Uninstalling apps. Please wait"
     
     foreach ($App in $AppsToRemove) {
@@ -297,7 +299,8 @@ Function Remove-Leftovers {
         [Parameter(Mandatory=$true)]
         [array]$Cleanups
     )
-    
+
+    Write-Log -Message "Starting Remove-Leftovers function."
     foreach ($Cleanup in $Cleanups) {
         if (Test-Path -Path $Cleanup) {
             Write-Log -Message "Removing $Cleanup"
@@ -361,6 +364,7 @@ function Test-InstallPrereqs {
         }
     }
 
+    Write-Log -Message "Starting Test-InstallPrereqs function."
     $InstalledPackages = Get-Package
 
     # Check if the Prereqs is installed and if the version is up-to-date
