@@ -28,7 +28,11 @@ Param (
     [Parameter(Mandatory = $false)]
     [switch]$TerminalServerMode = $false,
     [Parameter(Mandatory = $false)]
-    [switch]$DisableLogging = $false
+    [switch]$DisableLogging = $false,
+    [Parameter(Mandatory = $false)]
+    [String]$WingetFriendlyName,
+    [Parameter(Mandatory = $false)]
+    [String]$WingetID
 )
 
 Try {
@@ -49,12 +53,19 @@ Try {
     [String]$appLang = 'EN'
     [String]$appRevision = '01'
     [String]$appScriptVersion = '1.0.0'
-    [String]$appScriptDate = 'XX/XX/2024'
+    [String]$appScriptDate = (Get-Item "$PSScriptRoot\Deploy-Application.ps1").LastWriteTime.ToString('dd/MM/yyyy')
     [String]$appScriptAuthor = 'Ironstone'
     ##*===============================================
     ## Variables: Install Titles (Only set here to override defaults set by the toolkit)
     [String]$installName = ''
     [String]$installTitle = ''
+
+    ## Update variables with FriendlyName and WingetID if they are set
+    if ($PSBoundParameters.ContainsKey('WingetFriendlyName') -and $PSBoundParameters.ContainsKey('WingetID')) {
+        $appName = "$WingetFriendlyName"
+        $appVendor = 'Winget'
+        $appVersion = 'Latest'
+    }
 
     ##* Do not modify section below
     #region DoNotModify
@@ -117,7 +128,10 @@ Try {
     If ($deploymentType -ine 'Uninstall' -and $deploymentType -ine 'Repair') {
 
         ## Show Welcome Message, close apps if required, allow up to 3 deferrals, verify there is enough disk space to complete the install, and persist the prompt
-        ## Show-InstallationWelcome -CloseApps $CloseApps -AllowDefer -DeferTimes 3 -CheckDiskSpace -PersistPrompt
+        Show-InstallationWelcome -CloseApps $CloseApps -AllowDefer -DeferTimes 3 -CheckDiskSpace -PersistPrompt
+        if ($appVendor -like 'Winget') {
+            Invoke-Winget -Action Install -Name "$WingetFriendlyName" -ID "$WingetID"
+        }
 
         ## See Examples.ps1 for information on how to use these functions
         # Uninstall-Apps -AppsToRemove $AppsToRemove
@@ -136,6 +150,9 @@ Try {
 
         ## Show Welcome Message, close apps with a 60 second countdown before automatically closing
         Show-InstallationWelcome -CloseApps $CloseApps -CloseAppsCountdown 60
+        if ($appVendor -like 'Winget') {
+            Invoke-Winget -Action Uninstall -Name "$WingetFriendlyName" -ID "$WingetID"
+        }
 
         ## <Perform Uninstal tasks here>
         # Uninstall-Apps -AppsToRemove $AppsToRemove
