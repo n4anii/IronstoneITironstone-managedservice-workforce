@@ -80,13 +80,7 @@ function Get-WingetPath {
     $isSystemContext = $env:USERNAME -like "$env:COMPUTERNAME*"
     Write-Log -Message "Script is running in $(if ($isSystemContext) {'system'} else {'user'}) context."
 
-    $WingetLogFilePath = "$Env:TEMP\Winget"
-    if (-Not (Test-Path -Path $WingetLogFilePath)) {
-        $Null = New-Item -ItemType Directory -Path $WingetLogFilePath -Force
-    }
-    
     # If running in system context, resolve the path where winget.exe is found
-    # ((Get-ChildItem -Path "$PSScriptRoot\Files\LenovoCommercialVantage_*.zip").Name | Select-String -Pattern "\d+\.\d+\.\d+\.0").Matches.Value; if (-not $appVersion) { $appVersion = '0.0.0.0' }
     if ($isSystemContext) {
         $WingetPath = Resolve-Path -Path "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_*__8wekyb3d8bbwe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path 
         [version]$WingetVersion = ($WingetPath | Select-String -Pattern "\d+\.\d+\.\d+\.0").Matches.Value
@@ -148,15 +142,17 @@ function Invoke-Winget {
         # Some applications must be installed as user. This might required administrative rights
         [Parameter(Mandatory=$false)]
         [ValidateSet("user", "machine")]
-        [string]$Scope = $(if ($env:USERNAME -like "$env:COMPUTERNAME*") {"machine"} else {"user"}),
-
-        # Folder to where logs are stored
-        [Parameter(Mandatory=$false)]
-        [ValidateScript({ Test-Path $_ -PathType Container })]
-        [string]$Log = "$Env:TEMP\Winget"
+        [string]$Scope = $(if ($env:USERNAME -like "$env:COMPUTERNAME*") {"machine"} else {"user"})
     )
 
     Begin {
+
+        if ($Scope -eq "machine") {
+            $Log = "C:\Windows\Logs\Software\Winget.log"
+        } else {
+            $Log = "$env:TEMP\Winget.log"
+        }
+
         # Is required to run Winget in System-Context
         $RequiredPrereqs = [PSCustomObject]@{
             "Microsoft Visual C++ 2015-2022 Redistributable (x64)" = @{
