@@ -1,6 +1,7 @@
-@ECHO OFF
-:: Version 1.4.0.0
+﻿@ECHO OFF
+:: Version 1.5.0.0
 SETLOCAL ENABLEDELAYEDEXPANSION
+chcp 65001 >NUL
 IF "%USERNAME%"=="WDAGUtilityAccount" (
 	SET _SANDBOX=Yes
 ) ELSE (
