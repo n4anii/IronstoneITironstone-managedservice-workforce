@@ -105,6 +105,7 @@ TIMEOUT 10 >NUL
 GOTO :MENU
 
 :Install_silent_winget_psexec
+CLS
 SET /P WingetFriendlyName=Enter Winget Friendly Name (Cannot contain spaces):
 SET /P WingetID=Enter Winget ID: 
 ECHO install_silent_winget_psexec
@@ -200,6 +201,7 @@ TIMEOUT 10 >NUL
 GOTO :MENU
 
 :Uninstall_silent_winget_psexec
+CLS
 SET /P WingetFriendlyName=Enter Winget Friendly Name (Cannot contain spaces) : 
 SET /P WingetID=Enter Winget ID: 
 ECHO uninstall_silent_winget_psexec
