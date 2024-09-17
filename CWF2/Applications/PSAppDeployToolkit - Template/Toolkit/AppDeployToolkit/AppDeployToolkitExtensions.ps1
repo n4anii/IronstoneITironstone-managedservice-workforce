@@ -199,11 +199,11 @@ Function Uninstall-Apps {
         Call from Deploy-Application.ps1 like this Uninstall-Apps -AppsToRemove $AppsToRemove
  
     .NOTES
-        Version: 1.3.0.0
+        Version: 1.4.0.0
         Author: Herman Bergsløkken / IronstoneIT
         Creation Date: 2024.06.04
-        Edited Date: 2024.09.12
-        Purpose/Change: Added Winget support with the correct function
+        Edited Date: 2024.09.17
+        Purpose/Change: Added MSI uninstall in user-context
     #>
     param(
         [Parameter(Mandatory=$true)]
@@ -216,10 +216,24 @@ Function Uninstall-Apps {
             Write-Log -Message "Application is type $($App.Type). Uninstalling $(if ($App.Name) {"application name $($App.Name)"} else {"application path $($App.Path)"})"
             if ($App.Type -eq "msi") {
                 if ($App.Parameters) {
-                    Write-Log -Message "Uninstalling MSI with custom parameters"
+                    Write-Log -Message "Uninstalling MSI with custom parameters $($App.Parameters)"
                     Remove-MSIApplications -Name $App.Name -WildCard -AddParameters $App.Parameters
+                    $ProductCodes = (Get-InstalledApplication -Name "$($AppsToRemove.Name)" -WildCard).ProductCode
+                    if ($ProductCodes) {
+                        foreach ($ProductCode in $ProductCodes) {
+                            Write-Log -Message "Found $($AppsToRemove.Name) product in User-Context. Uninstalling $($ProductCode) with custom parameters $($App.Parameters)"
+                            Execute-ProcessAsUser -Path "C:\Windows\System32\MsiExec.exe" -Parameters "/X $($ProductCode) $($App.Parameters)"
+                        }
+                    }
                 } else {
                     Remove-MSIApplications -Name $App.Name -WildCard
+                    $ProductCodes = (Get-InstalledApplication -Name "$($AppsToRemove.Name)" -WildCard).ProductCode
+                    if ($ProductCodes) {
+                        foreach ($ProductCode in $ProductCodes) {
+                            Write-Log -Message "Found $($AppsToRemove.Name) product in User-Context. Uninstalling $($ProductCode)"
+                            Execute-ProcessAsUser -Path "C:\Windows\System32\MsiExec.exe" -Parameters "/X $($ProductCode) /QN /NORESTART"
+                        }
+                    }
                 }
             } elseif ($App.Type -eq "exe" -and (Test-Path -Path $App.Path)) {
                 $ExeFullName = Get-ChildItem -Path "$($App.Path)" | Select-Object -ExpandProperty FUllName
