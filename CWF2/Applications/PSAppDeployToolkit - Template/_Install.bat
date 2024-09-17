@@ -105,7 +105,7 @@ TIMEOUT 10 >NUL
 GOTO :MENU
 
 :Install_silent_winget_psexec
-SET /P WingetFriendlyName=Enter Winget Friendly Name (Cannot contain spaces!) : 
+SET /P WingetFriendlyName=Enter Winget Friendly Name (Cannot contain spaces!):
 SET /P WingetID=Enter Winget ID: 
 ECHO install_silent_winget_psexec
 IF "%_SANDBOX%"=="Yes" (
