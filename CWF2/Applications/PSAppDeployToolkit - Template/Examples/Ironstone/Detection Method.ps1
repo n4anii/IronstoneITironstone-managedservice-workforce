@@ -2,6 +2,7 @@ $ErrorActionPreference = 'SilentlyContinue'
 Get-Variable | Where-Object Name -Match 'DetectionDetails[0-9]' | Remove-Variable -Force
 
 # Define the application details as hashtables
+# Delete the $DetectionDetails-variables that are not needed
 $DetectionDetails1 = @{
     DisplayName = "Lenovo Vantage Service"
     DesiredVersion = "4.0.52.0"
