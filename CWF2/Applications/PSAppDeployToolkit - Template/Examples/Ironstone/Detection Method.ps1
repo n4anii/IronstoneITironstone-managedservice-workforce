@@ -30,7 +30,6 @@ function Test-EXEInstalled {
         return $installedVersion -ge $desiredVersion
     }
 }
-
 function Test-AppXInstalled {
     param ([Hashtable]$DetectionDetails)
     $isSystemContext = $env:USERNAME -like "$env:COMPUTERNAME*"
@@ -45,25 +44,20 @@ function Test-AppXInstalled {
         return $installedVersion -ge $desiredVersion
     }
 }
-
 function Test-RegistryKey {
     param (
         [Hashtable]$DetectionDetails
     )
-
     try {
-        $key = Get-ItemProperty -Path $DetectionDetails["RegistryPath"] -ErrorAction SilentlyContinue
-        if ($key) {
-            $installedValue = $key.$DetectionDetails["ValueName"]
-            if ([version]::TryParse($installedValue, [ref]$null) -and [version]::TryParse($DetectionDetails["ExpectedValue"], [ref]$null)) {
-                return [version]$installedValue -ge [version]$DetectionDetails["ExpectedValue"]
-            } elseif ([int]::TryParse($installedValue, [ref]$null) -and [int]::TryParse($DetectionDetails["ExpectedValue"], [ref]$null)) {
-                return [int]$installedValue -ge [int]$DetectionDetails["ExpectedValue"]
-            } else {
-                return $installedValue -eq $DetectionDetails["ExpectedValue"]
-            }
+        $key = Get-ItemProperty -Path $DetectionDetails["RegistryPath"] -ErrorAction Stop
+        $installedValue = $key.$($DetectionDetails["ValueName"])
+        
+        if ([version]::TryParse($installedValue, [ref]$null) -and [version]::TryParse($DetectionDetails["ExpectedValue"], [ref]$null)) {
+            return [version]$installedValue -ge [version]$DetectionDetails["ExpectedValue"]
+        } elseif ([int]::TryParse($installedValue, [ref]$null) -and [int]::TryParse($DetectionDetails["ExpectedValue"], [ref]$null)) {
+            return [int]$installedValue -ge [int]$DetectionDetails["ExpectedValue"]
         } else {
-            return $false
+            return $installedValue -eq $DetectionDetails["ExpectedValue"]
         }
     } catch {
         return $false
