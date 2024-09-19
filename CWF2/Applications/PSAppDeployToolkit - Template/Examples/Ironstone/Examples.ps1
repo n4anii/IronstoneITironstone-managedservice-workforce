@@ -1,7 +1,14 @@
+# Run installation silent from Intune. User will not see anything. 
+"Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru
+
+# Run installation visible for user in Intune. $CloseApps works. All dialogs are shown.
+"%SYSTEMROOT%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "Invoke-ServiceUI.ps1" -ProcessName explorer -DeploymentType Install
+
 # Find EXE in \Files directory and install. Add parameters as required
 Execute-Process -Path (Get-ChildItem -Path "$dirFiles\*.exe").FullName -Parameters "" 
 
 # Find MSI in \Files directory and install. Remove "-AddParameters" if no custom parameters are required
+# Execute-MSI will add the appropriate parameters (Logging, silent, noreboot etc)
 Execute-MSI -Action Install -Path (Get-ChildItem -Path "$dirFiles\*.msi").FullName -AddParameters ""
 
 # Import HKLM settings from reg-file found in \Files Directory
