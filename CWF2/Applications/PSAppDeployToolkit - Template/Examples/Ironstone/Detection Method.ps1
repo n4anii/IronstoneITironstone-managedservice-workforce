@@ -25,7 +25,7 @@ function Test-EXEInstalled {
     param ([Hashtable]$DetectionDetails)
     $package = Get-Package -Name $DetectionDetails["DisplayName"] -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
     if ($package) {
-        $installedVersion = [version]$package.Version
+        $installedVersion = [version]$package.Version | Sort-Object | Select-Object -First 1 # Some products might be both MSI and EXE with multiple versions. Example: Vstor_2010
         $desiredVersion = [version]$DetectionDetails["DesiredVersion"]
         return $installedVersion -ge $desiredVersion
     }
