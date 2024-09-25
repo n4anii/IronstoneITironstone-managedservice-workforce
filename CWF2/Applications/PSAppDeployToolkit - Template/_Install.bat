@@ -106,15 +106,15 @@ GOTO :MENU
 
 :Install_silent_winget_psexec
 CLS
-SET /P WingetFriendlyName=Enter Winget Friendly Name (Cannot contain spaces):
+SET /P WingetAppWizName=Enter Winget AppWiz Name (Cannot contain spaces):
 SET /P WingetID=Enter Winget ID: 
 ECHO install_silent_winget_psexec
 IF "%_SANDBOX%"=="Yes" (
     ECHO Machine is detected as Sandbox
     ECHO Friendly warning: Winget is not supported in Sandbox. So this will fail!
-    "%~dp0PsExec64.exe" \\localhost /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru -WingetFriendlyName %WingetFriendlyName% -WingetID %WingetID%
+    "%~dp0PsExec64.exe" \\localhost /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru -AppWizName %WingetAppWizName% -WingetID %WingetID%
 ) ELSE (
-    "%~dp0PsExec64.exe" /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru -WingetFriendlyName %WingetFriendlyName% -WingetID %WingetID%
+    "%~dp0PsExec64.exe" /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru -AppWizName %WingetAppWizName% -WingetID %WingetID%
 )
 TIMEOUT 10 >NUL
 GOTO :MENU
@@ -202,15 +202,15 @@ GOTO :MENU
 
 :Uninstall_silent_winget_psexec
 CLS
-SET /P WingetFriendlyName=Enter Winget Friendly Name (Cannot contain spaces) : 
+SET /P WingetAppWizName=Enter Winget AppWiz Name (Cannot contain spaces):
 SET /P WingetID=Enter Winget ID: 
 ECHO uninstall_silent_winget_psexec
 IF "%_SANDBOX%"=="Yes" (
     ECHO Machine is detected as Sandbox
     ECHO Friendly warning: Winget is not supported in Sandbox. So this will fail!
-    "%~dp0PsExec64.exe" \\localhost /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Uninstall -DeployMode Silent -AllowRebootPassThru -WingetFriendlyName %WingetFriendlyName% -WingetID %WingetID%
+    "%~dp0PsExec64.exe" \\localhost /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Uninstall -DeployMode Silent -AllowRebootPassThru -AppWizName %WingetAppWizName% -WingetID %WingetID%
 ) ELSE (
-    "%~dp0PsExec64.exe" /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Uninstall -DeployMode Silent -AllowRebootPassThru -WingetFriendlyName %WingetFriendlyName% -WingetID %WingetID%
+    "%~dp0PsExec64.exe" /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Uninstall -DeployMode Silent -AllowRebootPassThru -AppWizName %WingetAppWizName% -WingetID %WingetID%
 )
 TIMEOUT 10 >NUL
 GOTO :MENU

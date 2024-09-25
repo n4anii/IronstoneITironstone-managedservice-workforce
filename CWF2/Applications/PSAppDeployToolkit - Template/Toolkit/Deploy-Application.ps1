@@ -30,7 +30,7 @@ Param (
     [Parameter(Mandatory = $false)]
     [switch]$DisableLogging = $false,
     [Parameter(Mandatory = $false)]
-    [String]$WingetFriendlyName,
+    [String]$AppWizName,
     [Parameter(Mandatory = $false)]
     [String]$WingetID
 )
@@ -62,7 +62,7 @@ Try {
 
     ## Update variables with FriendlyName and WingetID if they are set
     if ($PSBoundParameters.ContainsKey('WingetFriendlyName') -and $PSBoundParameters.ContainsKey('WingetID')) {
-        $appName = "$WingetFriendlyName"
+        $appName = "$AppWizName"
         $appVendor = 'Winget'
         $appVersion = 'Latest'
     }
@@ -130,7 +130,7 @@ Try {
         ## Show Welcome Message, close apps if required, allow up to 3 deferrals, verify there is enough disk space to complete the install, and persist the prompt
         Show-InstallationWelcome -CloseApps $CloseApps -AllowDefer -DeferTimes 3 -CheckDiskSpace -PersistPrompt
         if ($appVendor -like 'Winget') {
-            Invoke-Winget -Action Install -Name "$WingetFriendlyName" -ID "$WingetID"
+            Invoke-Winget -Action Install -AppWizName "$AppWizName" -ID "$WingetID"
         }
 
         ## See Examples.ps1 for information on how to use these functions
@@ -151,7 +151,7 @@ Try {
         ## Show Welcome Message, close apps with a 60 second countdown before automatically closing
         Show-InstallationWelcome -CloseApps $CloseApps -CloseAppsCountdown 60
         if ($appVendor -like 'Winget') {
-            Invoke-Winget -Action Uninstall -Name "$WingetFriendlyName" -ID "$WingetID"
+            Invoke-Winget -Action Uninstall -AppWizName "$AppWizName" -ID "$WingetID"
         }
 
         ## <Perform Uninstal tasks here>

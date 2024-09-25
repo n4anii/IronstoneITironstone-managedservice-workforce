@@ -108,11 +108,11 @@ function Invoke-Winget {
 
     .DESCRIPTION
         This script uses Winget to install or uninstall an application based on the provided parameters. 
-        It supports specifying the application name, Winget ID, version, scope, and log location.
+        It supports specifying the application AppWizName, Winget ID, version, scope, and log location.
 
     .EXAMPLE
-        Invoke-Winget -Action Install -Name "7-Zip" -ID "7zip.7zip"
-        Invoke-Winget -Action Uninstall -Name "7-Zip" -ID "7zip.7zip"
+        Invoke-Winget -Action Install -AppWizName "7-Zip" -ID "7zip.7zip"
+        Invoke-Winget -Action Uninstall -AppWizName "7-Zip" -ID "7zip.7zip"
 
     .NOTES
         Version: 1.1.0.0
@@ -129,7 +129,7 @@ function Invoke-Winget {
 
         # Friendly Name (Make it identical to the appwiz entry)
         [Parameter(Mandatory=$true)]
-        [string]$Name,
+        [string]$AppWizName,
 
         #  The ID used by Winget to identify the application
         [Parameter(Mandatory=$true)]
@@ -175,8 +175,8 @@ function Invoke-Winget {
                 Write-Log -Message "Executing: $((Get-Location).Path) .\Winget.exe Install --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log"
                 .\Winget.exe Install --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log
             } elseif ($Action -like "Uninstall") {
-                Write-Log -Message "Executing: $((Get-Location).Path) .\Winget.exe Uninstall --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log"
-                .\Winget.exe Uninstall --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log
+                Write-Log -Message "Executing: $((Get-Location).Path) .\Winget.exe Uninstall --id $ID --exact --scope $Scope --silent --disable-interactivity --log $Log"
+                .\Winget.exe Uninstall --id $ID --exact --scope $Scope --silent --disable-interactivity --log $Log
             }
             Start-Sleep -Seconds 3
             Write-Log -Message "Reverting working directory!"
@@ -250,10 +250,10 @@ Function Uninstall-Apps {
             } elseif ($App.Type -eq "Winget") {
                 if (($env:USERNAME -like "$env:COMPUTERNAME*") -and ($App.Scope -eq "Machine")) {
                     Write-Log -Message "Uninstalling $($App.Name) with Winget as System"
-                    Invoke-Winget -Action Uninstall -Name "$($App.Name)" -ID "$App.ID" -Scope Machine
+                    Invoke-Winget -Action Uninstall -AppWizName "$($App.Name)" -ID "$App.ID" -Scope Machine
                 } elseif (($env:USERNAME -ne "$env:COMPUTERNAME*") -and ($App.Scope -eq "User")) {
                     Write-Log -Message "Uninstalling $($App.Name) with Winget as User"
-                    Invoke-Winget -Action Uninstall -Name "$($App.Name)" -ID "$App.ID" -Scope User
+                    Invoke-Winget -Action Uninstall -AppWizName "$($App.Name)" -ID "$App.ID" -Scope User
                 }
             } elseif ($App.Type -eq "AppX") {
                 if ($env:USERNAME -like "$env:COMPUTERNAME*") { #If user is System you can uninstall for AllUsers and ProvisionedPackages
@@ -413,7 +413,7 @@ function Test-InstallPrereqs {
                 Execute-MSI -Action Install -Path $InstallationFile.FullName -AddParameters $Software.Value.Parameters
             } elseif ($InstallationFile -like "Winget") {
                 Show-InstallationProgress "Installing $Name"
-                Invoke-Winget -Action Install -Name "$($Name)" -ID "$($InstallationFile.WingetID)"
+                Invoke-Winget -Action Install -AppWizName "$($Name)" -ID "$($InstallationFile.WingetID)"
             } else {
                 Write-Log -Message "Installation file for $Name not found." -Severity 3
             }
