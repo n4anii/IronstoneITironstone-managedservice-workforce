@@ -61,7 +61,7 @@ Try {
     [String]$installTitle = ''
 
     ## Update variables with FriendlyName and WingetID if they are set
-    if ($PSBoundParameters.ContainsKey('WingetFriendlyName') -and $PSBoundParameters.ContainsKey('WingetID')) {
+    if ($PSBoundParameters.ContainsKey('AppWizName') -and $PSBoundParameters.ContainsKey('WingetID')) {
         $appName = "$AppWizName"
         $appVendor = 'Winget'
         $appVersion = 'Latest'
