@@ -293,10 +293,11 @@ Function Remove-Leftovers {
         Call from Deploy-Application.ps1 like this Remove-Leftovers -Cleanups $Cleanups
  
     .NOTES
-        Version: 1.0.0.0
+        Version: 1.1.0.0
         Author: Herman Bergsløkken / IronstoneIT
         Creation Date: 2024.06.04
-        Purpose/Change: Initial script development
+        Date Modified: 2024.09.30
+        Purpose/Change: Updated to handle multiple resolved paths and added enhanced error handling
     #>
     param(
         [Parameter(Mandatory=$true)]
@@ -305,11 +306,18 @@ Function Remove-Leftovers {
 
     Write-Log -Message "Starting Remove-Leftovers function."
     foreach ($Cleanup in $Cleanups) {
-        if (Test-Path -Path $Cleanup) {
-            Write-Log -Message "Removing $Cleanup"
-            Remove-Item -Path $Cleanup -Recurse -Force -ErrorAction SilentlyContinue
-        } else {
-            Write-Log -Message "$Cleanup does not exist on the target computer"
+        $ResolvedPaths = Get-ChildItem -Path $Cleanup -ErrorAction SilentlyContinue
+        foreach ($Path in $ResolvedPaths) {
+            if (Test-Path -Path $Path.FullName) {
+                Write-Log -Message "Removing $($Path.FullName)"
+                Try {
+                    Remove-Item -Path $Path.FullName -Recurse -Force -ErrorAction Stop
+                } Catch {
+                    Write-Log -Message "Error removing $($Path.FullName): $_"
+                }
+            } else {
+                Write-Log -Message "$($Path.FullName) does not exist on the target computer"
+            }
         }
     }
 }
