@@ -22,6 +22,13 @@ $DetectionDetails3 = @{
     Type = "Registry"
 }
 
+$DetectionDetails4 = @{
+    FilePath = "C:\Users\*\Desktop\short.rdp" # Wildcards are supported
+    #DesiredVersion = "1.0.0.0" # Uncomment if you need to check for a specific version
+    #DesiredDate = (Get-Date "2024-10-07T00:00:00Z").ToUniversalTime() # Uncomment if you need to check for a specific date
+    Type = "File"
+}
+
 function Test-EXEInstalled {
     param ([Hashtable]$DetectionDetails)
     $package = Get-Package -Name $DetectionDetails["DisplayName"] -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
@@ -64,6 +71,30 @@ function Test-RegistryKey {
         return $false
     }
 }
+function Test-FileExists {
+    param ([Hashtable]$DetectionDetails)
+    $files = Get-ChildItem -Path $DetectionDetails["FilePath"] -ErrorAction SilentlyContinue
+    if ($files) {
+        foreach ($file in $files) {
+            if ($DetectionDetails.ContainsKey("DesiredVersion")) {
+                $fileVersion = $file.VersionInfo.FileVersion
+                $desiredVersion = [version]$DetectionDetails["DesiredVersion"]
+                if ($fileVersion -ge $desiredVersion) {
+                    return $true
+                }
+            } elseif ($DetectionDetails.ContainsKey("DesiredDate")) {
+                $desiredDate = [datetime]$DetectionDetails["DesiredDate"]
+                if ($file.LastWriteTime -ge $desiredDate) {
+                    return $true
+                }
+            } else {
+                return $true
+            }
+        }
+        return $false
+    }
+    return $false
+}
 function Test-AppsInstalled {
     # Find all $DetectionDetails variables
     $DetectionDetailsVariables = Get-Variable | Where-Object { $_.Name -match 'DetectionDetails[0-9]' }
@@ -77,6 +108,8 @@ function Test-AppsInstalled {
             $result = $result -and (Test-AppXInstalled -DetectionDetails $DetectionDetails)
         } elseif ($DetectionDetails["Type"] -eq "Registry") {
             $result = $result -and (Test-RegistryKey -DetectionDetails $DetectionDetails)
+        } elseif ($DetectionDetails["Type"] -eq "File") {
+            $result = $result -and (Test-FileExists -DetectionDetails $DetectionDetails)
         }
     }
 
