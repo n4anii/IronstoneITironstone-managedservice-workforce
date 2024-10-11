@@ -74,24 +74,41 @@ function Get-WingetPath {
         Purpose/Change: Returns Path (directory) and not fullpath to winget.exe
                         Added version check of Winget
     #>
+    [CmdletBinding()]
+    param (
+
+        [Parameter(Mandatory=$false)]
+        [ValidateSet("User", "Machine")]
+        [string]$OverrideContext
+    )
 
     Write-Log -Message "Starting Get-WingetPath function."
     # Determine the context in which the script is running
     $isSystemContext = $env:USERNAME -like "$env:COMPUTERNAME*"
     Write-Log -Message "Script is running in $(if ($isSystemContext) {'system'} else {'user'}) context."
+    if ($OverrideContext) {
+        Write-Log -Message "Over ride context is set to $($OverrideContext)"
+    }
 
     # If running in system context, resolve the path where winget.exe is found
     if ($isSystemContext) {
-        $WingetPath = Resolve-Path -Path "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_*__8wekyb3d8bbwe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path 
-        [version]$WingetVersion = ($WingetPath | Select-String -Pattern "\d+\.\d+\.\d+\.0").Matches.Value
-        [Version]$MinimumVersion = "1.23.1911.0"
-        if ((-not($WingetPath)) -or (-not($WingetVersion -ge $MinimumVersion))) {
-            Write-Log -Message "[ERROR] Winget not installed or Winget version $WingetVersion is not acceptable" -Severity 3
-            return $null
+        if ($OverrideContext -notlike "User") {
+            $WingetPath = Resolve-Path -Path "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_*__8wekyb3d8bbwe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path 
+            [version]$WingetVersion = ($WingetPath | Select-String -Pattern "\d+\.\d+\.\d+\.0").Matches.Value
+            [Version]$MinimumVersion = "1.23.1911.0"
+            if ((-not($WingetPath)) -or (-not($WingetVersion -ge $MinimumVersion))) {
+                Write-Log -Message "[ERROR] Winget not installed or Winget version $WingetVersion is not acceptable" -Severity 3
+                return $null
+            } else {
+                Write-Log -Message "Winget is running an acceptable version $($WingetVersion)"
+                Write-Log -Message "Logs can be found $WingetLogFilePath"
+                Write-Log -Message "Found path to winget directory $($WingetPath)"
+                return $WingetPath | Where-Object {$_ -like "*Microsoft.DesktopAppInstaller*"}
+            }
         } else {
-            Write-Log -Message "Winget is running an acceptable version $($WingetVersion)"
+            $LoggedOnUser = Get-LoggedOnUser
+            $WingetPath = Resolve-Path -Path "C:\Users\$($LoggedOnUser.Username)\AppData\Local\Microsoft\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path
             Write-Log -Message "Logs can be found $WingetLogFilePath"
-            Write-Log -Message "Found path to winget directory $($WingetPath)"
             return $WingetPath | Where-Object {$_ -like "*Microsoft.DesktopAppInstaller*"}
         }
     } else {
@@ -158,8 +175,8 @@ function Invoke-Winget {
             }
         }
         Test-InstallPrereqs -RequiredPrereqs $RequiredPrereqs
+        [string]$WingetDirectory = Get-WingetPath -OverrideContext $UserContext
         Write-Log -Message "Starting Invoke-Winget function."
-        [string]$WingetDirectory = Get-WingetPath
     }
 
     Process {
