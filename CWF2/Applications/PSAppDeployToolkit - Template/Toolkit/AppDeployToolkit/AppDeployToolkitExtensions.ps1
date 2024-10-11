@@ -182,7 +182,7 @@ function Invoke-Winget {
 
         if ($UserContext -like "user") {
             $LogPath = Resolve-Path -Path "C:\Users\$($LoggedOnUser.Username)\AppData\Local\Temp"
-            $LogPath = $LogPath + "\Winget.log"
+            $LogPath = Join-Path "$LogPath" "Winget.log"
         } else {
             $LogPath = "$env:TEMP\Winget.log"
         }
