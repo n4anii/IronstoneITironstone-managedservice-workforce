@@ -1,5 +1,5 @@
 @ECHO OFF
-:: Version 1.5.0.0
+:: Version 1.5.1.0
 SETLOCAL ENABLEDELAYEDEXPANSION
 IF "%USERNAME%"=="WDAGUtilityAccount" (
 	SET _SANDBOX=Yes
@@ -108,7 +108,7 @@ GOTO :MENU
 CLS
 SET /P WingetAppWizName=Enter Winget AppWiz Name (Cannot contain spaces):
 SET /P WingetID=Enter Winget ID: 
-SET /P UserContext=User or Machine (Machine should always be used): 
+SET /P UserContext=User or Machine (Machine should normally be used): 
 ECHO install_silent_winget_psexec
 IF "%_SANDBOX%"=="Yes" (
     ECHO Machine is detected as Sandbox
@@ -205,7 +205,7 @@ GOTO :MENU
 CLS
 SET /P WingetAppWizName=Enter Winget AppWiz Name (Cannot contain spaces):
 SET /P WingetID=Enter Winget ID: 
-SET /P UserContext=User or Machine (Machine should always be used): 
+SET /P UserContext=User or Machine (Machine should normally be used): 
 ECHO uninstall_silent_winget_psexec
 IF "%_SANDBOX%"=="Yes" (
     ECHO Machine is detected as Sandbox
