@@ -58,7 +58,7 @@ Param (
 ##*===============================================
 ##* FUNCTION LISTINGS
 ##*===============================================
-
+$LoggedOnUser = Get-LoggedOnUser
 function Get-WingetPath {
     <#
     .SYNOPSIS
@@ -106,7 +106,6 @@ function Get-WingetPath {
                 return $WingetPath | Where-Object {$_ -like "*Microsoft.DesktopAppInstaller*"}
             }
         } else {
-            $LoggedOnUser = Get-LoggedOnUser
             $WingetPath = Resolve-Path -Path "C:\Users\$($LoggedOnUser.Username)\AppData\Local\Microsoft\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path
             Write-Log -Message "Logs can be found $WingetLogFilePath"
             return $WingetPath | Where-Object {$_ -like "*Microsoft.DesktopAppInstaller*"}
@@ -180,18 +179,25 @@ function Invoke-Winget {
     }
 
     Process {
-        
-        $wingetParams = "--id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $env:TEMP\Winget.log"
-        $logMessage = "Executing: $((Get-Location).Path) .\Winget.exe $Action $wingetParams"
+
+        if ($UserContext -like "user") {
+            $LogPath = Resolve-Path -Path "C:\Users\$($LoggedOnUser.Username)\AppData\Local\Temp"
+            $LogPath = $LogPath + "\Winget.log"
+        } else {
+            $LogPath = "$env:TEMP\Winget.log"
+        }
+
+        $wingetParams = "--id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $LogPath"
+        $logMessage = "Executing: $($WingetDirectory)\Winget.exe $Action $wingetParams"
         
         if (-not [string]::IsNullOrEmpty($WingetDirectory)) {
-            Write-Log -Message "Setting $WingetDirectory as working directory!"
-            Set-Location -Path $WingetDirectory
             if ($Action -like "Install" -or $Action -like "Uninstall") {
                 Write-Log -Message $logMessage
                 if ($Scope -eq "user") {
                     Execute-ProcessAsUser -Path "$WingetDirectory\winget.exe" -Parameters $wingetParams
                 } else {
+                    Write-Log -Message "Setting $WingetDirectory as working directory!"
+                    Set-Location -Path $WingetDirectory
                     .\Winget.exe $wingetParams
                 }
             }
