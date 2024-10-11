@@ -113,12 +113,13 @@ function Invoke-Winget {
     .EXAMPLE
         Invoke-Winget -Action Install -AppWizName "7-Zip" -ID "7zip.7zip"
         Invoke-Winget -Action Uninstall -AppWizName "7-Zip" -ID "7zip.7zip"
+        Invoke-Winget -Action Install -AppWizName "Draw.io" -ID "JGraph.Draw" -Scope User
 
     .NOTES
-        Version: 1.1.0.0
+        Version: 1.2.0.0
         Author: Herman Bergsløkken / IronstoneIT
         Creation Date: 2024-09-12
-        Purpose Change: Added required prereqs to make Winget run in System Context
+        Purpose Change: First implementation of Winget as user
     #>
     [CmdletBinding()]
     param (
@@ -147,12 +148,6 @@ function Invoke-Winget {
 
     Begin {
 
-        if ($Scope -eq "machine") {
-            $Log = "C:\Windows\Logs\Software\Winget.log"
-        } else {
-            $Log = "$env:TEMP\Winget.log"
-        }
-
         # Is required to run Winget in System-Context
         $RequiredPrereqs = [PSCustomObject]@{
             "Microsoft Visual C++ 2015-2022 Redistributable (x64)" = @{
@@ -168,15 +163,20 @@ function Invoke-Winget {
     }
 
     Process {
+        
+        $wingetParams = "--id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $env:TEMP\Winget.log"
+        $logMessage = "Executing: $((Get-Location).Path) .\Winget.exe $Action $wingetParams"
+        
         if (-not [string]::IsNullOrEmpty($WingetDirectory)) {
             Write-Log -Message "Setting $WingetDirectory as working directory!"
             Set-Location -Path $WingetDirectory
-            if ($Action -like "Install") {
-                Write-Log -Message "Executing: $((Get-Location).Path) .\Winget.exe Install --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log"
-                .\Winget.exe Install --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log
-            } elseif ($Action -like "Uninstall") {
-                Write-Log -Message "Executing: $((Get-Location).Path) .\Winget.exe Uninstall --id $ID --exact --scope $Scope --silent --disable-interactivity --log $Log"
-                .\Winget.exe Uninstall --id $ID --exact --scope $Scope --silent --disable-interactivity --log $Log
+            if ($Action -like "Install" -or $Action -like "Uninstall") {
+                Write-Log -Message $logMessage
+                if ($Scope -eq "user") {
+                    Execute-ProcessAsUser -Path "$WingetDirectory\winget.exe" -Parameters $wingetParams
+                } else {
+                    .\Winget.exe $wingetParams
+                }
             }
             Start-Sleep -Seconds 3
             Write-Log -Message "Reverting working directory!"
@@ -185,7 +185,6 @@ function Invoke-Winget {
             Write-Log -Message "No Winget directory was found. Unable to continue." -Severity 3
         }
     }
-
     End {
         Write-Log -Message "Ending Invoke-Winget function."
     }

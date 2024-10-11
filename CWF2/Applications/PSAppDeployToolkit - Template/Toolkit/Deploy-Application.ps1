@@ -32,7 +32,10 @@ Param (
     [Parameter(Mandatory = $false)]
     [String]$AppWizName,
     [Parameter(Mandatory = $false)]
-    [String]$WingetID
+    [String]$WingetID,
+    [Parameter(Mandatory = $false)]
+    [ValidateSet("user", "machine")]
+    [String]$UserContext
 )
 
 Try {
@@ -130,7 +133,7 @@ Try {
         ## Show Welcome Message, close apps if required, allow up to 3 deferrals, verify there is enough disk space to complete the install, and persist the prompt
         Show-InstallationWelcome -CloseApps $CloseApps -AllowDefer -DeferTimes 3 -CheckDiskSpace -PersistPrompt
         if ($appVendor -like 'Winget') {
-            Invoke-Winget -Action Install -AppWizName "$AppWizName" -ID "$WingetID"
+            Invoke-Winget -Action Install -AppWizName "$AppWizName" -ID "$WingetID" -Scope "$UserContext"
         }
 
         ## See Examples.ps1 for information on how to use these functions
@@ -151,7 +154,7 @@ Try {
         ## Show Welcome Message, close apps with a 60 second countdown before automatically closing
         Show-InstallationWelcome -CloseApps $CloseApps -CloseAppsCountdown 60
         if ($appVendor -like 'Winget') {
-            Invoke-Winget -Action Uninstall -AppWizName "$AppWizName" -ID "$WingetID"
+            Invoke-Winget -Action Uninstall -AppWizName "$AppWizName" -ID "$WingetID" -Scope "$UserContext"
         }
 
         ## <Perform Uninstal tasks here>
