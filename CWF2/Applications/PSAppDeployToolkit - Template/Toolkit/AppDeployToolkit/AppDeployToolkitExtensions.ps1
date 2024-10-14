@@ -101,19 +101,16 @@ function Get-WingetPath {
                 return $null
             } else {
                 Write-Log -Message "Winget is running an acceptable version $($WingetVersion)"
-                Write-Log -Message "Logs can be found $WingetLogFilePath"
                 Write-Log -Message "Found path to winget directory $($WingetPath)"
                 return $WingetPath | Where-Object {$_ -like "*Microsoft.DesktopAppInstaller*"}
             }
         } else {
             $WingetPath = Resolve-Path -Path "C:\Users\$($LoggedOnUser.Username)\AppData\Local\Microsoft\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path
-            Write-Log -Message "Logs can be found $WingetLogFilePath"
             return $WingetPath | Where-Object {$_ -like "*Microsoft.DesktopAppInstaller*"}
         }
     } else {
         # If running in user context, winget can be called directly
         $WingetPath = Resolve-Path -Path "$env:LOCALAPPDATA\Microsoft\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path
-        Write-Log -Message "Logs can be found $WingetLogFilePath"
         return $WingetPath | Where-Object {$_ -like "*Microsoft.DesktopAppInstaller*"}
     }
 }
@@ -183,8 +180,10 @@ function Invoke-Winget {
         if ($UserContext -like "user") {
             $LogPath = Resolve-Path -Path "C:\Users\$($LoggedOnUser.Username)\AppData\Local\Temp"
             $LogPath = Join-Path "$LogPath" "Winget.log"
+            Write-Log -Message "LogPath is $LogPath"
         } else {
             $LogPath = "$env:TEMP\Winget.log"
+            Write-Log -Message "LogPath is $LogPath"
         }
 
         $wingetParams = "--id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $LogPath"
