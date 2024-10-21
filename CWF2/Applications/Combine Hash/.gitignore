@@ -1,0 +1,7 @@
+!/.vscode/
+/.vscode/*
+!/Files/
+/Files/*
+*.csv
+*v.ps1
+*.Tests.ps1
