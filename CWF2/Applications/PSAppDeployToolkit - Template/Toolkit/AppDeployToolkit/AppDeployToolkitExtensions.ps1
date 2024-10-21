@@ -60,6 +60,20 @@ Param (
 ##*===============================================
 $Global:LoggedOnUser = Get-LoggedOnUser
 function Get-WingetPath {
+    <#
+    .SYNOPSIS
+        Resolves the location of Winget.exe, so that winget can run in both user and System-context
+
+    .Example
+        Call from Deploy-Application.ps1 like this $WingetPath = Get-WingetPath
+ 
+    .NOTES
+        Version: 1.2.0.1
+        Author: Herman Bergsløkken / IronstoneIT
+        Creation Date: 2024.10.21
+        Purpose/Change: Returns Path (directory) and not fullpath to winget.exe
+                        Added version check of Winget
+    #>
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$false)]
@@ -107,6 +121,24 @@ function Get-WingetPath {
     }
 }
 function Invoke-Winget {
+    <#
+    .SYNOPSIS
+        This script installs or uninstalls an application using Winget.
+
+    .DESCRIPTION
+        This script uses Winget to install or uninstall an application based on the provided parameters. 
+        It supports specifying the application AppWizName, Winget ID, version, scope, and log location.
+
+    .EXAMPLE
+        Invoke-Winget -Action Install -AppWizName "7-Zip" -ID "7zip.7zip" -Scope Machine
+        Invoke-Winget -Action Uninstall -AppWizName "7-Zip" -ID "7zip.7zip" -Scope Machine
+
+    .NOTES
+        Version: 1.2.0.0
+        Author: Herman Bergsløkken / IronstoneIT
+        Creation Date: 2024-09-12
+        Purpose Change: Added scope user and machine
+    #>
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$true)]
