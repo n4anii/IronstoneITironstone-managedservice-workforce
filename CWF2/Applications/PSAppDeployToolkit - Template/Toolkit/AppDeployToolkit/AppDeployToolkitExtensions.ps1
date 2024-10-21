@@ -111,7 +111,7 @@ function Invoke-Winget {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$true)]
-        [ValidateSet("Install", "Uninstall")]
+        [ValidateSet("install", "uninstall")]
         [string]$Action,
 
         [Parameter(Mandatory=$true)]
@@ -243,10 +243,10 @@ Function Uninstall-Apps {
             } elseif ($App.Type -eq "Winget") {
                 if (($env:USERNAME -like "$env:COMPUTERNAME*") -and ($App.Scope -eq "Machine")) {
                     Write-Log -Message "Uninstalling $($App.Name) with Winget as System"
-                    Invoke-Winget -Action Uninstall -AppWizName "$($App.Name)" -ID "$App.ID" -Scope Machine
+                    Invoke-Winget -Action uninstall -AppWizName "$($App.Name)" -ID "$App.ID" -Scope Machine
                 } elseif ($App.Scope -eq "User") {
                     Write-Log -Message "Uninstalling $($App.Name) with Winget as User"
-                    Invoke-Winget -Action Uninstall -AppWizName "$($App.Name)" -ID "$App.ID" -Scope User
+                    Invoke-Winget -Action uninstall -AppWizName "$($App.Name)" -ID "$App.ID" -Scope User
                 }
             } elseif ($App.Type -eq "AppX") {
                 if ($env:USERNAME -like "$env:COMPUTERNAME*") { #If user is System you can uninstall for AllUsers and ProvisionedPackages
