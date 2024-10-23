@@ -188,7 +188,7 @@ function Invoke-Winget {
         Write-Log -Message "LogPath is $LogPath"
 
         $wingetParams = @(
-            $Action.ToLower()
+            $Action
             "--id"
             $ID
             "--exact"
@@ -202,10 +202,19 @@ function Invoke-Winget {
             $LogPath
         )
 
+        if ($Action -like "Uninstall") {
+            Write-Log -Message "Removing --accept-package-agreements since action is Uninstall"
+            $wingetParams = $wingetParams -replace "--accept-package-agreements", ""
+        }
+
         # Add version if specified
         if (-not [string]::IsNullOrEmpty($Version)) {
+            Write-Log -Message "Adding --version"
             $wingetParams += @("--version", $Version)
         }
+
+        Write-Log -Message "Remove whitespace and blank lines"
+        $wingetParams = $wingetParams | Where-Object {$_ -ne ""}
 
         $logMessage = "Executing: $($WingetDirectory)\Winget.exe $($wingetParams -join ' ')"
         
