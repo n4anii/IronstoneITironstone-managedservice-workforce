@@ -58,7 +58,7 @@ Param (
 ##*===============================================
 ##* FUNCTION LISTINGS
 ##*===============================================
-
+$Global:LoggedOnUser = Get-LoggedOnUser
 function Get-WingetPath {
     <#
     .SYNOPSIS
@@ -68,36 +68,55 @@ function Get-WingetPath {
         Call from Deploy-Application.ps1 like this $WingetPath = Get-WingetPath
  
     .NOTES
-        Version: 1.2.0.0
+        Version: 1.2.0.1
         Author: Herman Bergsløkken / IronstoneIT
-        Creation Date: 2024.08.28
+        Creation Date: 2024.10.21
         Purpose/Change: Returns Path (directory) and not fullpath to winget.exe
                         Added version check of Winget
     #>
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$false)]
+        [ValidateSet("User", "Machine")]
+        [string]$OverrideContext
+    )
 
     Write-Log -Message "Starting Get-WingetPath function."
     # Determine the context in which the script is running
     $isSystemContext = $env:USERNAME -like "$env:COMPUTERNAME*"
     Write-Log -Message "Script is running in $(if ($isSystemContext) {'system'} else {'user'}) context."
+    if ($OverrideContext) {
+        Write-Log -Message "Override context is set to $($OverrideContext)"
+    }
 
     # If running in system context, resolve the path where winget.exe is found
     if ($isSystemContext) {
-        $WingetPath = Resolve-Path -Path "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_*__8wekyb3d8bbwe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path 
-        [version]$WingetVersion = ($WingetPath | Select-String -Pattern "\d+\.\d+\.\d+\.0").Matches.Value
-        [Version]$MinimumVersion = "1.23.1911.0"
-        if ((-not($WingetPath)) -or (-not($WingetVersion -ge $MinimumVersion))) {
-            Write-Log -Message "[ERROR] Winget not installed or Winget version $WingetVersion is not acceptable" -Severity 3
-            return $null
+        if ($OverrideContext -notlike "User") {
+            $WingetPath = Resolve-Path -Path "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_*__8wekyb3d8bbwe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path 
+            [version]$WingetVersion = ($WingetPath | Select-String -Pattern "\d+\.\d+\.\d+\.0").Matches.Value
+            [Version]$MinimumVersion = "1.23.1911.0"
+            if ((-not($WingetPath)) -or (-not($WingetVersion -ge $MinimumVersion))) {
+                Write-Log -Message "[ERROR] Winget not installed or Winget version $WingetVersion is not acceptable" -Severity 3
+                return $null
+            } else {
+                Write-Log -Message "Winget is running an acceptable version $($WingetVersion)"
+                Write-Log -Message "Found path to winget directory $($WingetPath)"
+                return $WingetPath | Where-Object {$_ -like "*Microsoft.DesktopAppInstaller*"}
+            }
         } else {
-            Write-Log -Message "Winget is running an acceptable version $($WingetVersion)"
-            Write-Log -Message "Logs can be found $WingetLogFilePath"
-            Write-Log -Message "Found path to winget directory $($WingetPath)"
+            Write-Log -Message "Resolving path to current logged on user's Winget"
+            if (-not $LoggedOnUser) {
+                Write-Log -Message "ERROR: LoggedOnUser variable not found" -Severity 3
+                return $null
+            }
+            $WingetPath = Resolve-Path -Path "C:\Users\$($LoggedOnUser.Username)\AppData\Local\Microsoft\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path
+            Write-Log -Message "Resolved Path is $($WingetPath)"
             return $WingetPath | Where-Object {$_ -like "*Microsoft.DesktopAppInstaller*"}
         }
     } else {
         # If running in user context, winget can be called directly
         $WingetPath = Resolve-Path -Path "$env:LOCALAPPDATA\Microsoft\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path
-        Write-Log -Message "Logs can be found $WingetLogFilePath"
+        Write-Log -Message "Resolved Path is $($WingetPath)"
         return $WingetPath | Where-Object {$_ -like "*Microsoft.DesktopAppInstaller*"}
     }
 }
@@ -111,86 +130,113 @@ function Invoke-Winget {
         It supports specifying the application AppWizName, Winget ID, version, scope, and log location.
 
     .EXAMPLE
-        Invoke-Winget -Action Install -AppWizName "7-Zip" -ID "7zip.7zip"
-        Invoke-Winget -Action Uninstall -AppWizName "7-Zip" -ID "7zip.7zip"
+        Invoke-Winget -Action Install -AppWizName "7-Zip" -ID "7zip.7zip" -Scope Machine
+        Invoke-Winget -Action Uninstall -AppWizName "7-Zip" -ID "7zip.7zip" -Scope Machine
 
     .NOTES
-        Version: 1.1.0.0
+        Version: 1.2.0.0
         Author: Herman Bergsløkken / IronstoneIT
         Creation Date: 2024-09-12
-        Purpose Change: Added required prereqs to make Winget run in System Context
+        Purpose Change: Added scope user and machine
     #>
     [CmdletBinding()]
     param (
-
         [Parameter(Mandatory=$true)]
         [ValidateSet("Install", "Uninstall")]
         [string]$Action,
 
-        # Friendly Name (Make it identical to the appwiz entry)
         [Parameter(Mandatory=$true)]
         [string]$AppWizName,
 
-        #  The ID used by Winget to identify the application
         [Parameter(Mandatory=$true)]
         [string]$ID,
 
-        # The specific version of the application to install, should only be used if absolutely necessary. If not set will install newest
         [Parameter(Mandatory=$false)]
         [string]$Version,
 
-        # Some applications must be installed as user. This might required administrative rights
         [Parameter(Mandatory=$false)]
         [ValidateSet("user", "machine")]
         [string]$Scope = $(if ($env:USERNAME -like "$env:COMPUTERNAME*") {"machine"} else {"user"})
     )
 
     Begin {
-
-        if ($Scope -eq "machine") {
-            $Log = "C:\Windows\Logs\Software\Winget.log"
-        } else {
-            $Log = "$env:TEMP\Winget.log"
-        }
-
-        # Is required to run Winget in System-Context
         $RequiredPrereqs = [PSCustomObject]@{
             "Microsoft Visual C++ 2015-2022 Redistributable (x64)" = @{
-            Version = "14.40.33810.0"
-            InstallationFile = "vc_redist.x64.exe"
-            Parameters = "/install /passive /norestart"
-            URL = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+                Version = "14.40.33810.0"
+                InstallationFile = "vc_redist.x64.exe"
+                Parameters = "/install /passive /norestart"
+                URL = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
             }
         }
         Test-InstallPrereqs -RequiredPrereqs $RequiredPrereqs
+        
+        [string]$WingetDirectory = Get-WingetPath -OverrideContext $Scope
         Write-Log -Message "Starting Invoke-Winget function."
-        [string]$WingetDirectory = Get-WingetPath
     }
 
     Process {
-        if (-not [string]::IsNullOrEmpty($WingetDirectory)) {
-            Write-Log -Message "Setting $WingetDirectory as working directory!"
-            Set-Location -Path $WingetDirectory
-            if ($Action -like "Install") {
-                Write-Log -Message "Executing: $((Get-Location).Path) .\Winget.exe Install --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log"
-                .\Winget.exe Install --id $ID --exact --scope $Scope --accept-source-agreements --accept-package-agreements --silent --disable-interactivity --log $Log
-            } elseif ($Action -like "Uninstall") {
-                Write-Log -Message "Executing: $((Get-Location).Path) .\Winget.exe Uninstall --id $ID --exact --scope $Scope --silent --disable-interactivity --log $Log"
-                .\Winget.exe Uninstall --id $ID --exact --scope $Scope --silent --disable-interactivity --log $Log
+        if ($Scope -eq "user") {
+            if (-not $LoggedOnUser) {
+                Write-Log -Message "ERROR: LoggedOnUser variable not found" -Severity 3
+                return
             }
-            Start-Sleep -Seconds 3
-            Write-Log -Message "Reverting working directory!"
-            Pop-Location
+            $LogPath = Resolve-Path -Path "C:\Users\$($LoggedOnUser.Username)\AppData\Local\Temp"
+            $LogPath = Join-Path $LogPath "Winget.log"
+        } else {
+            $LogPath = "$env:TEMP\Winget.log"
+        }
+        Write-Log -Message "LogPath is $LogPath"
+
+        $wingetParams = @(
+            $Action
+            "--id"
+            $ID
+            "--exact"
+            "--scope"
+            $Scope
+            "--accept-source-agreements"
+            "--accept-package-agreements"
+            "--silent"
+            "--disable-interactivity"
+            "--log"
+            $LogPath
+        )
+
+        if ($Action -like "Uninstall") {
+            Write-Log -Message "Removing --accept-package-agreements since action is Uninstall"
+            $wingetParams = $wingetParams -replace "--accept-package-agreements", ""
+        }
+
+        # Add version if specified
+        if (-not [string]::IsNullOrEmpty($Version)) {
+            Write-Log -Message "Adding --version"
+            $wingetParams += @("--version", $Version)
+        }
+
+        Write-Log -Message "Remove whitespace and blank lines"
+        $wingetParams = $wingetParams | Where-Object {$_ -ne ""}
+
+        $logMessage = "Executing: $($WingetDirectory)\Winget.exe $($wingetParams -join ' ')"
+        
+        if (-not [string]::IsNullOrEmpty($WingetDirectory)) {
+            Write-Log -Message $logMessage
+            if ($Scope -eq "user") {
+                Execute-ProcessAsUser -Path "$WingetDirectory\winget.exe" -Parameters ($wingetParams -join ' ')
+            } else {
+                Write-Log -Message "Setting $WingetDirectory as working directory!"
+                Set-Location -Path $WingetDirectory
+                & .\Winget.exe @wingetParams
+            }
         } else {
             Write-Log -Message "No Winget directory was found. Unable to continue." -Severity 3
         }
     }
-
+    
     End {
+        Pop-Location
         Write-Log -Message "Ending Invoke-Winget function."
     }
-}
-Function Uninstall-Apps {
+}Function Uninstall-Apps {
     <#
     .SYNOPSIS
         Removes apps from a computer in a standardized way
@@ -250,10 +296,10 @@ Function Uninstall-Apps {
             } elseif ($App.Type -eq "Winget") {
                 if (($env:USERNAME -like "$env:COMPUTERNAME*") -and ($App.Scope -eq "Machine")) {
                     Write-Log -Message "Uninstalling $($App.Name) with Winget as System"
-                    Invoke-Winget -Action Uninstall -AppWizName "$($App.Name)" -ID "$App.ID" -Scope Machine
-                } elseif (($env:USERNAME -ne "$env:COMPUTERNAME*") -and ($App.Scope -eq "User")) {
+                    Invoke-Winget -Action uninstall -AppWizName "$($App.Name)" -ID "$App.ID" -Scope Machine
+                } elseif ($App.Scope -eq "User") {
                     Write-Log -Message "Uninstalling $($App.Name) with Winget as User"
-                    Invoke-Winget -Action Uninstall -AppWizName "$($App.Name)" -ID "$App.ID" -Scope User
+                    Invoke-Winget -Action uninstall -AppWizName "$($App.Name)" -ID "$App.ID" -Scope User
                 }
             } elseif ($App.Type -eq "AppX") {
                 if ($env:USERNAME -like "$env:COMPUTERNAME*") { #If user is System you can uninstall for AllUsers and ProvisionedPackages
