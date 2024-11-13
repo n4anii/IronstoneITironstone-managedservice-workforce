@@ -6,7 +6,7 @@ Get-Variable | Where-Object Name -Match 'DetectionDetails[0-9]' | Remove-Variabl
 $DetectionDetails1 = @{
     DisplayName = "Lenovo Vantage Service"
     DesiredVersion = "4.0.52.0"
-    Type = "EXE" # Use EXE also for MSI
+    Type = "Programs" # Use Programs for EXE or MSI
 }
 
 $DetectionDetails2 = @{
@@ -31,9 +31,9 @@ $DetectionDetails4 = @{
 
 function Test-EXEInstalled {
     param ([Hashtable]$DetectionDetails)
-    $package = Get-Package -Name $DetectionDetails["DisplayName"] -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+    $package = Get-Package -Name $DetectionDetails["DisplayName"] -ProviderName $DetectionDetails["Type"] -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
     if ($package) {
-        $installedVersion = [version]$package.Version | Sort-Object | Select-Object -First 1 # Some products might be both MSI and EXE with multiple versions. Example: Vstor_2010
+        $installedVersion = $package | ForEach-Object { [version]$_.Version } | Sort-Object -Descending | Select-Object -First 1
         $desiredVersion = [version]$DetectionDetails["DesiredVersion"]
         return $installedVersion -ge $desiredVersion
     }
@@ -102,7 +102,7 @@ function Test-AppsInstalled {
     # Iterate over each $DetectionDetails variable
     foreach ($appVar in $DetectionDetailsVariables) {
         $DetectionDetails = $appVar.Value
-        if ($DetectionDetails["Type"] -eq "EXE") {
+        if (($DetectionDetails["Type"] -eq "Programs") -or ($DetectionDetails["Type"] -eq "MSI")) {
             $result = $result -and (Test-EXEInstalled -DetectionDetails $DetectionDetails)
         } elseif ($DetectionDetails["Type"] -eq "AppX") {
             $result = $result -and (Test-AppXInstalled -DetectionDetails $DetectionDetails)
