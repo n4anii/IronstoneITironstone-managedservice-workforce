@@ -32,7 +32,9 @@ Param (
     [Parameter(Mandatory = $false)]
     [String]$AppWizName,
     [Parameter(Mandatory = $false)]
-    [String]$WingetID
+    [String]$WingetID,
+    [Parameter(Mandatory = $false)]
+    [String]$CustomParameter
 )
 
 Try {
