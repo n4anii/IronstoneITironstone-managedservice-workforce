@@ -68,9 +68,10 @@ function Get-WingetPath {
         Call from Deploy-Application.ps1 like this $WingetPath = Get-WingetPath
  
     .NOTES
-        Version: 1.2.0.1
+        Version: 1.3.0.0
         Author: Herman Bergsløkken / IronstoneIT
         Creation Date: 2024.10.21
+        Edited Date: 2024.14.11
         Purpose/Change: Returns Path (directory) and not fullpath to winget.exe
                         Added version check of Winget
     #>
