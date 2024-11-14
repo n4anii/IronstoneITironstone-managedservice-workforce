@@ -258,7 +258,9 @@ function Invoke-Winget {
         Pop-Location
         Write-Log -Message "Ending Invoke-Winget function."
     }
-}Function Uninstall-Apps {
+
+}
+Function Uninstall-Apps {
     <#
     .SYNOPSIS
         Removes apps from a computer in a standardized way
