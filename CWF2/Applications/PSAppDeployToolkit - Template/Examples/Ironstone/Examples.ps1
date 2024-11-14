@@ -1,6 +1,9 @@
 # Run installation silent from Intune. User will not see anything. 
 "Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru
 
+# Using Custom parameter
+"Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru -CustomParameter 'WRAPPED_ARGUMENTS=/id:bc274346-XXXX-XXXX-XXXX-1e4b414f9865'
+
 # Run installation visible for user in Intune. $CloseApps works. All dialogs are shown.
 "%SYSTEMROOT%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "Invoke-ServiceUI.ps1" -ProcessName explorer -DeploymentType Install
 
