@@ -92,9 +92,30 @@ function Get-WingetPath {
     # If running in system context, resolve the path where winget.exe is found
     if ($isSystemContext) {
         if ($OverrideContext -notlike "User") {
-            $WingetPath = Resolve-Path -Path "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_*__8wekyb3d8bbwe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path 
-            [version]$WingetVersion = ($WingetPath | Select-String -Pattern "\d+\.\d+\.\d+\.0").Matches.Value
-            [Version]$MinimumVersion = "1.23.1911.0"
+            try {
+                # Default version in case anything fails
+                [Version]$WingetVersion = "0.0.0.0"
+                [Version]$MinimumVersion = "1.23.1911.0"
+            
+                # Get Winget path
+                $WingetPath = Resolve-Path -Path "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_*__8wekyb3d8bbwe" -ErrorAction SilentlyContinue | 
+                    Select-Object -ExpandProperty Path -ErrorAction SilentlyContinue
+            
+                if ($WingetPath) {
+                    # Try to extract version using regex
+                    if ($WingetPath -match "(\d+\.\d+\.\d+\.0)") {
+                        $WingetVersion = [Version]$matches[1]
+                    }
+                }
+            
+                Write-Log -Message "Detected Winget Version: $WingetVersion"
+                Write-Log -Message "Minimum Required Version: $MinimumVersion"
+            }
+            catch {
+                Write-Log -Message "Unable to determine Winget version. Using default version 0.0.0.0"
+                [Version]$WingetVersion = "0.0.0.0"
+            }
+
             if ((-not($WingetPath)) -or (-not($WingetVersion -ge $MinimumVersion))) {
                 Write-Log -Message "[ERROR] Winget not installed or Winget version $WingetVersion is not acceptable" -Severity 3
                 return $null
