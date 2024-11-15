@@ -68,10 +68,10 @@ function Get-WingetPath {
         Call from Deploy-Application.ps1 like this $WingetPath = Get-WingetPath
  
     .NOTES
-        Version: 1.3.0.0
+        Version: 1.3.5.0
         Author: Herman Bergsløkken / IronstoneIT
         Creation Date: 2024.10.21
-        Edited Date: 2024.14.11
+        Edited Date: 2024.15.11
         Purpose/Change: Returns Path (directory) and not fullpath to winget.exe
                         Added version check of Winget
     #>
@@ -103,6 +103,8 @@ function Get-WingetPath {
                     Select-Object -ExpandProperty Path -ErrorAction SilentlyContinue
             
                 if ($WingetPath) {
+                    # Windows 11 24H2 started returning multiple versions of Winget installed. Picking the newest one.
+                    $WingetPath = $WingetPath | Sort-Object { [version]($_ -split '_')[1]} -Descending | Select-Object -First 1
                     # Try to extract version using regex
                     if ($WingetPath -match "(\d+\.\d+\.\d+\.0)") {
                         $WingetVersion = [Version]$matches[1]
