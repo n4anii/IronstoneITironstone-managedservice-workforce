@@ -26,7 +26,7 @@ $DetectionDetails4 = @{
     FilePath = "C:\Users\*\Desktop\short.rdp" # Wildcards are supported
     #DesiredVersion = "1.0.0.0" # Uncomment if you need to check for a specific version
     #DesiredDate = (Get-Date "2024-10-07T00:00:00Z").ToUniversalTime() # Uncomment if you need to check for a specific date
-    Type = "File"
+    Type = "File" #File or Folder
 }
 
 function Test-EXEInstalled {
@@ -73,22 +73,26 @@ function Test-RegistryKey {
 }
 function Test-FileExists {
     param ([Hashtable]$DetectionDetails)
-    $files = Get-ChildItem -Path $DetectionDetails["FilePath"] -ErrorAction SilentlyContinue
-    if ($files) {
-        foreach ($file in $files) {
-            if ($DetectionDetails.ContainsKey("DesiredVersion")) {
-                $fileVersion = $file.VersionInfo.FileVersion
-                $desiredVersion = [version]$DetectionDetails["DesiredVersion"]
-                if ($fileVersion -ge $desiredVersion) {
-                    return $true
-                }
-            } elseif ($DetectionDetails.ContainsKey("DesiredDate")) {
-                $desiredDate = [datetime]$DetectionDetails["DesiredDate"]
-                if ($file.LastWriteTime -ge $desiredDate) {
-                    return $true
-                }
-            } else {
+    $items = Get-ChildItem -Path $DetectionDetails["FilePath"] -ErrorAction SilentlyContinue
+    if ($items) {
+        foreach ($item in $items) {
+            if ($DetectionDetails["Type"] -eq "Folder" -and $item.PSIsContainer) {
                 return $true
+            } elseif ($DetectionDetails["Type"] -eq "File" -and -not $item.PSIsContainer) {
+                if ($DetectionDetails.ContainsKey("DesiredVersion")) {
+                    $fileVersion = $item.VersionInfo.FileVersion
+                    $desiredVersion = [version]$DetectionDetails["DesiredVersion"]
+                    if ($fileVersion -ge $desiredVersion) {
+                        return $true
+                    }
+                } elseif ($DetectionDetails.ContainsKey("DesiredDate")) {
+                    $desiredDate = [datetime]$DetectionDetails["DesiredDate"]
+                    if ($item.LastWriteTime -ge $desiredDate) {
+                        return $true
+                    }
+                } else {
+                    return $true
+                }
             }
         }
         return $false
@@ -108,7 +112,7 @@ function Test-AppsInstalled {
             $result = $result -and (Test-AppXInstalled -DetectionDetails $DetectionDetails)
         } elseif ($DetectionDetails["Type"] -eq "Registry") {
             $result = $result -and (Test-RegistryKey -DetectionDetails $DetectionDetails)
-        } elseif ($DetectionDetails["Type"] -eq "File") {
+        } elseif (($DetectionDetails["Type"] -eq "File") -or ($DetectionDetails["Type"] -eq "Folder")) {
             $result = $result -and (Test-FileExists -DetectionDetails $DetectionDetails)
         }
     }
