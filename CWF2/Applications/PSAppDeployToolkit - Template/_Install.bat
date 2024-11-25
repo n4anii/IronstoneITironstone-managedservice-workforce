@@ -14,6 +14,9 @@ PAUSE
 EXIT
 )
 
+:: Set C:\Windows\Logs\Software as last location for CMTrace to save some time when browsing for logs
+REG ADD "HKEY_CURRENT_USER\Software\Microsoft\Trace32" /V "Last Directory" /T REG_SZ /D "C:\Windows\Logs\Software" /F >NUL
+
 SETLOCAL ENABLEDELAYEDEXPANSION
 IF "%USERNAME%"=="WDAGUtilityAccount" (
 	SET _SANDBOX=Yes
