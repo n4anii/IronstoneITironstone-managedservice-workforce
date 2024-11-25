@@ -6,7 +6,7 @@ Get-Variable | Where-Object Name -Match 'DetectionDetails[0-9]' | Remove-Variabl
 $DetectionDetails1 = @{
     DisplayName = "Lenovo Vantage Service"
     DesiredVersion = "4.0.52.0"
-    Type = "Programs" # Use Programs for EXE or MSI
+    Type = "Programs" # Use Programs or msi (Get-Package -Name "Application Name") and look at "ProviderName"
 }
 
 $DetectionDetails2 = @{
