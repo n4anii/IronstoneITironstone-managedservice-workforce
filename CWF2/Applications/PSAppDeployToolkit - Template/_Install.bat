@@ -1,5 +1,19 @@
 @ECHO OFF
-:: Version 1.5.1.0
+:: Version 1.6.0.0
+
+"%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system" >nul 2>&1 
+IF %ERRORLEVEL% NEQ 0 (
+ECHO.
+ECHO.
+ECHO ***************************************************
+ECHO * This script needs to be run as administrator.   *
+ECHO * Please close the script, rightclick and choose  *
+ECHO *         "Run as administrator"                  *
+ECHO ***************************************************
+PAUSE
+EXIT
+)
+
 SETLOCAL ENABLEDELAYEDEXPANSION
 IF "%USERNAME%"=="WDAGUtilityAccount" (
 	SET _SANDBOX=Yes
