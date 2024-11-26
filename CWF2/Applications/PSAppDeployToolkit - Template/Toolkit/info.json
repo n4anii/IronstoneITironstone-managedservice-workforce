@@ -1,0 +1,15 @@
+{
+  "name": "Application Name",
+  "description": "Your description goes here.",
+  "publisher": "publisher goes here",
+  "installCommand": "Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru",
+  "uninstallCommand": "Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru",
+  "detectionRule": {
+    "ruleType": "PowerShellScript",
+    "scriptContent": "Detection Method.ps1"
+  },
+  "icon": "icon.png",
+  "appVersion": "appVersion goes here",
+  "Owner": "Ironstone",
+  "notes": "Winget - Custom|Winget|Other relevant information"
+}
