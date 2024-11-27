@@ -8,6 +8,10 @@
     "ruleType": "PowerShellScript",
     "scriptContent": "Detection Method.ps1"
   },
+  "RequirementRule": {
+    "ruleType": "PowerShellScript",
+    "scriptContent": "Requirement.ps1"
+  },
   "icon": "icon.png",
   "appVersion": "appVersion goes here",
   "Owner": "Ironstone",
