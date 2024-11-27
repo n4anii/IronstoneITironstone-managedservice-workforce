@@ -1,6 +1,9 @@
 # Run installation silent from Intune. User will not see anything. 
 "Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru
 
+# Install 7-Zip from Winget with default PSADT template
+"Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru -AppWizName '7-Zip' -WingetID 7zip.7zip
+
 # Using Custom parameter
 "Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru -CustomParameter 'WRAPPED_ARGUMENTS=/id:bc274346-XXXX-XXXX-XXXX-1e4b414f9865'
 
