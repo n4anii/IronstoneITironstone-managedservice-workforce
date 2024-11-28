@@ -29,7 +29,7 @@ Execute-ProcessAsUser -Path $env:windir\System32\reg.exe -Parameters "IMPORT `"$
 # For other Prereqs they must be in the Prereqs folder in $dirFiles\PreRequisites
 $RequiredPrereqs = [PSCustomObject]@{
     "Microsoft Visual C++ 2015-2022 Redistributable (x64)" = @{
-        Version = "14.40.33810.0"
+        Version = "14.42.34433.0"
         InstallationFile = "vc_redist.x64.exe"
         Parameters = "/install /passive /norestart"
         URL = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
