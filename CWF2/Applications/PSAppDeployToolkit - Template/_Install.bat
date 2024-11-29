@@ -16,6 +16,10 @@ EXIT
 
 :: Set C:\Windows\Logs\Software as last location for CMTrace to save some time when browsing for logs
 REG ADD "HKEY_CURRENT_USER\Software\Microsoft\Trace32" /V "Last Directory" /T REG_SZ /D "C:\Windows\Logs\Software" /F >NUL
+:: Add Favorites in Regedit for Uninstall locations in registry
+REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Applets\Regedit\Favorites" /V "Uninstall HKLM" /T REG_SZ /D "Computer\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall" /F >NUL
+REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Applets\Regedit\Favorites" /V "Uninstall HKLM WOW6432Node" /T REG_SZ /D "Computer\\HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall" /F >NUL
+REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Applets\Regedit\Favorites" /V "Uninstall HKCU" /T REG_SZ /D "Computer\\HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall" /F >NUL
 
 SETLOCAL ENABLEDELAYEDEXPANSION
 IF "%USERNAME%"=="WDAGUtilityAccount" (
