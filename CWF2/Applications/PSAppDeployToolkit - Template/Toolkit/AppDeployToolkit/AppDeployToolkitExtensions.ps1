@@ -158,10 +158,11 @@ function Invoke-Winget {
         Invoke-Winget -Action Uninstall -AppWizName "7-Zip" -ID "7zip.7zip" -Scope Machine
 
     .NOTES
-        Version: 1.2.0.0
+        Version: 1.4.0.0
         Author: Herman Bergsløkken / IronstoneIT
         Creation Date: 2024-09-12
-        Purpose Change: Added scope user and machine
+        Changed: 2024-12-05
+        Purpose Change: Added better handling for errors and logging
     #>
     [CmdletBinding()]
     param (
@@ -179,8 +180,8 @@ function Invoke-Winget {
         [string]$Version,
 
         [Parameter(Mandatory=$false)]
-        [ValidateSet("user", "machine")]
-        [string]$Scope = $(if ($env:USERNAME -like "$env:COMPUTERNAME*") {"machine"} else {"user"})
+        [ValidateSet("user", "Machine")]
+        [string]$Scope = $(if ($env:USERNAME -like "$env:COMPUTERNAME*") {"Machine"} else {"user"})
     )
 
     Begin {
@@ -228,7 +229,7 @@ function Invoke-Winget {
 
         if ($Action -like "Uninstall") {
             Write-Log -Message "Removing --accept-package-agreements since action is Uninstall"
-            $wingetParams = $wingetParams -replace "--accept-package-agreements", ""
+            $wingetParams = $wingetParams -creplace "--accept-package-agreements", ""
         }
 
         # Add version if specified
@@ -239,17 +240,26 @@ function Invoke-Winget {
 
         Write-Log -Message "Remove whitespace and blank lines"
         $wingetParams = $wingetParams | Where-Object {$_ -ne ""}
-
-        $logMessage = "Executing: $($WingetDirectory)\Winget.exe $($wingetParams -join ' ')"
         
         if (-not [string]::IsNullOrEmpty($WingetDirectory)) {
-            Write-Log -Message $logMessage
             if ($Scope -eq "user") {
+                Write-Log -Message "Executing: $($WingetDirectory)\Winget.exe $($wingetParams -join ' ')"
                 Execute-ProcessAsUser -Path "$WingetDirectory\winget.exe" -Parameters ($wingetParams -join ' ')
             } else {
                 Write-Log -Message "Setting $WingetDirectory as working directory!"
                 Set-Location -Path $WingetDirectory
-                & .\Winget.exe @wingetParams
+                Write-Log -Message "Executing: $($WingetDirectory)\Winget.exe $($wingetParams -join ' ')"
+                $InstallOutput = & .\Winget.exe @wingetParams
+                if ($InstallOutput -match "No applicable installer found; see logs for more details.") {
+                    Write-Log -Message "Specific error caught: $InstallOutput"
+                    Write-Log -Message "Removing --scope Machine since this sometimes makes the difference"
+                    $wingetParams = $wingetParams -creplace "--scope", "" -creplace "Machine", "" | Where-Object {$_ -ne ""}
+                    Write-Log -Message "Executing: $($WingetDirectory)\Winget.exe $($wingetParams -join ' ')"
+                    $InstallOutput = & .\Winget.exe @wingetParams
+                    Write-Log -Message "Command output: $InstallOutput"
+                } else {
+                    Write-Log -Message "Command output: $InstallOutput"
+                }
             }
         } else {
             Write-Log -Message "No Winget directory was found. Unable to continue." -Severity 3
