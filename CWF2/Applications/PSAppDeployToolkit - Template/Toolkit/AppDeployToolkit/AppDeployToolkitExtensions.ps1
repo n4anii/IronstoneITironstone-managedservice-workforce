@@ -478,37 +478,42 @@ function Test-InstallPrereqs {
             $InstalledVersion = $InstalledPackage.Version | Sort-Object | Select-Object -First 1 # Some products might be both MSI and EXE with multiple versions. Example: Vstor_2010
             if (Compare-Version -InstalledVersion $InstalledVersion -RequiredVersion $RequiredVersion) {
                 Write-Log -Message "$Name is installed and up-to-date (Version: $InstalledVersion)"
+                $Install = $false
             } else {
                 Write-Log -Message "$Name is installed but not up-to-date (Installed Version: $InstalledVersion, Required Version: $RequiredVersion)"
+                $Install = $true
             }
         } else {
             Write-Log -Message "$Name is not installed"
+            $Install = $true
         }
         
-        if ($Software.Value.URL) {
-            $InstallationFile = Get-ChildItem -Path "$dirFiles\PreRequisites\$($Software.Value.InstallationFile)"
-            if (-not $InstallationFile) {
-                Write-Log -Message "Downloading $($Software.Value.InstallationFile) from $($Software.Value.URL)"
-                Get-DownloadFile -URL $Software.Value.URL -DestinationFolder "$dirFiles\PreRequisites" -FileName $Software.Value.InstallationFile
+        if ($Install) {
+            if ($Software.Value.URL) {
+                $InstallationFile = Get-ChildItem -Path "$dirFiles\PreRequisites\$($Software.Value.InstallationFile)"
+                if (-not $InstallationFile) {
+                    Write-Log -Message "Downloading $($Software.Value.InstallationFile) from $($Software.Value.URL)"
+                    Get-DownloadFile -URL $Software.Value.URL -DestinationFolder "$dirFiles\PreRequisites" -FileName $Software.Value.InstallationFile
+                }
             }
-        }
 
-        # Determine the installation file type and install
-        $InstallationFile = Get-ChildItem -Path "$dirFiles\PreRequisites\$($Software.Value.InstallationFile)"
-        if ($InstallationFile -like "*.exe") {
-            Show-InstallationProgress "Installing $Name"
-            Execute-Process -Path $InstallationFile.FullName -Parameters $Software.Value.Parameters
-        } elseif ($InstallationFile -like "*.msi") {
-            Show-InstallationProgress "Installing $Name"
-            Execute-MSI -Action Install -Path $InstallationFile.FullName -AddParameters $Software.Value.Parameters
-        } elseif ($InstallationFile -like "Winget") {
-            Show-InstallationProgress "Installing $Name"
-            Invoke-Winget -Action Install -AppWizName "$($Name)" -ID "$($InstallationFile.WingetID)" -Scope "Machine"
-        } elseif ($InstallationFile -like "*.msixbundle") {
-            Show-InstallationProgress "Installing $Name"
-            Add-AppxProvisionedPackage -Online -PackagePath "$($InstallationFile.FullName)" $Software.Value.Parameters
-        } else {
-            Write-Log -Message "Installation file for $Name not found." -Severity 3
+            # Determine the installation file type and install
+            $InstallationFile = Get-ChildItem -Path "$dirFiles\PreRequisites\$($Software.Value.InstallationFile)"
+            if ($InstallationFile -like "*.exe") {
+                Show-InstallationProgress "Installing $Name"
+                Execute-Process -Path $InstallationFile.FullName -Parameters $Software.Value.Parameters
+            } elseif ($InstallationFile -like "*.msi") {
+                Show-InstallationProgress "Installing $Name"
+                Execute-MSI -Action Install -Path $InstallationFile.FullName -AddParameters $Software.Value.Parameters
+            } elseif ($InstallationFile -like "Winget") {
+                Show-InstallationProgress "Installing $Name"
+                Invoke-Winget -Action Install -AppWizName "$($Name)" -ID "$($InstallationFile.WingetID)" -Scope "Machine"
+            } elseif ($InstallationFile -like "*.msixbundle") {
+                Show-InstallationProgress "Installing $Name"
+                Add-AppxProvisionedPackage -Online -PackagePath "$($InstallationFile.FullName)" $Software.Value.Parameters
+            } else {
+                Write-Log -Message "Installation file for $Name not found." -Severity 3
+            }
         }
     }
 }
@@ -620,7 +625,6 @@ function Get-DownloadFile {
         }
     }
 }
-
 ##*===============================================
 ##* END FUNCTION LISTINGS
 ##*===============================================
