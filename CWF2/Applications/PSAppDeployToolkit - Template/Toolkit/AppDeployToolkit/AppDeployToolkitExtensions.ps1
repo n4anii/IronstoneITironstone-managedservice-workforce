@@ -195,7 +195,6 @@ function Invoke-Winget {
             "Microsoft.DesktopAppInstaller" = @{
                 Version = "1.24.0.0"
                 InstallationFile = "Microsoft.DesktopAppInstaller.msixbundle"
-                Parameters = "-SkipLicense"
                 URL = "https://aka.ms/getwinget"
             }
         }
@@ -436,7 +435,6 @@ function Test-InstallPrereqs {
             "Microsoft.DesktopAppInstaller" = @{
                 Version = "1.24.0.0"
                 InstallationFile = "Microsoft.DesktopAppInstaller.msixbundle"
-                Parameters = "-SkipLicense"
                 URL = "https://aka.ms/getwinget"
             }
         }
@@ -516,7 +514,11 @@ function Test-InstallPrereqs {
                 Invoke-Winget -Action Install -AppWizName "$($Name)" -ID "$($InstallationFile.WingetID)" -Scope "Machine"
             } elseif ($InstallationFile -like "*.msixbundle") {
                 Show-InstallationProgress "Installing $Name"
-                Add-AppxProvisionedPackage -Online -PackagePath "$($InstallationFile.FullName)" $Software.Value.Parameters
+                if ($Software.Value.Parameters) {
+                    Add-AppxProvisionedPackage -Online -PackagePath "$($InstallationFile.FullName)" -SkipLicense "$($Software.Value.Parameters)"
+                } else {
+                    Add-AppxProvisionedPackage -Online -PackagePath "$($InstallationFile.FullName)" -SkipLicense
+                }
             } else {
                 Write-Log -Message "Installation file for $Name not found." -Severity 3
             }
@@ -581,6 +583,7 @@ function Get-DownloadFile {
         [hashtable]$AdditionalHeaders = @{}
     )
 
+    Write-Log -Message "Starting Get-DownloadFile function."
     if (-not (Test-Path $DestinationFolder)) {
         Write-host "Creating folder $DestinationFolder"
         New-Item -ItemType Directory -Path $DestinationFolder -Force | Out-Null
