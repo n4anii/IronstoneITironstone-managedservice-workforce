@@ -192,6 +192,12 @@ function Invoke-Winget {
                 Parameters = "/install /passive /norestart"
                 URL = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
             }
+            "Microsoft.DesktopAppInstaller" = @{
+                Version = "1.24.0.0"
+                InstallationFile = "Microsoft.DesktopAppInstaller.msixbundle"
+                Parameters = "-SkipLicense"
+                URL = "https://aka.ms/getwinget"
+            }
         }
         Test-InstallPrereqs -RequiredPrereqs $RequiredPrereqs
         
