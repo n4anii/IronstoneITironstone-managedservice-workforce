@@ -262,7 +262,16 @@ function Invoke-Winget {
                     Write-Log -Message "Executing: $($WingetDirectory)\Winget.exe $($wingetParams -join ' ')"
                     $InstallOutput = & .\Winget.exe @wingetParams
                     Write-Log -Message "Command output: $InstallOutput"
-                } else {
+                } 
+                elseif ($InstallOutput -match "0x8a15003b.") {
+                    Write-Log -Message "Specific error caught: $InstallOutput"
+                    Write-Log -Message "MS Store source error detected, retrying with winget source only"
+                    $wingetParams += @("--source", "winget")
+                    Write-Log -Message "Executing: $($WingetDirectory)\Winget.exe $($wingetParams -join ' ')"
+                    $InstallOutput = & .\Winget.exe @wingetParams
+                    Write-Log -Message "Command output: $InstallOutput"
+                }
+                else {
                     Write-Log -Message "Command output: $InstallOutput"
                 }
             }
