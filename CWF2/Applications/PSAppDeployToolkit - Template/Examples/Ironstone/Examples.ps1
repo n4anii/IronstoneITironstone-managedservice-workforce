@@ -60,6 +60,11 @@ $RequiredPrereqs = [PSCustomObject]@{
         InstallationFile = "Winget"
         WingetID = "7zip.7.zip"
     }
+    "Microsoft.DesktopAppInstaller" = @{
+        Version = "1.24.0.0"
+        InstallationFile = "Microsoft.DesktopAppInstaller.msixbundle"
+        URL = "https://aka.ms/getwinget"
+    }
 }
 
 Test-InstallPrereqs -RequiredPrereqs $RequiredPrereqs
@@ -100,4 +105,8 @@ $Cleanups = @(
     "Example_C:\Users\*\AppData\Local\AcrobatR"
 )
 Remove-Leftovers -Cleanups $Cleanups
+#endregion
+
+#region Download stuff from the internet 
+    Get-DownloadFile -URL "https://example.com/file.zip" -DestinationFolder "$dirFiles" -FileName "file.zip"
 #endregion

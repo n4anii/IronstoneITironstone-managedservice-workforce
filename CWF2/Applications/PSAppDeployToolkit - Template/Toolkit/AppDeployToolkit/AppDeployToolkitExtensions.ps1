@@ -158,11 +158,11 @@ function Invoke-Winget {
         Invoke-Winget -Action Uninstall -AppWizName "7-Zip" -ID "7zip.7zip" -Scope Machine
 
     .NOTES
-        Version: 1.4.0.0
+        Version: 1.5.0.0
         Author: Herman Bergsløkken / IronstoneIT
         Creation Date: 2024-09-12
-        Changed: 2024-12-05
-        Purpose Change: Added better handling for errors and logging
+        Changed: 2025-07-01
+        Purpose Change: Added support for Winget source error and removed --scope Machine when uninstalling + Sandbox
     #>
     [CmdletBinding()]
     param (
