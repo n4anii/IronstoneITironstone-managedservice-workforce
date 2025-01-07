@@ -133,7 +133,7 @@ SET /P WingetID=Enter Winget ID:
 ECHO install_silent_winget_psexec
 IF "%_SANDBOX%"=="Yes" (
     ECHO Machine is detected as Sandbox
-    ECHO Friendly warning: Winget is not supported in Sandbox. So this will fail!
+    ECHO Friendly warning: Winget should work in Sandbox, but it's flaky
     "%~dp0PsExec64.exe" \\localhost /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru -AppWizName %WingetAppWizName% -WingetID %WingetID% 
 ) ELSE (
     "%~dp0PsExec64.exe" /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Install -DeployMode Silent -AllowRebootPassThru -AppWizName %WingetAppWizName% -WingetID %WingetID% 
@@ -230,7 +230,7 @@ SET /P WingetID=Enter Winget ID:
 ECHO uninstall_silent_winget_psexec
 IF "%_SANDBOX%"=="Yes" (
     ECHO Machine is detected as Sandbox
-    ECHO Friendly warning: Winget is not supported in Sandbox. So this will fail!
+    ECHO Friendly warning: Winget should work in Sandbox, but it's flaky
     "%~dp0PsExec64.exe" \\localhost /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Uninstall -DeployMode Silent -AllowRebootPassThru -AppWizName %WingetAppWizName% -WingetID %WingetID% 
 ) ELSE (
     "%~dp0PsExec64.exe" /accepteula /s "%~dp0Toolkit\Deploy-Application.exe" -DeploymentType Uninstall -DeployMode Silent -AllowRebootPassThru -AppWizName %WingetAppWizName% -WingetID %WingetID% 
