@@ -602,7 +602,7 @@ function Get-DownloadFile {
     Write-Log -Message "Destination path is $DestinationPath"
 
     try {
-            Write-Log -Message "Attempting download using BITS..."
+            Write-Log -Message "Attempting download using BITS from $($URL)"
             $request = [System.Net.WebRequest]::Create($URL)
             $request.AllowAutoRedirect = $true
             $response = $request.GetResponse()
