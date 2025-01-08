@@ -594,15 +594,15 @@ function Get-DownloadFile {
 
     Write-Log -Message "Starting Get-DownloadFile function."
     if (-not (Test-Path $DestinationFolder)) {
-        Write-host "Creating folder $DestinationFolder"
+        Write-Log -Message "Creating folder $DestinationFolder"
         New-Item -ItemType Directory -Path $DestinationFolder -Force | Out-Null
     }
 
     $DestinationPath = Join-Path $DestinationFolder $FileName
-    Write-host "Destination path is $DestinationPath"
+    Write-Log -Message "Destination path is $DestinationPath"
 
     try {
-            Write-host "Attempting download using BITS..."
+            Write-Log -Message "Attempting download using BITS..."
             $request = [System.Net.WebRequest]::Create($URL)
             $request.AllowAutoRedirect = $true
             $response = $request.GetResponse()
@@ -610,12 +610,12 @@ function Get-DownloadFile {
             $response.Dispose()
 
             Start-BitsTransfer -Source $resolvedUrl -Destination $DestinationPath -DisplayName "File Download" -Priority High
-            Write-host "Download completed successfully using BITS."
+            Write-Log -Message "Download completed successfully using BITS."
             return $DestinationPath
         }
         catch {
-            Write-host "BITS transfer failed: $($_.Exception.Message)"
-            Write-host "Falling back to WebClient..."
+            Write-Log -Message "BITS transfer failed: $($_.Exception.Message)"
+            Write-Log -Message "Falling back to WebClient..."
         }
     
     try {
@@ -630,11 +630,11 @@ function Get-DownloadFile {
         }
 
         $webClient.DownloadFile($URL, $DestinationPath)
-        Write-host "Download completed successfully using WebClient."
+        Write-Log -Message "Download completed successfully using WebClient."
         return $DestinationPath
     }
     catch {
-        Write-host "Download failed. Error: $($_.Exception.Message)"
+        Write-Log -Message "Download failed. Error: $($_.Exception.Message)"
         return $false
     }
     finally {
