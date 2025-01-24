@@ -389,30 +389,44 @@ Function Remove-Leftovers {
         Call from Deploy-Application.ps1 like this Remove-Leftovers -Cleanups $Cleanups
  
     .NOTES
-        Version: 1.1.0.0
+        Version: 1.2.0.0
         Author: Herman Bergsløkken / IronstoneIT
         Creation Date: 2024.06.04
-        Date Modified: 2024.09.30
-        Purpose/Change: Updated to handle multiple resolved paths and added enhanced error handling
+        Date Modified: 2025.01.24
+        Purpose/Change: Added better support for registry
     #>
     param(
         [Parameter(Mandatory=$true)]
         [array]$Cleanups
     )
-
     Write-Log -Message "Starting Remove-Leftovers function."
     foreach ($Cleanup in $Cleanups) {
-        $ResolvedPaths = Get-ChildItem -Path $Cleanup -ErrorAction SilentlyContinue
-        foreach ($Path in $ResolvedPaths) {
-            if (Test-Path -Path $Path.FullName) {
-                Write-Log -Message "Removing $($Path.FullName)"
+        # Check if the path is a registry path
+        if ($Cleanup -match '^(HKLM:|HKCU:|HKCR:|HKU:|HKCC:)') {
+            if (Test-Path -Path $Cleanup) {
+                Write-Log -Message "Removing registry key $Cleanup"
                 Try {
-                    Remove-Item -Path $Path.FullName -Recurse -Force -ErrorAction Stop
+                    Remove-Item -Path $Cleanup -Recurse -Force -ErrorAction Stop
                 } Catch {
-                    Write-Log -Message "Error removing $($Path.FullName): $_"
+                    Write-Log -Message "Error removing registry key $Cleanup : $_"
                 }
             } else {
-                Write-Log -Message "$($Path.FullName) does not exist on the target computer"
+                Write-Log -Message "Registry key $Cleanup does not exist"
+            }
+        } else {
+            # Existing file/folder path handling
+            $ResolvedPaths = Get-ChildItem -Path $Cleanup -ErrorAction SilentlyContinue
+            foreach ($Path in $ResolvedPaths) {
+                if (Test-Path -Path $Path.FullName) {
+                    Write-Log -Message "Removing $($Path.FullName)"
+                    Try {
+                        Remove-Item -Path $Path.FullName -Recurse -Force -ErrorAction Stop
+                    } Catch {
+                        Write-Log -Message "Error removing $($Path.FullName): $_"
+                    }
+                } else {
+                    Write-Log -Message "$($Path.FullName) does not exist on the target computer"
+                }
             }
         }
     }
