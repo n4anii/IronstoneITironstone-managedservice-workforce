@@ -6,13 +6,13 @@ Get-Variable | Where-Object Name -Match 'DetectionDetails[0-9]' | Remove-Variabl
 $DetectionDetails1 = @{
     DisplayName = "Lenovo Vantage Service"
     DesiredVersion = "4.0.52.0"
-    Type = "Programs" # Use Programs or msi (Get-Package -Name "Application Name") and look at "ProviderName"
+    Type = "Programs" # Type is either Programs or msi. Check with (Get-Package -Name "*Application Name*") and look at "ProviderName". "Application Name" as visible in appwiz.cpl
 }
 
 $DetectionDetails2 = @{
     DisplayName = "*E046963F.LenovoSettingsforEnterprise*"
     DesiredVersion = "10.2401.29.0"
-    Type = "AppX"
+    Type = "AppX" # (Get-AppxPackage -AllUsers "*Application Name*" | select name,version) (Only visible in "Installed Apps" and not in appwiz.cpl)
 }
 
 $DetectionDetails3 = @{
