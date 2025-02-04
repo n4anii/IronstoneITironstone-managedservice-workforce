@@ -1,32 +1,45 @@
 $ErrorActionPreference = 'SilentlyContinue'
-Get-Variable | Where-Object Name -Match 'DetectionDetails[0-9]' | Remove-Variable -Force
+Get-Variable | Where-Object Name -Match 'DetectionDetails[0-9][A-Z]' | Remove-Variable -Force
 
 # Define the application details as hashtables
 # Delete the $DetectionDetails-variables that are not needed
-$DetectionDetails1 = @{
+# Group detection method by number. Example: 1A and 1B will be grouped together where both needs to be true. 
+# Adding a new group such as 2A and 2B will result in OR logic. Either group 1AB or group 2AB needs to be true.
+
+$DetectionDetails1A = @{
     DisplayName = "Lenovo Vantage Service"
     DesiredVersion = "4.0.52.0"
     Type = "Programs" # Type is either Programs or msi. Check with (Get-Package -Name "*Application Name*") and look at "ProviderName". "Application Name" as visible in appwiz.cpl
 }
 
-$DetectionDetails2 = @{
+$DetectionDetails2A = @{
     DisplayName = "*E046963F.LenovoSettingsforEnterprise*"
     DesiredVersion = "10.2401.29.0"
     Type = "AppX" # (Get-AppxPackage -AllUsers "*Application Name*" | select name,version) (Only visible in "Installed Apps" and not in appwiz.cpl)
 }
 
-$DetectionDetails3 = @{
+$DetectionDetails3A = @{
     RegistryPath = "HKLM:\SOFTWARE\WOW6432Node\Lenovo\SystemUpdateAddin\Logs"
     ValueName = "EnableLogs"
     ExpectedValue = "True"
     Type = "Registry"
 }
 
-$DetectionDetails4 = @{
+$DetectionDetails4A = @{
     FilePath = "C:\Users\*\Desktop\short.rdp" # Wildcards are supported
     #DesiredVersion = "1.0.0.0" # Uncomment if you need to check for a specific version
     #DesiredDate = (Get-Date "2024-10-07T00:00:00Z").ToUniversalTime() # Uncomment if you need to check for a specific date
     Type = "File" #File or Folder
+}
+
+# Group detection details by their group number
+$groupedDetectionDetails = @{}
+Get-Variable | Where-Object { $_.Name -match 'DetectionDetails[0-9][A-Z]' } | ForEach-Object {
+    $groupNumber = $_.Name -replace 'DetectionDetails([0-9])[A-Z]', '$1'
+    if (-not $groupedDetectionDetails.ContainsKey($groupNumber)) {
+        $groupedDetectionDetails[$groupNumber] = @()
+    }
+    $groupedDetectionDetails[$groupNumber] += Get-Variable -Name $_.Name -ValueOnly
 }
 
 function Test-EXEInstalled {
@@ -100,25 +113,29 @@ function Test-FileExists {
     return $false
 }
 function Test-AppsInstalled {
-    # Find all $DetectionDetails variables
-    $DetectionDetailsVariables = Get-Variable | Where-Object { $_.Name -match 'DetectionDetails[0-9]' }
-    $result = $true
-    # Iterate over each $DetectionDetails variable
-    foreach ($appVar in $DetectionDetailsVariables) {
-        $DetectionDetails = $appVar.Value
-        if (($DetectionDetails["Type"] -eq "Programs") -or ($DetectionDetails["Type"] -eq "MSI")) {
-            $result = $result -and (Test-EXEInstalled -DetectionDetails $DetectionDetails)
-        } elseif ($DetectionDetails["Type"] -eq "AppX") {
-            $result = $result -and (Test-AppXInstalled -DetectionDetails $DetectionDetails)
-        } elseif ($DetectionDetails["Type"] -eq "Registry") {
-            $result = $result -and (Test-RegistryKey -DetectionDetails $DetectionDetails)
-        } elseif (($DetectionDetails["Type"] -eq "File") -or ($DetectionDetails["Type"] -eq "Folder")) {
-            $result = $result -and (Test-FileExists -DetectionDetails $DetectionDetails)
+    # Iterate over each group of $DetectionDetails variables
+    $overallResult = $false
+    foreach ($group in $groupedDetectionDetails.Keys) {
+        $groupResult = $true
+        foreach ($detectionDetail in $groupedDetectionDetails[$group]) {
+            if (($detectionDetail["Type"] -eq "Programs") -or ($detectionDetail["Type"] -eq "MSI")) {
+                $groupResult = $groupResult -and (Test-EXEInstalled -DetectionDetails $detectionDetail)
+            } elseif ($detectionDetail["Type"] -eq "AppX") {
+                $groupResult = $groupResult -and (Test-AppXInstalled -DetectionDetails $detectionDetail)
+            } elseif ($detectionDetail["Type"] -eq "Registry") {
+                $groupResult = $groupResult -and (Test-RegistryKey -DetectionDetails $detectionDetail)
+            } elseif (($detectionDetail["Type"] -eq "File") -or ($detectionDetail["Type"] -eq "Folder")) {
+                $groupResult = $groupResult -and (Test-FileExists -DetectionDetails $detectionDetail)
+            }
+        }
+        if ($groupResult) {
+            $overallResult = $true
+            break
         }
     }
 
     # Return the final result
-    return $result
+    return $overallResult
 }
 
 # Invoke the function to Test all applications
