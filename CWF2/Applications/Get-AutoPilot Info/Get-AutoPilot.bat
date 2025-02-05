@@ -29,4 +29,4 @@ systeminfo > "%~dp0%computername%.txt"
 tpmtool getdeviceinformation >> "%~dp0%computername%.txt"
 
 :: Run the PowerShell script
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0GetAutopilotInfo.ps1"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0GetAutopilotInfo.ps1" -Confirm:$false
